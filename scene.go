@@ -4,9 +4,12 @@ import (
 	_ "embed"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"time"
 )
 
 type clickMsg bool
+
+type tickMsg time.Time
 
 //go:embed resources/duck-start.txt
 var duckStart string
@@ -16,7 +19,7 @@ var backgroundPlay string
 
 func newScene() scene {
 	return scene{
-		duck:      blockDuck{},
+		board:     newBoard(),
 		statusBar: statusBar{},
 	}
 }
@@ -28,13 +31,15 @@ type scene struct {
 	Y         int
 	state     bool
 	statusBar tea.Model
-	duck      tea.Model
+
+	board tea.Model
 }
 
 func (s scene) Init() tea.Cmd {
 	return tea.Batch(
-		s.duck.Init(),
 		s.statusBar.Init(),
+		s.board.Init(),
+		doTick(),
 	)
 }
 
@@ -44,11 +49,17 @@ func (s scene) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds []tea.Cmd
 	)
 
-	s.duck, cmd = s.duck.Update(msg)
-	cmds = append(cmds, cmd)
-
 	switch _msg := msg.(type) {
 
+	case tickMsg:
+		if s.state {
+			s.board, cmd = s.board.Update(_msg)
+			cmds = append(cmds, cmd)
+			cmds = append(cmds, doTick())
+		}
+	case clickMsg:
+		s.statusBar, cmd = s.statusBar.Update(clickMsg(true))
+		//s.board, cmd = s.board.Update(clickMsg(true))
 	case tea.MouseMsg:
 		s.X, s.Y = _msg.X, _msg.Y
 
@@ -57,7 +68,8 @@ func (s scene) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if !s.state {
 				s.state = true
 			} else {
-				s.statusBar, cmd = s.statusBar.Update(clickMsg(true))
+				s.board, cmd = s.board.Update(_msg)
+
 				cmds = append(cmds, cmd)
 			}
 		}
@@ -87,5 +99,11 @@ func (s scene) View() string {
 	}
 
 	// Place a paragraph in the bottom right corner of a 30x80 cell space.
-	return lipgloss.Place(s.width, s.height, lipgloss.Right, lipgloss.Bottom, s.statusBar.View())
+	return lipgloss.JoinVertical(lipgloss.Left, s.board.View(), s.statusBar.View())
+}
+
+func doTick() tea.Cmd {
+	return tea.Tick(3*time.Second, func(t time.Time) tea.Msg {
+		return tickMsg(t)
+	})
 }
