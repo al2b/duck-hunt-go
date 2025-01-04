@@ -1,17 +1,40 @@
 package main
 
 import (
-	"fmt"
-	tea "github.com/charmbracelet/bubbletea"
-	"os"
+	"duck-hunt-go/engine"
+	"duck-hunt-go/engine/log"
+	"duck-hunt-go/scene"
+	"github.com/alecthomas/kong"
+	tea "github.com/charmbracelet/bubbletea/v2"
 )
 
-func main() {
+var cli struct {
+	Log string `type:"path" short:"l" env:"LOG" help:"Log to file path." placeholder:"PATH"`
+}
 
-	p := tea.NewProgram(newScene(), tea.WithAltScreen(), tea.WithMouseAllMotion())
-	if _, err := p.Run(); err != nil {
-		fmt.Printf("there's been an error: %v", err)
-		os.Exit(1)
+func main() {
+	kong.Parse(&cli,
+		kong.Name("duck-hunt"),
+		kong.Description("A free adaptation of duck hunt in your terminal"),
+		kong.UsageOnError(),
+	)
+
+	var options []engine.Option
+
+	// Log
+	if cli.Log != "" {
+		options = append(options, engine.WithLogHandler(
+			log.MustNewFileHandler(cli.Log),
+		))
 	}
-	fmt.Printf("Goodbye Duck")
+
+	program := tea.NewProgram(
+		engine.New(
+			scene.New(), options...,
+		),
+	)
+
+	if _, err := program.Run(); err != nil {
+		panic(err)
+	}
 }
