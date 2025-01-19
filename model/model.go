@@ -15,26 +15,30 @@ func New() *Model {
 }
 
 type Model struct {
+	model engine.Model
 	intro engine.Model
 	game  engine.Model
 }
 
 func (m *Model) Init() {
+	m.intro.Init()
 	m.game.Init()
+
+	m.model = m.game
 }
 
 func (m *Model) Update(msgs []tea.Msg) {
-	m.game.Update(msgs)
+	m.model.Update(msgs)
 }
 
 func (m *Model) Bodies() (bodies engine.Bodies) {
-	return m.game.Bodies()
+	return m.model.Bodies()
 }
 
 func (m *Model) Sprites8() (sprites engine.Sprites8) {
-	return m.game.Sprites8()
+	return m.model.Sprites8()
 }
 
 func (m *Model) Sprites24() (sprites engine.Sprites24) {
-	return m.game.Sprites24()
+	return m.model.Sprites24()
 }
