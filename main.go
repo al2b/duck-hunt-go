@@ -2,17 +2,17 @@ package main
 
 import (
 	"duck-hunt-go/engine"
+	"duck-hunt-go/model"
 	"fmt"
-	"os"
-
 	tea "github.com/charmbracelet/bubbletea/v2"
+	"os"
 )
 
 func main() {
 
 	p := tea.NewProgram(
 		engine.New(
-			NewGame(),
+			model.New(),
 		),
 		tea.WithAltScreen(),
 		tea.WithMouseAllMotion(),
