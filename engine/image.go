@@ -8,6 +8,7 @@ import (
 	"image/color"
 	"image/draw"
 	"image/png"
+	"math"
 )
 
 func LoadImage8(data []byte) (image.PalettedImage, error) {
@@ -140,8 +141,8 @@ func (i *ImageUniform8) Convert(color.Color) color.Color {
 
 func (i *ImageUniform8) Bounds() image.Rectangle {
 	return image.Rectangle{
-		Min: image.Point{X: -1e9, Y: -1e9},
-		Max: image.Point{X: 1e9, Y: 1e9},
+		Min: image.Point{X: math.MinInt, Y: math.MinInt},
+		Max: image.Point{X: math.MaxInt, Y: math.MaxInt},
 	}
 }
 

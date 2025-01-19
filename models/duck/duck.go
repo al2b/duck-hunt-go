@@ -10,8 +10,7 @@ import (
 func New() *Duck {
 	// Model
 	m := &Duck{
-		position:  engine.NewPosition(),
-		direction: engine.NewDirection(),
+		position: engine.NewPosition(),
 	}
 
 	// Body
@@ -26,8 +25,8 @@ func New() *Duck {
 type Duck struct {
 	// Position
 	position *engine.Position
-	// Direction
-	direction *engine.Direction
+	// Movement
+	movement engine.Vector
 	// Animation
 	animationFrame    int
 	animationVelocity int
@@ -39,11 +38,11 @@ func (m *Duck) Init() {
 	// Position
 	m.position.X = 85 + (rand.Float64() * 85)
 	m.position.Y = 160
-	m.position.Y = 100
 	m.position.Z = 5 + (rand.Float64() * 20)
-	// Direction
-	m.direction.Angle = (315 + rand.IntN(90)) % 360
-	m.direction.Velocity = 1
+	// Movement
+	m.movement = engine.VectorFromAngle(
+		45 + (rand.Float64() * 90),
+	).Scale(1)
 	// Animation
 	m.animationFrame = 0
 	m.animationVelocity = 6
@@ -56,22 +55,26 @@ func (m *Duck) Update(msgs []tea.Msg) {
 		case tea.MouseMotionMsg:
 			m.position.X = float64(msg.X)
 			m.position.Y = float64(msg.Y)
-		case tea.KeyMsg:
+		case tea.KeyPressMsg:
 			switch key := msg.Key(); key.Code {
 			case tea.KeyRight:
-				m.direction.RotateUp(10)
+				m.movement = m.movement.Rotate(-10)
 			case tea.KeyLeft:
-				m.direction.RotateDown(10)
+				m.movement = m.movement.Rotate(10)
 			case tea.KeyUp:
 				m.position.DepthUp(10)
 			case tea.KeyDown:
 				m.position.DepthDown(10)
 			}
+			switch msg.String() {
+			case "r":
+				m.Init()
+			}
 		}
 	}
 
-	// Position
-	m.position.Move(m.direction)
+	// Move position
+	m.position.Move(m.movement)
 
 	// Animation
 	m.animationFrame = (m.animationFrame + 1) % (len(animationFrames[m.animation()]) * m.animationVelocity)
@@ -146,24 +149,24 @@ func (m *Duck) Sprites24() (sprites engine.Sprites24) {
 }
 
 func (m *Duck) animation() engine.Animation {
-	angle := m.direction.Angle
+	a := m.movement.Angle()
 
 	switch true {
 	default:
-		return animationFlyTop
-	case 23 <= angle && angle <= 67:
-		return animationFlyTopRight
-	case 68 <= angle && angle <= 112:
 		return animationFlyRight
-	case 113 <= angle && angle <= 157:
-		return animationFlyBottomRight
-	case 158 <= angle && angle <= 202:
-		return animationFlyBottom
-	case 203 <= angle && angle <= 247:
-		return animationFlyBottomLeft
-	case 248 <= angle && angle <= 292:
-		return animationFlyLeft
-	case 293 <= angle && angle <= 337:
+	case 23 <= a && a <= 67:
+		return animationFlyTopRight
+	case 68 <= a && a <= 112:
+		return animationFlyTop
+	case 113 <= a && a <= 157:
 		return animationFlyTopLeft
+	case 158 <= a && a <= 202:
+		return animationFlyLeft
+	case 203 <= a && a <= 247:
+		return animationFlyBottomLeft
+	case 248 <= a && a <= 292:
+		return animationFlyBottom
+	case 293 <= a && a <= 337:
+		return animationFlyBottomRight
 	}
 }
