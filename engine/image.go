@@ -8,6 +8,7 @@ import (
 	"image/color"
 	"image/draw"
 	"image/png"
+	"io/fs"
 	"math"
 )
 
@@ -25,6 +26,14 @@ func LoadImage8(data []byte) (image.PalettedImage, error) {
 	return img8, nil
 }
 
+func LoadImage8File(fs fs.ReadFileFS, path string) (image.PalettedImage, error) {
+	data, err := fs.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	return LoadImage8(data)
+}
+
 func LoadImage24(data []byte) (image.Image, error) {
 	img, err := png.Decode(bytes.NewReader(data))
 	if err != nil {
@@ -37,6 +46,14 @@ func LoadImage24(data []byte) (image.Image, error) {
 	}
 
 	return img24, nil
+}
+
+func LoadImage24File(fs fs.ReadFileFS, path string) (image.Image, error) {
+	data, err := fs.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	return LoadImage24(data)
 }
 
 type imageSet func(x, y int)
