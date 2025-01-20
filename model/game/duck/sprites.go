@@ -2,7 +2,7 @@ package duck
 
 import (
 	"duck-hunt-go/engine"
-	_ "embed"
+	"embed"
 )
 
 const (
@@ -10,14 +10,13 @@ const (
 	spriteHeight = 32
 )
 
+//go:embed sprites/*
+var sprites embed.FS
+
 var (
-	//go:embed sprites.8.png
-	sprites8File  []byte
-	sprites8Image = engine.Must(engine.LoadImage8(sprites8File))
+	sprites8Image = engine.Must(engine.LoadImage8File(sprites, "sprites/duck.8.png"))
 )
 
 var (
-	//go:embed sprites.24.png
-	sprites24File  []byte
-	sprites24Image = engine.Must(engine.LoadImage24(sprites24File))
+	sprites24Image = engine.Must(engine.LoadImage24File(sprites, "sprites/duck.24.png"))
 )
