@@ -7,29 +7,23 @@ import (
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
 
-type State int
-
-const (
-	StateIntro State = iota
-	StateGame
-)
-
-var models = map[State]engine.Model{
-	StateIntro: intro.New(),
-	StateGame:  game.New(),
-}
-
 func New() *Model {
-	return &Model{}
+	return &Model{
+		models: StateModels{
+			StateIntro: intro.New(),
+			StateGame:  game.New(),
+		},
+	}
 }
 
 type Model struct {
-	state State
+	models StateModels
+	state  State
 }
 
 func (m *Model) Init() {
 	m.state = StateGame
-	models[m.state].Init()
+	m.models[m.state].Init()
 }
 
 func (m *Model) Update(msgs []tea.Msg) {
@@ -45,23 +39,23 @@ func (m *Model) Update(msgs []tea.Msg) {
 				case StateGame:
 					m.state = StateIntro
 				}
-				models[m.state].Init()
+				m.models[m.state].Init()
 				return
 			}
 		}
 	}
 
-	models[m.state].Update(msgs)
+	m.models[m.state].Update(msgs)
 }
 
 func (m *Model) Bodies() (bodies engine.Bodies) {
-	return models[m.state].Bodies()
+	return m.models[m.state].Bodies()
 }
 
 func (m *Model) Sprites8() (sprites engine.Sprites8) {
-	return models[m.state].Sprites8()
+	return m.models[m.state].Sprites8()
 }
 
 func (m *Model) Sprites24() (sprites engine.Sprites24) {
-	return models[m.state].Sprites24()
+	return m.models[m.state].Sprites24()
 }

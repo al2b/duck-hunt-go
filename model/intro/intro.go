@@ -11,20 +11,22 @@ func New() *Intro {
 
 type Intro struct{}
 
-func (m Intro) Init() {}
+func (m *Intro) Init() {}
 
-func (m Intro) Update(_ []tea.Msg) {}
+func (m *Intro) Update(_ []tea.Msg) {}
 
-func (m Intro) Bodies() engine.Bodies { return nil }
+func (m *Intro) Bodies() engine.Bodies {
+	return nil
+}
 
-func (m Intro) Sprites8() (sprites engine.Sprites8) {
+func (m *Intro) Sprites8() (sprites engine.Sprites8) {
 	return sprites.Append(
-		sprites8["background"],
+		sprite8,
 	)
 }
 
-func (m Intro) Sprites24() (sprites engine.Sprites24) {
+func (m *Intro) Sprites24() (sprites engine.Sprites24) {
 	return sprites.Append(
-		sprites24["background"],
+		sprite24,
 	)
 }

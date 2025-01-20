@@ -66,10 +66,6 @@ func (m *Duck) Update(msgs []tea.Msg) {
 			case tea.KeyDown:
 				m.position.DepthDown(10)
 			}
-			switch msg.String() {
-			case "r":
-				m.Init()
-			}
 		}
 	}
 
