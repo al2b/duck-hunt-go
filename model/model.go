@@ -21,31 +21,28 @@ type Model struct {
 	state  State
 }
 
-func (m *Model) Init() {
+func (m *Model) Init() tea.Cmd {
 	m.state = StateGame
-	m.models[m.state].Init()
+	return m.models[m.state].Init()
 }
 
-func (m *Model) Update(msgs []tea.Msg) {
-	// Messages
-	for _, msg := range msgs {
-		switch msg := msg.(type) {
-		case tea.KeyPressMsg:
-			switch msg.String() {
-			case "s":
-				switch m.state {
-				case StateIntro:
-					m.state = StateGame
-				case StateGame:
-					m.state = StateIntro
-				}
-				m.models[m.state].Init()
-				return
+func (m *Model) Update(msg tea.Msg) tea.Cmd {
+	switch msg := msg.(type) {
+	case tea.KeyPressMsg:
+		switch msg.String() {
+		// Switch state
+		case "s":
+			switch m.state {
+			case StateIntro:
+				m.state = StateGame
+			case StateGame:
+				m.state = StateIntro
 			}
+			return m.models[m.state].Init()
 		}
 	}
 
-	m.models[m.state].Update(msgs)
+	return m.models[m.state].Update(msg)
 }
 
 func (m *Model) Bodies() (bodies engine.Bodies) {

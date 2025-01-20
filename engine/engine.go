@@ -39,8 +39,10 @@ type Engine struct {
 }
 
 func (m Engine) Init() (tea.Model, tea.Cmd) {
-	m.model.Init()
-	return m, tick()
+	return m, tea.Batch(
+		tick(),
+		m.model.Init(),
+	)
 }
 
 func (m Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -110,8 +112,10 @@ func (m Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		})
 	case TickMsg:
 		msgs := append(m.msgs, msg)
+		for _, msg := range msgs {
+			cmds = append(cmds, m.model.Update(msg))
+		}
 		cmds = append(cmds, func() tea.Msg {
-			m.model.Update(msgs)
 			return ModelUpdatedMsg{}
 		})
 		m.msgs = nil

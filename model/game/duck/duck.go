@@ -34,7 +34,7 @@ type Duck struct {
 	body *engine.Body
 }
 
-func (m *Duck) Init() {
+func (m *Duck) Init() tea.Cmd {
 	// Position
 	m.position.X = 85 + (rand.Float64() * 85)
 	m.position.Y = 160
@@ -46,34 +46,34 @@ func (m *Duck) Init() {
 	// Animation
 	m.animationFrame = 0
 	m.animationVelocity = 6
+
+	return nil
 }
 
-func (m *Duck) Update(msgs []tea.Msg) {
-	// Messages
-	for _, msg := range msgs {
-		switch msg := msg.(type) {
-		case tea.MouseMotionMsg:
-			m.position.X = float64(msg.X)
-			m.position.Y = float64(msg.Y)
-		case tea.KeyPressMsg:
-			switch key := msg.Key(); key.Code {
-			case tea.KeyRight:
-				m.movement = m.movement.Rotate(-10)
-			case tea.KeyLeft:
-				m.movement = m.movement.Rotate(10)
-			case tea.KeyUp:
-				m.position.DepthUp(10)
-			case tea.KeyDown:
-				m.position.DepthDown(10)
-			}
+func (m *Duck) Update(msg tea.Msg) tea.Cmd {
+	switch msg := msg.(type) {
+	case tea.MouseMotionMsg:
+		m.position.X = float64(msg.X)
+		m.position.Y = float64(msg.Y)
+	case tea.KeyPressMsg:
+		switch key := msg.Key(); key.Code {
+		case tea.KeyRight:
+			m.movement = m.movement.Rotate(-10)
+		case tea.KeyLeft:
+			m.movement = m.movement.Rotate(10)
+		case tea.KeyUp:
+			m.position.DepthUp(10)
+		case tea.KeyDown:
+			m.position.DepthDown(10)
 		}
+	case engine.TickMsg:
+		// Position
+		m.position.Move(m.movement)
+		// Animation
+		m.animationFrame = (m.animationFrame + 1) % (len(animationFrames[m.animation()]) * m.animationVelocity)
 	}
 
-	// Move position
-	m.position.Move(m.movement)
-
-	// Animation
-	m.animationFrame = (m.animationFrame + 1) % (len(animationFrames[m.animation()]) * m.animationVelocity)
+	return nil
 }
 
 func (m *Duck) Bodies() (bodies engine.Bodies) {

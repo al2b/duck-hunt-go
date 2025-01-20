@@ -11,9 +11,13 @@ func New() *Intro {
 
 type Intro struct{}
 
-func (m *Intro) Init() {}
+func (m *Intro) Init() tea.Cmd {
+	return nil
+}
 
-func (m *Intro) Update(_ []tea.Msg) {}
+func (m *Intro) Update(_ tea.Msg) tea.Cmd {
+	return nil
+}
 
 func (m *Intro) Bodies() engine.Bodies {
 	return nil

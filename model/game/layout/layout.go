@@ -48,9 +48,13 @@ type Layout struct {
 	shrubBody  *engine.Body
 }
 
-func (m *Layout) Init() {}
+func (m *Layout) Init() tea.Cmd {
+	return nil
+}
 
-func (m *Layout) Update(_ []tea.Msg) {}
+func (m *Layout) Update(_ tea.Msg) tea.Cmd {
+	return nil
+}
 
 func (m *Layout) Bodies() (bodies engine.Bodies) {
 	return bodies.Append(

@@ -32,20 +32,21 @@ type Gun struct {
 	body *engine.Body
 }
 
-func (m *Gun) Init() {
+func (m *Gun) Init() tea.Cmd {
 	// Position
 	m.position.Z = 1000
+
+	return nil
 }
 
-func (m *Gun) Update(msgs []tea.Msg) {
-	// Messages
-	for _, msg := range msgs {
-		switch msg := msg.(type) {
-		case tea.MouseMotionMsg:
-			m.position.X = float64(msg.X - (width / 2))
-			m.position.Y = float64(msg.Y - (height / 2))
-		}
+func (m *Gun) Update(msg tea.Msg) tea.Cmd {
+	switch msg := msg.(type) {
+	case tea.MouseMotionMsg:
+		m.position.X = float64(msg.X - (width / 2))
+		m.position.Y = float64(msg.Y - (height / 2))
 	}
+
+	return nil
 }
 
 func (m *Gun) Bodies() (bodies engine.Bodies) {

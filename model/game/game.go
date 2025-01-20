@@ -22,29 +22,29 @@ type Game struct {
 	models []engine.Model
 }
 
-func (m *Game) Init() {
+func (m *Game) Init() tea.Cmd {
+	var cmds []tea.Cmd
 	for _, model := range m.models {
-		model.Init()
+		cmds = append(cmds, model.Init())
 	}
+	return tea.Batch(cmds...)
 }
 
-func (m *Game) Update(msgs []tea.Msg) {
-	// Messages
-	for _, msg := range msgs {
-		switch msg := msg.(type) {
-		case tea.KeyPressMsg:
-			switch msg.String() {
-			// Restart
-			case "r":
-				m.Init()
-				return
-			}
+func (m *Game) Update(msg tea.Msg) tea.Cmd {
+	switch msg := msg.(type) {
+	case tea.KeyPressMsg:
+		switch msg.String() {
+		// Restart
+		case "r":
+			return m.Init()
 		}
 	}
 
+	var cmds []tea.Cmd
 	for _, model := range m.models {
-		model.Update(msgs)
+		cmds = append(cmds, model.Update(msg))
 	}
+	return tea.Batch(cmds...)
 }
 
 func (m *Game) Bodies() (bodies engine.Bodies) {
