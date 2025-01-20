@@ -214,12 +214,11 @@ func ImageFlipH8(img image.PalettedImage) *image.Paletted {
 
 	dst := image.NewPaletted(image.Rect(0, 0, width, height), nil)
 
-	for y := 0; y < width; y++ {
-		for x := 0; x < height; x++ {
-			index := img.ColorIndexAt(width-x, y)
-			if index != 0 {
-				dst.SetColorIndex(x, y, index)
-			}
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			dst.SetColorIndex(width-x-1, y,
+				img.ColorIndexAt(x, y),
+			)
 		}
 	}
 
@@ -236,12 +235,11 @@ func ImageFlipV8(img image.PalettedImage) *image.Paletted {
 
 	dst := image.NewPaletted(image.Rect(0, 0, width, height), nil)
 
-	for y := 0; y < width; y++ {
-		for x := 0; x < height; x++ {
-			index := img.ColorIndexAt(x, height-y)
-			if index != 0 {
-				dst.SetColorIndex(x, y, index)
-			}
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			dst.SetColorIndex(x, height-y-1,
+				img.ColorIndexAt(x, y),
+			)
 		}
 	}
 
