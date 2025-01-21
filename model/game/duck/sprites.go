@@ -11,12 +11,12 @@ const (
 )
 
 //go:embed sprites/*
-var sprites embed.FS
+var spritesFS embed.FS
 
 var (
-	sprites8Image = engine.Must(engine.LoadImage8File(sprites, "sprites/duck.8.png"))
+	sprites8Image = engine.Must(engine.LoadImage8File(spritesFS, "sprites/duck.8.png"))
 )
 
 var (
-	sprites24Image = engine.Must(engine.LoadImage24File(sprites, "sprites/duck.24.png"))
+	sprites24Image = engine.Must(engine.LoadImage24File(spritesFS, "sprites/duck.24.png"))
 )
