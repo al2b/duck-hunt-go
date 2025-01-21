@@ -45,14 +45,14 @@ func (m *Model) Update(msg tea.Msg) tea.Cmd {
 	return m.models[m.state].Update(msg)
 }
 
-func (m *Model) Bodies() (bodies engine.Bodies) {
+func (m *Model) Bodies() engine.Bodies {
 	return m.models[m.state].Bodies()
 }
 
-func (m *Model) Sprites8() (sprites engine.Sprites8) {
+func (m *Model) Sprites8() engine.Sprites8 {
 	return m.models[m.state].Sprites8()
 }
 
-func (m *Model) Sprites24() (sprites engine.Sprites24) {
+func (m *Model) Sprites24() engine.Sprites24 {
 	return m.models[m.state].Sprites24()
 }
