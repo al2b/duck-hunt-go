@@ -16,29 +16,28 @@ type Renderer struct {
 	WindowWidth, WindowHeight int
 }
 
-func (r *Renderer) Render(model Model, paddingTop, paddingLeft int) string {
+func (r *Renderer) Render(sprites Sprites, paddingTop, paddingLeft int) string {
 	switch mode {
 	case Mode8:
-		return r.render8(model, paddingTop, paddingLeft)
+		return r.render8(sprites, paddingTop, paddingLeft)
 	case Mode24:
-		return r.render24(model, paddingTop, paddingLeft)
+		return r.render24(sprites, paddingTop, paddingLeft)
 	}
 	return ""
 }
 
-func (r *Renderer) render8(model Model, paddingTop, paddingLeft int) string {
+func (r *Renderer) render8(sprites Sprites, paddingTop, paddingLeft int) string {
 	frame := image.NewPaletted(image.Rect(0, 0, Width, Height), nil)
 
-	sprites := model.Sprites8()
-
-	// Sort by depth (z position)
-	slices.SortStableFunc(sprites, func(a, b *Sprite8) int {
-		return int(a.Position.Z - b.Position.Z)
+	// Sort by depth (z coordinate)
+	slices.SortStableFunc(sprites, func(a, b Sprite) int {
+		return int(a.Z() - b.Z())
 	})
 
 	for _, sprite := range sprites {
-		if sprite.Image != nil {
-			ImageDraw8(frame, sprite.Image, image.Point{X: int(sprite.Position.X), Y: int(sprite.Position.Y)})
+		img := sprite.Image8()
+		if img != nil {
+			ImageDraw8(frame, img, image.Point{X: int(sprite.X()), Y: int(sprite.Y())})
 		}
 	}
 
@@ -87,19 +86,18 @@ func (r *Renderer) render8(model Model, paddingTop, paddingLeft int) string {
 	return str.String()
 }
 
-func (r *Renderer) render24(model Model, paddingTop, paddingLeft int) string {
+func (r *Renderer) render24(sprites Sprites, paddingTop, paddingLeft int) string {
 	frame := image.NewNRGBA(image.Rect(0, 0, Width, Height))
 
-	sprites := model.Sprites24()
-
-	// Sort by depth (z position)
-	slices.SortStableFunc(sprites, func(a, b *Sprite24) int {
-		return int(a.Position.Z - b.Position.Z)
+	// Sort by depth (z coordinate)
+	slices.SortStableFunc(sprites, func(a, b Sprite) int {
+		return int(a.Z() - b.Z())
 	})
 
 	for _, sprite := range sprites {
-		if sprite.Image != nil {
-			ImageDraw24(frame, sprite.Image, image.Point{X: int(sprite.Position.X), Y: int(sprite.Position.Y)})
+		img := sprite.Image24()
+		if img != nil {
+			ImageDraw24(frame, img, image.Point{X: int(sprite.X()), Y: int(sprite.Y())})
 		}
 	}
 

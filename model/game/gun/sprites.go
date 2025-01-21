@@ -8,10 +8,7 @@ import (
 //go:embed sprites/*
 var spritesFS embed.FS
 
-var (
-	sprite8Image = engine.Must(engine.LoadImage8File(spritesFS, "sprites/gun.8.png"))
-)
-
-var (
-	sprite24Image = engine.Must(engine.LoadImage24File(spritesFS, "sprites/gun.24.png"))
+var sprite = engine.NewImageSprite(coordinates,
+	engine.Must(engine.LoadImage8File(spritesFS, "sprites/gun.8.png")),
+	engine.Must(engine.LoadImage24File(spritesFS, "sprites/gun.24.png")),
 )

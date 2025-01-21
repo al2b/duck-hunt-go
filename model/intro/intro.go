@@ -5,6 +5,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
 
+var coordinates = engine.NewCoordinates(0, 0, 0)
+
 func New() *Intro {
 	return &Intro{}
 }
@@ -23,14 +25,6 @@ func (m *Intro) Bodies() engine.Bodies {
 	return nil
 }
 
-func (m *Intro) Sprites8() (sprites engine.Sprites8) {
-	return sprites.Append(
-		sprite8,
-	)
-}
-
-func (m *Intro) Sprites24() (sprites engine.Sprites24) {
-	return sprites.Append(
-		sprite24,
-	)
+func (m *Intro) Sprites() engine.Sprites {
+	return sprites
 }

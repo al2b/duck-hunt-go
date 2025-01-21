@@ -2,8 +2,8 @@ package gun
 
 import "duck-hunt-go/engine"
 
-var (
-	bodyShape = engine.BodyShape{
+var body = engine.NewBody(coordinates,
+	engine.BodyShape{
 		{13, 0},
 		{23, 0},
 		{36, 13},
@@ -12,5 +12,5 @@ var (
 		{13, 36},
 		{0, 23},
 		{0, 13},
-	}
+	},
 )

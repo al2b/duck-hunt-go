@@ -37,9 +37,6 @@ func (r *Intersector) Intersect(model Model) {
 					Body:            body2,
 					IntersectionSet: intersectionSet,
 				})
-				if body1.onIntersect != nil {
-					body1.onIntersect()
-				}
 			}
 		}
 	}

@@ -6,8 +6,7 @@ type Model interface {
 	Init() tea.Cmd
 	Update(msg tea.Msg) tea.Cmd
 	Bodies() Bodies
-	Sprites8() Sprites8
-	Sprites24() Sprites24
+	Sprites() Sprites
 }
 
 type ModelUpdatedMsg struct{}

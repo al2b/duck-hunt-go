@@ -2,6 +2,12 @@ package engine
 
 import "math"
 
+type Point interface {
+	X() float64
+	Y() float64
+	Z() float64
+}
+
 func Round(value float64) int {
 	iv := int(value)
 	if value-float64(iv) < 0.5 {

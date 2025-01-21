@@ -1,9 +1,17 @@
 package duck
 
-import "duck-hunt-go/engine"
+import (
+	"duck-hunt-go/engine"
+	"embed"
+)
 
 const (
-	animationFlyTop engine.Animation = iota
+	animationWidth  = 32
+	animationHeight = 32
+)
+
+const (
+	animationFlyTop int = iota
 	animationFlyTopRight
 	animationFlyRight
 	animationFlyBottomRight
@@ -13,53 +21,85 @@ const (
 	animationFlyTopLeft
 )
 
-var animationFrames = engine.AnimationFrames{
-	animationFlyTop: {
-		{X: 0, Y: 0},
-		{X: 0, Y: 1},
-		{X: 0, Y: 2},
-		{X: 0, Y: 1},
-	},
-	animationFlyTopRight: {
-		{X: 1, Y: 0},
-		{X: 1, Y: 1},
-		{X: 1, Y: 2},
-		{X: 1, Y: 1},
-	},
-	animationFlyRight: {
-		{X: 2, Y: 0},
-		{X: 2, Y: 1},
-		{X: 2, Y: 2},
-		{X: 2, Y: 1},
-	},
-	animationFlyBottomRight: {
-		{X: 3, Y: 0},
-		{X: 3, Y: 1},
-		{X: 3, Y: 2},
-		{X: 3, Y: 1},
-	},
-	animationFlyBottom: {
-		{X: 0, Y: 0, FlipV: true},
-		{X: 0, Y: 1, FlipV: true},
-		{X: 0, Y: 2, FlipV: true},
-		{X: 0, Y: 1, FlipV: true},
-	},
-	animationFlyBottomLeft: {
-		{X: 3, Y: 0, FlipH: true},
-		{X: 3, Y: 1, FlipH: true},
-		{X: 3, Y: 2, FlipH: true},
-		{X: 3, Y: 1, FlipH: true},
-	},
-	animationFlyLeft: {
-		{X: 2, Y: 0, FlipH: true},
-		{X: 2, Y: 1, FlipH: true},
-		{X: 2, Y: 2, FlipH: true},
-		{X: 2, Y: 1, FlipH: true},
-	},
-	animationFlyTopLeft: {
-		{X: 1, Y: 0, FlipH: true},
-		{X: 1, Y: 1, FlipH: true},
-		{X: 1, Y: 2, FlipH: true},
-		{X: 1, Y: 1, FlipH: true},
-	},
+//go:embed sprites/*
+var spritesFS embed.FS
+
+var (
+	image8  = engine.Must(engine.LoadImage8File(spritesFS, "sprites/duck.8.png"))
+	image24 = engine.Must(engine.LoadImage24File(spritesFS, "sprites/duck.24.png"))
+)
+
+var animations = map[int]*engine.Animation{
+	animationFlyTop: engine.NewAnimation(
+		image8, image24,
+		engine.AnimationFrames{
+			{X: 0 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight},
+			{X: 0 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight},
+			{X: 0 * animationWidth, Y: 2 * animationWidth, Width: animationWidth, Height: animationHeight},
+			{X: 0 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight},
+		},
+	),
+	animationFlyTopRight: engine.NewAnimation(
+		image8, image24,
+		engine.AnimationFrames{
+			{X: 1 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight},
+			{X: 1 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight},
+			{X: 1 * animationWidth, Y: 2 * animationWidth, Width: animationWidth, Height: animationHeight},
+			{X: 1 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight},
+		},
+	),
+	animationFlyRight: engine.NewAnimation(
+		image8, image24,
+		engine.AnimationFrames{
+			{X: 2 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight},
+			{X: 2 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight},
+			{X: 2 * animationWidth, Y: 2 * animationWidth, Width: animationWidth, Height: animationHeight},
+			{X: 2 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight},
+		},
+	),
+	animationFlyBottomRight: engine.NewAnimation(
+		image8, image24,
+		engine.AnimationFrames{
+			{X: 3 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight},
+			{X: 3 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight},
+			{X: 3 * animationWidth, Y: 2 * animationWidth, Width: animationWidth, Height: animationHeight},
+			{X: 3 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight},
+		},
+	),
+	animationFlyBottom: engine.NewAnimation(
+		image8, image24,
+		engine.AnimationFrames{
+			{X: 0 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight, FlipV: true},
+			{X: 0 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight, FlipV: true},
+			{X: 0 * animationWidth, Y: 2 * animationWidth, Width: animationWidth, Height: animationHeight, FlipV: true},
+			{X: 0 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight, FlipV: true},
+		},
+	),
+	animationFlyBottomLeft: engine.NewAnimation(
+		image8, image24,
+		engine.AnimationFrames{
+			{X: 3 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
+			{X: 3 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
+			{X: 3 * animationWidth, Y: 2 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
+			{X: 3 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
+		},
+	),
+	animationFlyLeft: engine.NewAnimation(
+		image8, image24,
+		engine.AnimationFrames{
+			{X: 2 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
+			{X: 2 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
+			{X: 2 * animationWidth, Y: 2 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
+			{X: 2 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
+		},
+	),
+	animationFlyTopLeft: engine.NewAnimation(
+		image8, image24,
+		engine.AnimationFrames{
+			{X: 1 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
+			{X: 1 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
+			{X: 1 * animationWidth, Y: 2 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
+			{X: 1 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
+		},
+	),
 }

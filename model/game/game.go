@@ -54,16 +54,9 @@ func (m *Game) Bodies() (bodies engine.Bodies) {
 	return bodies
 }
 
-func (m *Game) Sprites8() (sprites engine.Sprites8) {
+func (m *Game) Sprites() (sprites engine.Sprites) {
 	for _, model := range m.models {
-		sprites = append(sprites, model.Sprites8()...)
-	}
-	return sprites
-}
-
-func (m *Game) Sprites24() (sprites engine.Sprites24) {
-	for _, model := range m.models {
-		sprites = append(sprites, model.Sprites24()...)
+		sprites = append(sprites, model.Sprites()...)
 	}
 	return sprites
 }

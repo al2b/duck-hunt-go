@@ -10,31 +10,17 @@ const (
 	height = 37
 )
 
+var coordinates = engine.NewCoordinates(0, 0, 1000)
+
 func New() *Gun {
-	// Model
-	m := &Gun{
-		position: engine.NewPosition(),
-	}
-
-	// Body
-	m.body = engine.NewBody(
-		m.position,
-		m.Intersect,
-	).Shape(bodyShape)
-
-	return m
+	return &Gun{}
 }
 
-type Gun struct {
-	// Position
-	position *engine.Position
-	// Body
-	body *engine.Body
-}
+type Gun struct{}
 
 func (m *Gun) Init() tea.Cmd {
-	// Position
-	m.position.Z = 1000
+	// Coordinates
+	coordinates.Reset()
 
 	return nil
 }
@@ -42,43 +28,18 @@ func (m *Gun) Init() tea.Cmd {
 func (m *Gun) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.MouseMotionMsg:
-		m.position.X = float64(msg.X - (width / 2))
-		m.position.Y = float64(msg.Y - (height / 2))
+		coordinates.
+			SetX(float64(msg.X - (width / 2))).
+			SetY(float64(msg.Y - (height / 2)))
 	}
 
 	return nil
 }
 
 func (m *Gun) Bodies() (bodies engine.Bodies) {
-	return bodies.Append(m.body)
+	return bodies.Append(body)
 }
 
-func (m *Gun) Intersect() {}
-
-func (m *Gun) Sprites8() (sprites engine.Sprites8) {
-	sprites.Append(&engine.Sprite8{
-		Position: m.position,
-		Image:    sprite8Image,
-	})
-
-	// Debug
-	if engine.Debug() {
-		sprites.Append(m.body.Sprite8())
-	}
-
-	return sprites
-}
-
-func (m *Gun) Sprites24() (sprites engine.Sprites24) {
-	sprites.Append(&engine.Sprite24{
-		Position: m.position,
-		Image:    sprite24Image,
-	})
-
-	// Debug
-	if engine.Debug() {
-		sprites.Append(m.body.Sprite24())
-	}
-
-	return sprites
+func (m *Gun) Sprites() (sprites engine.Sprites) {
+	return sprites.Append(sprite)
 }

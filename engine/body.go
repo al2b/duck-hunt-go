@@ -5,23 +5,17 @@ import (
 	"image"
 )
 
-func NewBody(position *Position, onIntersect BodyIntersection) *Body {
+func NewBody(coordinates Point, shape BodyShape) *Body {
 	return &Body{
-		position:    position,
-		onIntersect: onIntersect,
+		Point: coordinates,
+		shape: shape,
 	}
 }
 
 type Body struct {
-	position      *Position
+	Point
 	shape         BodyShape
 	Intersections Intersections
-	onIntersect   BodyIntersection
-}
-
-func (b *Body) Shape(shape BodyShape) *Body {
-	b.shape = shape
-	return b
 }
 
 func (b *Body) ResolvShape() *resolv.ConvexPolygon {
@@ -32,101 +26,18 @@ func (b *Body) ResolvShape() *resolv.ConvexPolygon {
 	}
 
 	return resolv.NewConvexPolygon(
-		b.position.X,
-		b.position.Y,
+		b.X(),
+		b.Y(),
 		points,
 	)
 }
 
-func (b *Body) Sprite8() *Sprite8 {
-	img := image.NewPaletted(image.Rect(
-		0,
-		0,
-		b.shape.Width(),
-		b.shape.Height(),
-	), nil)
-
-	c := Color8Green
-	if len(b.Intersections) > 0 {
-		c = Color8Red
-	}
-
-	for i := 0; i < len(b.shape)-1; i++ {
-		ImageLine8(img,
-			int(b.shape[i].X), int(b.shape[i].Y),
-			int(b.shape[i+1].X), int(b.shape[i+1].Y),
-			c,
-		)
-	}
-
-	ImageLine8(img,
-		int(b.shape[len(b.shape)-1].X), int(b.shape[len(b.shape)-1].Y),
-		int(b.shape[0].X), int(b.shape[0].Y),
-		c,
-	)
-
-	// Intersections
-	for _, i := range b.Intersections {
-		for _, it := range i.IntersectionSet.Intersections {
-			ImageLine8(img,
-				Round(it.Point.X-b.position.X), Round(it.Point.Y-b.position.Y),
-				Round(it.Point.X+(it.Normal.X*20)-b.position.X), Round(it.Point.Y+(it.Normal.Y*20)-b.position.Y),
-				Color8Blue,
-			)
-		}
-	}
-
-	return &Sprite8{
-		Position: b.position,
-		Image:    img,
+func (b *Body) Sprite() Sprite {
+	return &BodySprite{
+		body:  b,
+		Point: b,
 	}
 }
-
-func (b *Body) Sprite24() *Sprite24 {
-	img := image.NewNRGBA(image.Rect(
-		0,
-		0,
-		b.shape.Width(),
-		b.shape.Height(),
-	))
-
-	c := Color24Green
-	if len(b.Intersections) > 0 {
-		c = Color24Red
-	}
-
-	for i := 0; i < len(b.shape)-1; i++ {
-		ImageLine24(img,
-			int(b.shape[i].X), int(b.shape[i].Y),
-			int(b.shape[i+1].X), int(b.shape[i+1].Y),
-			c,
-		)
-	}
-
-	ImageLine24(img,
-		int(b.shape[len(b.shape)-1].X), int(b.shape[len(b.shape)-1].Y),
-		int(b.shape[0].X), int(b.shape[0].Y),
-		c,
-	)
-
-	// Intersections
-	for _, i := range b.Intersections {
-		for _, it := range i.IntersectionSet.Intersections {
-			ImageLine24(img,
-				Round(it.Point.X-b.position.X), Round(it.Point.Y-b.position.Y),
-				Round(it.Point.X+(it.Normal.X*20)-b.position.X), Round(it.Point.Y+(it.Normal.Y*20)-b.position.Y),
-				Color24Blue,
-			)
-		}
-	}
-
-	return &Sprite24{
-		Position: b.position,
-		Image:    img,
-	}
-}
-
-type BodyIntersection func()
 
 type Bodies []*Body
 
@@ -134,6 +45,15 @@ func (b *Bodies) Append(bodies ...*Body) Bodies {
 	*b = append(*b, bodies...)
 	return *b
 }
+
+func (b Bodies) Sprites() (sprites Sprites) {
+	for _, body := range b {
+		sprites = append(sprites, body.Sprite())
+	}
+	return sprites
+}
+
+type BodyIntersection func()
 
 type BodyShapePoint struct {
 	X, Y float64
@@ -161,4 +81,74 @@ func (s *BodyShape) Height() int {
 		}
 	}
 	return height + 1
+}
+
+type BodySprite struct {
+	body *Body
+	Point
+}
+
+func (s *BodySprite) Image8() image.PalettedImage {
+	img := image.NewPaletted(image.Rect(
+		0,
+		0,
+		s.body.shape.Width(),
+		s.body.shape.Height(),
+	), nil)
+
+	s.image(
+		imageSet8(img, Color8Green),
+		imageSet8(img, Color8Red),
+		imageSet8(img, Color8Blue),
+	)
+
+	return img
+}
+
+func (s *BodySprite) Image24() image.Image {
+	img := image.NewNRGBA(image.Rect(
+		0,
+		0,
+		s.body.shape.Width(),
+		s.body.shape.Height(),
+	))
+
+	s.image(
+		imageSet24(img, Color24Green),
+		imageSet24(img, Color24Red),
+		imageSet24(img, Color24Blue),
+	)
+
+	return img
+}
+
+func (s *BodySprite) image(set, setIntersected, setIntersection imageSet) {
+	if len(s.body.Intersections) > 0 {
+		set = setIntersected
+	}
+
+	for i := 0; i < len(s.body.shape)-1; i++ {
+		imageLine(
+			int(s.body.shape[i].X), int(s.body.shape[i].Y),
+			int(s.body.shape[i+1].X), int(s.body.shape[i+1].Y),
+			set,
+		)
+	}
+
+	imageLine(
+		int(s.body.shape[len(s.body.shape)-1].X), int(s.body.shape[len(s.body.shape)-1].Y),
+		int(s.body.shape[0].X), int(s.body.shape[0].Y),
+		set,
+	)
+
+	// Intersections
+	for _, i := range s.body.Intersections {
+		for _, it := range i.IntersectionSet.Intersections {
+			imageLine(
+				Round(it.Point.X-s.body.X()), Round(it.Point.Y-s.body.Y()),
+				Round(it.Point.X+(it.Normal.X*20)-s.body.X()), Round(it.Point.Y+(it.Normal.Y*20)-s.body.Y()),
+				setIntersection,
+			)
+		}
+	}
 }

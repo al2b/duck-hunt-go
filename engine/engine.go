@@ -127,7 +127,11 @@ func (m Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case ModelIntersectedMsg:
 		// Render
 		top, left := m.padding()
-		m.view = m.renderer.Render(m.model, top, left)
+		sprites := m.model.Sprites()
+		if Debug() {
+			sprites = append(sprites, m.model.Bodies().Sprites()...)
+		}
+		m.view = m.renderer.Render(sprites, top, left)
 	}
 
 	return m, tea.Batch(cmds...)
