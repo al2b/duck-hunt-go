@@ -4,6 +4,7 @@ import (
 	"duck-hunt-go/engine"
 	"duck-hunt-go/model/game/layout"
 	tea "github.com/charmbracelet/bubbletea/v2"
+	"math"
 	"math/rand/v2"
 )
 
@@ -25,13 +26,13 @@ type Duck struct {
 func (m *Duck) Init() tea.Cmd {
 	// Coordinates
 	coordinates.
-		SetX(85 + (rand.Float64() * 85)).
+		SetX(85 + math.Round(rand.Float64()*85)).
 		SetY(layout.Ground - maxHeight).
-		SetZ(5 + (rand.Float64() * 20))
+		SetZ(5 + math.Round(rand.Float64()*20))
 
 	// Movement
 	m.movement = engine.
-		VectorFromAngle(45 + (rand.Float64() * 90)).
+		VectorFromAngle(235 + (rand.Float64() * 90)).
 		Scale(1)
 
 	return nil

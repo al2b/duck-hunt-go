@@ -53,7 +53,7 @@ func (c *Coordinates) SubZ(z float64) *Coordinates {
 
 func (c *Coordinates) Move(movement Vector) *Coordinates {
 	c.x += movement.X
-	c.y -= movement.Y
+	c.y += movement.Y
 	return c
 }
 

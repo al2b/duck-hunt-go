@@ -13,14 +13,21 @@ const (
 var coordinates = engine.NewCoordinates(0, 0, 1000)
 
 func New() *Gun {
-	return &Gun{}
+	return &Gun{
+		motion: engine.NewMotion(),
+	}
 }
 
-type Gun struct{}
+type Gun struct {
+	motion *engine.Motion
+}
 
 func (m *Gun) Init() tea.Cmd {
 	// Coordinates
 	coordinates.Reset()
+
+	// Motion
+	m.motion.Reset()
 
 	return nil
 }
@@ -28,9 +35,14 @@ func (m *Gun) Init() tea.Cmd {
 func (m *Gun) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.MouseMotionMsg:
-		coordinates.
-			SetX(float64(msg.X - (width / 2))).
-			SetY(float64(msg.Y - (height / 2)))
+		m.motion.MoveTo(coordinates,
+			float64(msg.X-(width/2)),
+			float64(msg.Y-(height/2)),
+			10,
+		)
+	case engine.TickMsg:
+		// Motion
+		m.motion.Update(coordinates)
 	}
 
 	return nil

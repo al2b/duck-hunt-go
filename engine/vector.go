@@ -55,6 +55,13 @@ func (v Vector) Scale(scalar float64) Vector {
 	return v
 }
 
+// Divide divides a Vector by the given scalar
+func (v Vector) Divide(scalar float64) Vector {
+	v.X /= scalar
+	v.Y /= scalar
+	return v
+}
+
 // dot returns the dot product of the Vector and the given Vector
 func (v Vector) dot(other Vector) float64 {
 	return v.X*other.X + v.Y*other.Y
