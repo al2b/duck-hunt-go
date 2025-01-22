@@ -47,9 +47,9 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 	case tea.KeyPressMsg:
 		switch key := msg.Key(); key.Code {
 		case tea.KeyRight:
-			m.movement = m.movement.Rotate(-10)
-		case tea.KeyLeft:
 			m.movement = m.movement.Rotate(10)
+		case tea.KeyLeft:
+			m.movement = m.movement.Rotate(-10)
 		case tea.KeyUp:
 			coordinates.SubZ(10)
 		case tea.KeyDown:
@@ -82,19 +82,19 @@ func (m *Duck) animation() *engine.Animation {
 
 	switch true {
 	case 23 <= angle && angle <= 67:
-		animation = animationFlyTopRight
+		animation = animationFlyBottomRight
 	case 68 <= angle && angle <= 112:
-		animation = animationFlyTop
+		animation = animationFlyBottom
 	case 113 <= angle && angle <= 157:
-		animation = animationFlyTopLeft
+		animation = animationFlyBottomLeft
 	case 158 <= angle && angle <= 202:
 		animation = animationFlyLeft
 	case 203 <= angle && angle <= 247:
-		animation = animationFlyBottomLeft
+		animation = animationFlyTopLeft
 	case 248 <= angle && angle <= 292:
-		animation = animationFlyBottom
+		animation = animationFlyTop
 	case 293 <= angle && angle <= 337:
-		animation = animationFlyBottomRight
+		animation = animationFlyTopRight
 	}
 
 	return animations[animation]
