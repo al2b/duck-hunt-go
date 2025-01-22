@@ -99,17 +99,27 @@ func (m Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyPressMsg:
 		m.msgs = append(m.msgs, msg)
 	case tea.MouseMsg:
-		// Remove previous mouse motion messages...
-		m.msgs = slices.DeleteFunc(m.msgs, func(msg tea.Msg) bool {
-			_, ok := msg.(tea.MouseMotionMsg)
-			return ok
-		})
-		// ...to keep only the last one
+		mouse := msg.Mouse()
 		top, left := m.padding()
-		m.msgs = append(m.msgs, tea.MouseMotionMsg{
-			X: (msg.Mouse().X - left) * zoom,
-			Y: ((msg.Mouse().Y - top) * 2) * zoom,
-		})
+		if mouse.Button != tea.MouseNone {
+			m.msgs = append(m.msgs, tea.MouseClickMsg{
+				X:      (msg.Mouse().X - left) * zoom,
+				Y:      ((msg.Mouse().Y - top) * 2) * zoom,
+				Button: mouse.Button,
+			})
+		} else {
+			// Remove previous mouse motion messages...
+			m.msgs = slices.DeleteFunc(m.msgs, func(msg tea.Msg) bool {
+				_, ok := msg.(tea.MouseMotionMsg)
+				return ok
+			})
+			// ...to keep only the last one
+			top, left := m.padding()
+			m.msgs = append(m.msgs, tea.MouseMotionMsg{
+				X: (msg.Mouse().X - left) * zoom,
+				Y: ((msg.Mouse().Y - top) * 2) * zoom,
+			})
+		}
 	case TickMsg:
 		msgs := append(m.msgs, msg)
 		for _, msg := range msgs {
