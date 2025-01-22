@@ -41,9 +41,16 @@ func (b *Body) Sprite() Sprite {
 
 type Bodies []*Body
 
-func (b *Bodies) Append(bodies ...*Body) Bodies {
-	*b = append(*b, bodies...)
-	return *b
+func (b Bodies) Append(bodies ...*Body) Bodies {
+	b = append(b, bodies...)
+	return b
+}
+
+func (b Bodies) Appends(bodies ...Bodies) Bodies {
+	for _, bodies := range bodies {
+		b = append(b, bodies...)
+	}
+	return b
 }
 
 func (b Bodies) Sprites() (sprites Sprites) {

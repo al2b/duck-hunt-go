@@ -12,9 +12,16 @@ type Sprite interface {
 
 type Sprites []Sprite
 
-func (s *Sprites) Append(sprites ...Sprite) Sprites {
-	*s = append(*s, sprites...)
-	return *s
+func (s Sprites) Append(sprites ...Sprite) Sprites {
+	s = append(s, sprites...)
+	return s
+}
+
+func (s Sprites) Appends(sprites ...Sprites) Sprites {
+	for _, sprites := range sprites {
+		s = append(s, sprites...)
+	}
+	return s
 }
 
 func NewUniformSprite(coordinates Point, color8 Color8, color24 Color24) *UniformSprite {
