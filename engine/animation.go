@@ -4,10 +4,9 @@ import (
 	"image"
 )
 
-func NewAnimation(image8 image.PalettedImage, image24 image.Image, frames []AnimationFrame) *Animation {
+func NewAnimation(image Image, frames []AnimationFrame) *Animation {
 	return &Animation{
-		image8:   image8,
-		image24:  image24,
+		image:    image,
 		frames:   frames,
 		frame:    0,
 		velocity: 6,
@@ -15,8 +14,7 @@ func NewAnimation(image8 image.PalettedImage, image24 image.Image, frames []Anim
 }
 
 type Animation struct {
-	image8   image.PalettedImage
-	image24  image.Image
+	image    Image
 	frames   AnimationFrames
 	frame    int
 	velocity int
@@ -26,11 +24,10 @@ func (a *Animation) Update() {
 	a.frame = (a.frame + 1) % (len(a.frames) * a.velocity)
 }
 
-func (a *Animation) Sprite(coordinates Point) Sprite {
-	return &AnimationFrameSprite{
+func (a *Animation) Image() Image {
+	return &AnimationFrameImage{
 		animation: a,
 		frame:     a.frames[a.frame/a.velocity],
-		Point:     coordinates,
 	}
 }
 
@@ -42,14 +39,13 @@ type AnimationFrame struct {
 
 type AnimationFrames []AnimationFrame
 
-type AnimationFrameSprite struct {
+type AnimationFrameImage struct {
 	animation *Animation
 	frame     AnimationFrame
-	Point
 }
 
-func (s *AnimationFrameSprite) Image8() image.PalettedImage {
-	img := ImageCrop8(s.animation.image8, image.Rect(
+func (s *AnimationFrameImage) Image8() Image8 {
+	img := Image8Crop(s.animation.image.Image8(), image.Rect(
 		s.frame.X,
 		s.frame.Y,
 		s.frame.X+(s.frame.Width-1),
@@ -57,18 +53,18 @@ func (s *AnimationFrameSprite) Image8() image.PalettedImage {
 	))
 
 	if s.frame.FlipH {
-		img = ImageFlipH8(img)
+		img = Image8FlipH(img)
 	}
 
 	if s.frame.FlipV {
-		img = ImageFlipV8(img)
+		img = Image8FlipV(img)
 	}
 
 	return img
 }
 
-func (s *AnimationFrameSprite) Image24() image.Image {
-	img := ImageCrop24(s.animation.image24, image.Rect(
+func (s *AnimationFrameImage) Image24() Image24 {
+	img := Image24Crop(s.animation.image.Image24(), image.Rect(
 		s.frame.X,
 		s.frame.Y,
 		s.frame.X+(s.frame.Width-1),
@@ -76,11 +72,11 @@ func (s *AnimationFrameSprite) Image24() image.Image {
 	))
 
 	if s.frame.FlipH {
-		img = ImageFlipH24(img)
+		img = Image24FlipH(img)
 	}
 
 	if s.frame.FlipV {
-		img = ImageFlipV24(img)
+		img = Image24FlipV(img)
 	}
 
 	return img

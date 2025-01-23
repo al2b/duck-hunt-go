@@ -32,10 +32,9 @@ func (b *Body) ResolvShape() *resolv.ConvexPolygon {
 	)
 }
 
-func (b *Body) Sprite() Sprite {
-	return &BodySprite{
-		body:  b,
-		Point: b,
+func (b *Body) Image() Image {
+	return &BodyImage{
+		body: b,
 	}
 }
 
@@ -51,13 +50,6 @@ func (b Bodies) Appends(bodies ...Bodies) Bodies {
 		b = append(b, bodies...)
 	}
 	return b
-}
-
-func (b Bodies) Sprites() (sprites Sprites) {
-	for _, body := range b {
-		sprites = append(sprites, body.Sprite())
-	}
-	return sprites
 }
 
 type BodyIntersection func()
@@ -90,30 +82,12 @@ func (s *BodyShape) Height() int {
 	return height + 1
 }
 
-type BodySprite struct {
+type BodyImage struct {
 	body *Body
-	Point
 }
 
-func (s *BodySprite) Image8() image.PalettedImage {
-	img := image.NewPaletted(image.Rect(
-		0,
-		0,
-		s.body.shape.Width(),
-		s.body.shape.Height(),
-	), nil)
-
-	s.image(
-		imageSet8(img, Color8Green),
-		imageSet8(img, Color8Red),
-		imageSet8(img, Color8Blue),
-	)
-
-	return img
-}
-
-func (s *BodySprite) Image24() image.Image {
-	img := image.NewNRGBA(image.Rect(
+func (s *BodyImage) Image8() Image8 {
+	img := NewImage8(image.Rect(
 		0,
 		0,
 		s.body.shape.Width(),
@@ -121,15 +95,32 @@ func (s *BodySprite) Image24() image.Image {
 	))
 
 	s.image(
-		imageSet24(img, Color24Green),
-		imageSet24(img, Color24Red),
-		imageSet24(img, Color24Blue),
+		image8Set(img, Color8Green),
+		image8Set(img, Color8Red),
+		image8Set(img, Color8Blue),
 	)
 
 	return img
 }
 
-func (s *BodySprite) image(set, setIntersected, setIntersection imageSet) {
+func (s *BodyImage) Image24() Image24 {
+	img := NewImage24(image.Rect(
+		0,
+		0,
+		s.body.shape.Width(),
+		s.body.shape.Height(),
+	))
+
+	s.image(
+		image24Set(img, Color24Green),
+		image24Set(img, Color24Red),
+		image24Set(img, Color24Blue),
+	)
+
+	return img
+}
+
+func (s *BodyImage) image(set, setIntersected, setIntersection imageSet) {
 	if len(s.body.Intersections) > 0 {
 		set = setIntersected
 	}

@@ -5,13 +5,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
 
-const (
-	width  = 37
-	height = 37
-)
-
-var coordinates = engine.NewCoordinates(0, 0, 1000)
-
 func New() *Gun {
 	return &Gun{
 		motion: engine.NewMotion(),
@@ -19,12 +12,13 @@ func New() *Gun {
 }
 
 type Gun struct {
-	motion *engine.Motion
+	coordinates engine.Coordinates
+	motion      *engine.Motion
 }
 
 func (m *Gun) Init() tea.Cmd {
 	// Coordinates
-	coordinates.Reset()
+	m.coordinates = engine.NewCoordinates(0, 0, 1000)
 
 	// Motion
 	m.motion.Reset()
@@ -35,23 +29,42 @@ func (m *Gun) Init() tea.Cmd {
 func (m *Gun) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.MouseMotionMsg:
-		m.motion.MoveTo(coordinates,
-			float64(msg.X-(width/2)),
-			float64(msg.Y-(height/2)),
+		// Motion
+		m.motion.MoveTo(m.coordinates,
+			float64(msg.X-(imageWidth/2)),
+			float64(msg.Y-(imageHeight/2)),
 			10,
 		)
 	case engine.TickMsg:
 		// Motion
-		m.motion.Update(coordinates)
+		m.coordinates = m.motion.Update(m.coordinates)
 	}
 
 	return nil
 }
 
-func (m *Gun) Bodies() (bodies engine.Bodies) {
-	return bodies.Append(body)
+func (m *Gun) Sprites() engine.Sprites {
+	return engine.Sprites{
+		engine.CoordinatedSprite{
+			Coordinates: m.coordinates,
+			Image:       image,
+		},
+	}
 }
 
-func (m *Gun) Sprites() (sprites engine.Sprites) {
-	return sprites.Append(sprite)
+func (m *Gun) Bodies() (bodies engine.Bodies) {
+	return bodies.Append(
+		engine.NewBody(m.coordinates,
+			engine.BodyShape{
+				{13, 0},
+				{23, 0},
+				{36, 13},
+				{36, 23},
+				{23, 36},
+				{13, 36},
+				{0, 23},
+				{0, 13},
+			},
+		),
+	)
 }

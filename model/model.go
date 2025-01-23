@@ -55,16 +55,15 @@ func (m *Model) Update(msg tea.Msg) tea.Cmd {
 	)
 }
 
+func (m *Model) Sprites() (sprites engine.Sprites) {
+	sprites = append(sprites, m.mouse.Sprites()...)
+	sprites = append(sprites, m.models[m.state].Sprites()...)
+	return sprites
+}
+
 func (m *Model) Bodies() (bodies engine.Bodies) {
 	return bodies.Appends(
 		m.mouse.Bodies(),
 		m.models[m.state].Bodies(),
-	)
-}
-
-func (m *Model) Sprites() (sprites engine.Sprites) {
-	return sprites.Appends(
-		m.mouse.Sprites(),
-		m.models[m.state].Sprites(),
 	)
 }

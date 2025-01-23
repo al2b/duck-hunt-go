@@ -37,13 +37,13 @@ func (r *Renderer) render8(sprites Sprites, paddingTop, paddingLeft int) string 
 	for _, sprite := range sprites {
 		img := sprite.Image8()
 		if img != nil {
-			ImageDraw8(frame, img, image.Point{X: int(sprite.X()), Y: int(sprite.Y())})
+			Image8Draw(frame, img, image.Point{X: int(sprite.X()), Y: int(sprite.Y())})
 		}
 	}
 
 	// Zoom
 	if zoom != 1 {
-		frame = ImageResize8(frame, Width/zoom, Height/zoom)
+		frame = Image8Resize(frame, Width/zoom, Height/zoom)
 	}
 
 	// Padding
@@ -97,13 +97,13 @@ func (r *Renderer) render24(sprites Sprites, paddingTop, paddingLeft int) string
 	for _, sprite := range sprites {
 		img := sprite.Image24()
 		if img != nil {
-			ImageDraw24(frame, img, image.Point{X: int(sprite.X()), Y: int(sprite.Y())})
+			Image24Draw(frame, img, image.Point{X: int(sprite.X()), Y: int(sprite.Y())})
 		}
 	}
 
 	// Zoom
 	if zoom != 1 {
-		frame = ImageResize24(frame, Width/zoom, Height/zoom)
+		frame = Image24Resize(frame, Width/zoom, Height/zoom)
 	}
 
 	// Padding

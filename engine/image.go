@@ -2,6 +2,7 @@ package engine
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/disintegration/imaging"
 	"image"
@@ -12,59 +13,251 @@ import (
 	"math"
 )
 
-func LoadImage8(data []byte) (image.PalettedImage, error) {
-	img, err := png.Decode(bytes.NewReader(data))
-	if err != nil {
+type Image interface {
+	Image8() Image8
+	Image24() Image24
+}
+
+type Image8 image.PalettedImage
+type Image24 image.Image
+
+func NewImage8(rect image.Rectangle) *image.Paletted {
+	return image.NewPaletted(rect, nil)
+}
+
+func NewImage24(rect image.Rectangle) *image.NRGBA {
+	return image.NewNRGBA(rect)
+}
+
+type BufferedImage struct {
+	buffer8  Image8
+	buffer24 Image24
+}
+
+func (i BufferedImage) Image8() Image8 {
+	return i.buffer8
+}
+
+func (i BufferedImage) Image24() Image24 {
+	return i.buffer24
+}
+
+func LoadImageFiles(fs fs.ReadFileFS, path8, path24 string) (*BufferedImage, error) {
+	var (
+		data []byte
+		img  image.Image
+		err  error
+	)
+
+	// Image 8
+	if data, err = fs.ReadFile(path8); err != nil {
 		return nil, err
 	}
-
+	if img, err = png.Decode(bytes.NewReader(data)); err != nil {
+		return nil, err
+	}
 	img8, ok := img.(image.PalettedImage)
 	if !ok {
-		panic("not an indexed image")
+		return nil, fmt.Errorf("not an indexed image: %s", path8)
 	}
 
-	return img8, nil
-}
-
-func LoadImage8File(fs fs.ReadFileFS, path string) (image.PalettedImage, error) {
-	data, err := fs.ReadFile(path)
-	if err != nil {
+	// Image 24
+	if data, err = fs.ReadFile(path24); err != nil {
 		return nil, err
 	}
-	return LoadImage8(data)
-}
-
-func LoadImage24(data []byte) (image.Image, error) {
-	img, err := png.Decode(bytes.NewReader(data))
-	if err != nil {
+	if img, err = png.Decode(bytes.NewReader(data)); err != nil {
 		return nil, err
 	}
-
 	img24, ok := img.(*image.NRGBA)
 	if !ok {
-		panic("not a rgba image")
+		return nil, fmt.Errorf("not a rgba image: %s", path24)
 	}
 
-	return img24, nil
+	return &BufferedImage{
+		buffer8:  img8,
+		buffer24: img24,
+	}, nil
 }
 
-func LoadImage24File(fs fs.ReadFileFS, path string) (image.Image, error) {
-	data, err := fs.ReadFile(path)
-	if err != nil {
-		return nil, err
+func NewUniformImage(color8 Color8, color24 Color24) *UniformImage {
+	return &UniformImage{
+		color8:  color8,
+		color24: color24,
 	}
-	return LoadImage24(data)
+}
+
+type UniformImage struct {
+	color8  Color8
+	color24 Color24
+}
+
+func (i UniformImage) Image8() Image8 {
+	return NewImage8Uniform(i.color8)
+}
+
+func (i UniformImage) Image24() Image24 {
+	return NewImage24Uniform(i.color24)
+}
+
+func NewImage8Uniform(color8 Color8) *Image8Uniform {
+	return &Image8Uniform{
+		color: color8,
+	}
+}
+
+type Image8Uniform struct {
+	color Color8
+}
+
+func (i *Image8Uniform) ColorIndexAt(_, _ int) uint8 {
+	return uint8(i.color)
+}
+
+func (i *Image8Uniform) ColorModel() color.Model {
+	return i
+}
+
+func (i *Image8Uniform) Convert(color.Color) color.Color {
+	return ansi.ExtendedColor(i.color)
+}
+
+func (i *Image8Uniform) Bounds() image.Rectangle {
+	return image.Rectangle{
+		Min: image.Point{X: math.MinInt, Y: math.MinInt},
+		Max: image.Point{X: math.MaxInt, Y: math.MaxInt},
+	}
+}
+
+func (i *Image8Uniform) At(_, _ int) color.Color {
+	return ansi.ExtendedColor(i.color)
+}
+
+func NewImage24Uniform(color24 Color24) *image.Uniform {
+	return image.NewUniform(color.NRGBA(color24))
+}
+
+func Image8Crop(src Image8, rect image.Rectangle) *image.Paletted {
+	r := rect.Intersect(src.Bounds()).Sub(src.Bounds().Min)
+	dst := NewImage8(image.Rect(0, 0, r.Dx(), r.Dy()))
+
+	for y := 0; y < r.Dy(); y++ {
+		for x := 0; x < r.Dx(); x++ {
+			index := src.ColorIndexAt(x+r.Min.X, y+r.Min.Y)
+			if index != 0 {
+				dst.SetColorIndex(x, y, index)
+			}
+		}
+	}
+
+	return dst
+}
+
+func Image24Crop(src Image24, rect image.Rectangle) *image.NRGBA {
+	return imaging.Crop(src, rect)
+}
+
+func Image8FlipH(src Image8) *image.Paletted {
+	width := src.Bounds().Dx()
+	height := src.Bounds().Dy()
+
+	dst := NewImage8(image.Rect(0, 0, width, height))
+
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			dst.SetColorIndex(width-x-1, y,
+				src.ColorIndexAt(x, y),
+			)
+		}
+	}
+
+	return dst
+}
+
+func Image24FlipH(src Image24) *image.NRGBA {
+	return imaging.FlipH(src)
+}
+
+func Image8FlipV(src Image8) *image.Paletted {
+	width := src.Bounds().Dx()
+	height := src.Bounds().Dy()
+
+	dst := NewImage8(image.Rect(0, 0, width, height))
+
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			dst.SetColorIndex(x, height-y-1,
+				src.ColorIndexAt(x, y),
+			)
+		}
+	}
+
+	return dst
+}
+
+func Image24FlipV(src Image24) *image.NRGBA {
+	return imaging.FlipV(src)
+}
+
+func Image8Resize(img Image8, width, height int) *image.Paletted {
+	dst := image.NewPaletted(image.Rect(0, 0, width, height), nil)
+
+	dx := float64(img.Bounds().Dx()) / float64(width)
+	dy := float64(img.Bounds().Dy()) / float64(height)
+
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			srcX := int(float64(x) * dx)
+			srcY := int(float64(y) * dy)
+
+			if srcX >= img.Bounds().Dx() {
+				srcX = img.Bounds().Dx() - 1
+			}
+
+			if srcY >= img.Bounds().Dy() {
+				srcY = img.Bounds().Dy() - 1
+			}
+
+			dst.SetColorIndex(
+				x,
+				y,
+				img.ColorIndexAt(srcX, srcY),
+			)
+		}
+	}
+
+	return dst
+}
+
+func Image24Resize(src Image24, width, height int) *image.NRGBA {
+	return imaging.Resize(src, width, height, imaging.NearestNeighbor)
+}
+
+func Image8Draw(dst *image.Paletted, src image.PalettedImage, point image.Point) {
+	rec := dst.Bounds().Intersect(src.Bounds())
+
+	for y := 0; y < rec.Dy(); y++ {
+		for x := 0; x < rec.Dx(); x++ {
+			index := src.ColorIndexAt(x, y)
+			if index != 0 {
+				dst.SetColorIndex(x+point.X, y+point.Y, index)
+			}
+		}
+	}
+}
+
+func Image24Draw(dst draw.Image, src image.Image, point image.Point) {
+	draw.Draw(dst, dst.Bounds(), src, image.Point{X: -point.X, Y: -point.Y}, draw.Over)
 }
 
 type imageSet func(x, y int)
 
-func imageSet8(img *image.Paletted, c Color8) imageSet {
+func image8Set(img *image.Paletted, c Color8) imageSet {
 	return imageSet(func(x, y int) {
 		img.SetColorIndex(x, y, uint8(c))
 	})
 }
 
-func imageSet24(img *image.NRGBA, c Color24) imageSet {
+func image24Set(img *image.NRGBA, c Color24) imageSet {
 	return imageSet(func(x, y int) {
 		img.Set(x, y, color.NRGBA(c))
 	})
@@ -103,183 +296,4 @@ func imageLine(x1, y1, x2, y2 int, set imageSet) {
 			y1 += sy
 		}
 	}
-}
-
-func ImageLine8(img *image.Paletted, x1, y1, x2, y2 int, c Color8) {
-	imageLine(x1, y1, x2, y2, imageSet8(img, c))
-}
-
-func ImageLine24(img *image.NRGBA, x1, y1, x2, y2 int, c Color24) {
-	imageLine(x1, y1, x2, y2, imageSet24(img, c))
-}
-
-func imageRectangle(width, height int, set imageSet) {
-	imageLine(0, 0, width-2, 0, set)
-	imageLine(width-1, 0, width-1, height-2, set)
-	imageLine(width-2, height-2, 0, height-2, set)
-	imageLine(0, height-2, 0, 1, set)
-}
-
-func ImageRectangle8(width, height int, c Color8) image.PalettedImage {
-	img := image.NewPaletted(image.Rect(0, 0, width, height), nil)
-	imageRectangle(width, height, imageSet8(img, c))
-	return img
-}
-
-func ImageRectangle24(width, height int, c Color24) image.Image {
-	img := image.NewNRGBA(image.Rect(0, 0, width, height))
-	imageRectangle(width, height, imageSet24(img, c))
-	return img
-}
-
-func NewImageUniform8(c Color8) *ImageUniform8 {
-	return &ImageUniform8{
-		color: c,
-	}
-}
-
-// ImageUniform8 is an infinite-sized [image.PalettedImage] of uniform color.
-// See: [image.Uniform]
-type ImageUniform8 struct {
-	color Color8
-}
-
-func (i *ImageUniform8) ColorIndexAt(_, _ int) uint8 {
-	return uint8(i.color)
-}
-
-func (i *ImageUniform8) ColorModel() color.Model {
-	return i
-}
-
-func (i *ImageUniform8) Convert(color.Color) color.Color {
-	return ansi.ExtendedColor(i.color)
-}
-
-func (i *ImageUniform8) Bounds() image.Rectangle {
-	return image.Rectangle{
-		Min: image.Point{X: math.MinInt, Y: math.MinInt},
-		Max: image.Point{X: math.MaxInt, Y: math.MaxInt},
-	}
-}
-
-func (i *ImageUniform8) At(_, _ int) color.Color {
-	return ansi.ExtendedColor(i.color)
-}
-
-func NewImageUniform24(c Color24) *image.Uniform {
-	return image.NewUniform(color.NRGBA(c))
-}
-
-func ImageDraw8(dst *image.Paletted, src image.PalettedImage, point image.Point) {
-	rec := dst.Bounds().Intersect(src.Bounds())
-
-	for y := 0; y < rec.Dy(); y++ {
-		for x := 0; x < rec.Dx(); x++ {
-			index := src.ColorIndexAt(x, y)
-			if index != 0 {
-				dst.SetColorIndex(x+point.X, y+point.Y, index)
-			}
-		}
-	}
-}
-
-func ImageDraw24(dst draw.Image, src image.Image, point image.Point) {
-	draw.Draw(dst, dst.Bounds(), src, image.Point{X: -point.X, Y: -point.Y}, draw.Over)
-}
-
-func ImageCrop8(src image.PalettedImage, rect image.Rectangle) *image.Paletted {
-	r := rect.Intersect(src.Bounds()).Sub(src.Bounds().Min)
-	dst := image.NewPaletted(image.Rect(0, 0, r.Dx(), r.Dy()), nil)
-
-	for y := 0; y < r.Dy(); y++ {
-		for x := 0; x < r.Dx(); x++ {
-			index := src.ColorIndexAt(x+r.Min.X, y+r.Min.Y)
-			if index != 0 {
-				dst.SetColorIndex(x, y, index)
-			}
-		}
-	}
-
-	return dst
-}
-
-func ImageCrop24(src image.Image, rect image.Rectangle) *image.NRGBA {
-	return imaging.Crop(src, rect)
-}
-
-func ImageFlipH8(img image.PalettedImage) *image.Paletted {
-	width := img.Bounds().Dx()
-	height := img.Bounds().Dy()
-
-	dst := image.NewPaletted(image.Rect(0, 0, width, height), nil)
-
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			dst.SetColorIndex(width-x-1, y,
-				img.ColorIndexAt(x, y),
-			)
-		}
-	}
-
-	return dst
-}
-
-func ImageFlipH24(img image.Image) *image.NRGBA {
-	return imaging.FlipH(img)
-}
-
-func ImageFlipV8(img image.PalettedImage) *image.Paletted {
-	width := img.Bounds().Dx()
-	height := img.Bounds().Dy()
-
-	dst := image.NewPaletted(image.Rect(0, 0, width, height), nil)
-
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			dst.SetColorIndex(x, height-y-1,
-				img.ColorIndexAt(x, y),
-			)
-		}
-	}
-
-	return dst
-}
-
-func ImageFlipV24(img image.Image) *image.NRGBA {
-	return imaging.FlipV(img)
-}
-
-func ImageResize8(img image.PalettedImage, width, height int) *image.Paletted {
-	dst := image.NewPaletted(image.Rect(0, 0, width, height), nil)
-
-	dx := float64(img.Bounds().Dx()) / float64(width)
-	dy := float64(img.Bounds().Dy()) / float64(height)
-
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			srcX := int(float64(x) * dx)
-			srcY := int(float64(y) * dy)
-
-			if srcX >= img.Bounds().Dx() {
-				srcX = img.Bounds().Dx() - 1
-			}
-
-			if srcY >= img.Bounds().Dy() {
-				srcY = img.Bounds().Dy() - 1
-			}
-
-			dst.SetColorIndex(
-				x,
-				y,
-				img.ColorIndexAt(srcX, srcY),
-			)
-		}
-	}
-
-	return dst
-}
-
-func ImageResize24(img image.Image, width, height int) *image.NRGBA {
-	return imaging.Resize(img, width, height, imaging.NearestNeighbor)
 }

@@ -5,38 +5,41 @@ import (
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
 
-const (
-	width  = 3
-	height = 3
-)
-
-var coordinates = engine.NewCoordinates(0, 0, 1000)
-
 func New() *Mouse {
 	return &Mouse{}
 }
 
-type Mouse struct{}
+type Mouse struct {
+	coordinates engine.Coordinates
+}
 
 func (m *Mouse) Init() tea.Cmd {
+	// Coordinates
+	m.coordinates = engine.NewCoordinates(0, 0, 1000)
+
 	return nil
 }
 
 func (m *Mouse) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.MouseMotionMsg:
-		coordinates.
-			SetX(float64(msg.X - (width / 2))).
-			SetY(float64(msg.Y - (height / 2)))
+		m.coordinates = m.coordinates.
+			SetX(float64(msg.X - (imageWidth / 2))).
+			SetY(float64(msg.Y - (imageHeight / 2)))
 	}
 
 	return nil
 }
 
-func (m *Mouse) Bodies() engine.Bodies {
-	return nil
+func (m *Mouse) Sprites() engine.Sprites {
+	return engine.Sprites{
+		engine.CoordinatedSprite{
+			Coordinates: m.coordinates,
+			Image:       image,
+		},
+	}
 }
 
-func (m *Mouse) Sprites() (sprites engine.Sprites) {
-	return sprites.Append(sprite)
+func (m *Mouse) Bodies() engine.Bodies {
+	return nil
 }

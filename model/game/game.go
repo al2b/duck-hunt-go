@@ -47,16 +47,16 @@ func (m *Game) Update(msg tea.Msg) tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
-func (m *Game) Bodies() (bodies engine.Bodies) {
-	for _, model := range m.models {
-		bodies = append(bodies, model.Bodies()...)
-	}
-	return bodies
-}
-
 func (m *Game) Sprites() (sprites engine.Sprites) {
 	for _, model := range m.models {
 		sprites = append(sprites, model.Sprites()...)
 	}
 	return sprites
+}
+
+func (m *Game) Bodies() (bodies engine.Bodies) {
+	for _, model := range m.models {
+		bodies = append(bodies, model.Bodies()...)
+	}
+	return bodies
 }

@@ -18,7 +18,7 @@ func (m *Motion) Reset() {
 	m.frame = 0
 }
 
-func (m *Motion) MoveTo(coordinates *Coordinates, x, y float64, frames int) {
+func (m *Motion) MoveTo(coordinates Coordinates, x, y float64, frames int) {
 	m.vector = Vector{
 		x - coordinates.X(),
 		y - coordinates.Y(),
@@ -28,12 +28,12 @@ func (m *Motion) MoveTo(coordinates *Coordinates, x, y float64, frames int) {
 	m.frame = 0
 }
 
-func (m *Motion) Update(coordinates *Coordinates) {
+func (m *Motion) Update(coordinates Coordinates) Coordinates {
 	if m.frame >= m.frames {
-		return
+		return coordinates
 	}
 
-	coordinates.Move(m.vector)
-
 	m.frame++
+
+	return coordinates.Move(m.vector)
 }

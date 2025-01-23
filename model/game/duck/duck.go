@@ -12,23 +12,24 @@ const (
 	maxHeight = 32
 )
 
-var coordinates = engine.NewCoordinates(0, 0, 0)
-
 func New() *Duck {
 	return &Duck{}
 }
 
 type Duck struct {
+	// Coordinates
+	coordinates engine.Coordinates
 	// Movement
 	movement engine.Vector
 }
 
 func (m *Duck) Init() tea.Cmd {
 	// Coordinates
-	coordinates.
-		SetX(85 + math.Round(rand.Float64()*85)).
-		SetY(layout.Ground - maxHeight).
-		SetZ(5 + math.Round(rand.Float64()*20))
+	m.coordinates = engine.NewCoordinates(
+		85+math.Round(rand.Float64()*85),
+		layout.Ground-maxHeight,
+		5+math.Round(rand.Float64()*20),
+	)
 
 	// Movement
 	m.movement = engine.
@@ -41,7 +42,8 @@ func (m *Duck) Init() tea.Cmd {
 func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.MouseClickMsg:
-		coordinates.
+		// Coordinates
+		m.coordinates = m.coordinates.
 			SetX(float64(msg.X)).
 			SetY(float64(msg.Y))
 	case tea.KeyPressMsg:
@@ -51,13 +53,13 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 		case tea.KeyLeft:
 			m.movement = m.movement.Rotate(-10)
 		case tea.KeyUp:
-			coordinates.SubZ(10)
+			m.coordinates = m.coordinates.SubZ(10)
 		case tea.KeyDown:
-			coordinates.AddZ(10)
+			m.coordinates = m.coordinates.AddZ(10)
 		}
 	case engine.TickMsg:
 		// Coordinates
-		coordinates.Move(m.movement)
+		m.coordinates = m.coordinates.Move(m.movement)
 		// Animation
 		m.animation().Update()
 	}
@@ -65,14 +67,13 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 	return nil
 }
 
-func (m *Duck) Bodies() (bodies engine.Bodies) {
-	return bodies.Append(body)
-}
-
-func (m *Duck) Sprites() (sprites engine.Sprites) {
-	return sprites.Append(
-		m.animation().Sprite(coordinates),
-	)
+func (m *Duck) Sprites() engine.Sprites {
+	return engine.Sprites{
+		engine.CoordinatedSprite{
+			Coordinates: m.coordinates,
+			Image:       m.animation().Image(),
+		},
+	}
 }
 
 func (m *Duck) animation() *engine.Animation {
@@ -98,4 +99,17 @@ func (m *Duck) animation() *engine.Animation {
 	}
 
 	return animations[animation]
+}
+
+func (m *Duck) Bodies() (bodies engine.Bodies) {
+	return bodies.Append(
+		engine.NewBody(m.coordinates,
+			engine.BodyShape{
+				{0, 0},
+				{31, 0},
+				{31, 31},
+				{0, 31},
+			},
+		),
+	)
 }
