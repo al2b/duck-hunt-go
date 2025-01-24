@@ -46,6 +46,7 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 		m.coordinates = m.coordinates.
 			SetX(float64(msg.X)).
 			SetY(float64(msg.Y))
+		return engine.ConsoleLog("Duck!")
 	case tea.KeyPressMsg:
 		switch key := msg.Key(); key.Code {
 		case tea.KeyRight:

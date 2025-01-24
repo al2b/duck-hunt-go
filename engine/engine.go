@@ -1,9 +1,13 @@
 package engine
 
 import (
+	"embed"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"slices"
 )
+
+//go:embed images/*
+var imagesFS embed.FS
 
 var (
 	pause = false
@@ -12,6 +16,7 @@ var (
 func New(scene Scene) Engine {
 	return Engine{
 		scene:       scene,
+		console:     NewConsole(),
 		intersector: NewIntersector(),
 		renderer:    &RendererHalfBlockBottom24{},
 	}
@@ -19,6 +24,8 @@ func New(scene Scene) Engine {
 
 type Engine struct {
 	scene Scene
+	// Console
+	console *Console
 	// Window
 	windowWidth, windowHeight int
 	// Messages
@@ -38,6 +45,7 @@ func (e Engine) Init() (tea.Model, tea.Cmd) {
 		// According to documentation, these should be enabled as a program option
 		tea.EnterAltScreen,
 		tea.EnableMouseAllMotion,
+		e.console.Init(),
 		e.scene.Init(),
 		tick(e.scene.FPS()),
 	)
@@ -46,10 +54,13 @@ func (e Engine) Init() (tea.Model, tea.Cmd) {
 func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
+	// Console
+	cmds = append(cmds, e.console.Update(msg))
+
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		e.windowWidth, e.windowHeight = msg.Width*e.renderer.WidthRatio(), msg.Height*e.renderer.HeightRatio()
-		return e, nil
+		return e, ConsoleLog("Window size: %dx%d", e.windowWidth, e.windowHeight)
 	case tea.KeyPressMsg:
 		switch msg.String() {
 		// Quit
@@ -63,11 +74,11 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case *RendererHalfBlockBottom24:
 				e.renderer = &RendererHalfBlockBottom8{}
 			}
-			return e, nil
+			return e, ConsoleLog("Renderer: %s", e.renderer.Name())
 		// Debug
 		case "d":
 			debug = !debug
-			return e, nil
+			return e, ConsoleLog("Debug: %t", debug)
 		// Pause
 		case "p":
 			pause = !pause
@@ -77,6 +88,7 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, tick(e.scene.FPS()))
 	}
 
+	// Pause
 	if pause {
 		return e, tea.Batch(cmds...)
 	}
@@ -118,7 +130,18 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		})
 	case ModelIntersectedMsg:
 		resizeWidth, resizeHeight, paddingHorizontal, paddingVertical := e.size()
-		e.view = e.renderer.Render(e.scene.Sprites(), e.scene.Width(), e.scene.Height(), resizeWidth, resizeHeight, paddingHorizontal, paddingVertical)
+		e.view = e.renderer.Render(
+			append(
+				e.scene.Sprites(),
+				e.console.Sprites()...,
+			),
+			e.scene.Width(),
+			e.scene.Height(),
+			resizeWidth,
+			resizeHeight,
+			paddingHorizontal,
+			paddingVertical,
+		)
 	}
 
 	return e, tea.Batch(cmds...)
