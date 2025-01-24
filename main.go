@@ -13,9 +13,10 @@ func main() {
 	p := tea.NewProgram(
 		engine.New(
 			model.New(),
+			256,
+			240,
+			60,
 		),
-		tea.WithAltScreen(),
-		tea.WithMouseAllMotion(),
 	)
 	_, err := p.Run()
 	if err != nil {

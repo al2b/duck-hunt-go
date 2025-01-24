@@ -5,28 +5,26 @@ import (
 	"slices"
 )
 
-const (
-	Width  = 256
-	Height = 240
-	Fps    = 60
-)
-
 var (
-	zoom  = 1
 	pause = false
 )
 
-func New(model Model) Engine {
+func New(model Model, width, height int, fps int) Engine {
 	return Engine{
+		width:       width,
+		height:      height,
+		fps:         fps,
 		model:       model,
 		intersector: NewIntersector(),
-		renderer:    NewRenderer(),
+		renderer:    NewRenderer(width, height),
 	}
 }
 
 type Engine struct {
-	// Window
 	width, height int
+	fps           int
+	// Window
+	windowWidth, windowHeight int
 	// Model
 	model Model
 	// Messages
@@ -38,25 +36,31 @@ type Engine struct {
 	view     string
 }
 
-func (m Engine) Init() (tea.Model, tea.Cmd) {
-	return m, tea.Batch(
-		tick(),
-		m.model.Init(),
+func (e Engine) Init() (tea.Model, tea.Cmd) {
+	return e, tea.Batch(
+		// Force requesting window size again for certain terminal who
+		// don't respond in time to the first automatic bubble tea request
+		tea.RequestWindowSize(),
+		// According to documentation, these should be enabled as a program option
+		tea.EnterAltScreen,
+		tea.EnableMouseAllMotion,
+		e.model.Init(),
+		tick(e.fps),
 	)
 }
 
-func (m Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.width, m.height = msg.Width, msg.Height
-		return m, nil
+		e.windowWidth, e.windowHeight = msg.Width*e.renderer.WidthRatio(), msg.Height*e.renderer.HeightRatio()
+		return e, nil
 	case tea.KeyPressMsg:
 		switch msg.String() {
 		// Quit
 		case "enter", "q", "ctrl+c", "esc":
-			return m, tea.Quit
+			return e, tea.Quit
 		// Mode
 		case "m":
 			switch mode {
@@ -65,94 +69,89 @@ func (m Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case Mode24:
 				mode = Mode8
 			}
-			return m, nil
+			return e, nil
 		// Debug
 		case "d":
 			debug = !debug
-			return m, nil
+			return e, nil
 		// Pause
 		case "p":
 			pause = !pause
-			return m, nil
-		// Zoom in
-		case "i":
-			if zoom > 1 {
-				zoom = zoom / 2
-			}
-			return m, nil
-		// Zoom out
-		case "o":
-			if zoom < 8 {
-				zoom = zoom * 2
-			}
-			return m, nil
+			return e, nil
 		}
 	case TickMsg:
-		cmds = append(cmds, tick())
+		cmds = append(cmds, tick(e.fps))
 	}
 
 	if pause {
-		return m, tea.Batch(cmds...)
+		return e, tea.Batch(cmds...)
 	}
 
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
-		m.msgs = append(m.msgs, msg)
+		e.msgs = append(e.msgs, msg)
 	case tea.MouseMsg:
 		mouse := msg.Mouse()
-		top, left := m.padding()
+		// Mouse position
+		width, height, paddingHorizontal, paddingVertical := e.size()
+		x := (((msg.Mouse().X * e.renderer.WidthRatio()) - paddingHorizontal) * e.width) / width
+		y := (((msg.Mouse().Y * e.renderer.HeightRatio()) - paddingVertical) * e.height) / height
 		if mouse.Button != tea.MouseNone {
-			m.msgs = append(m.msgs, tea.MouseClickMsg{
-				X:      (msg.Mouse().X - left) * zoom,
-				Y:      ((msg.Mouse().Y - top) * 2) * zoom,
-				Button: mouse.Button,
-			})
+			e.msgs = append(e.msgs, tea.MouseClickMsg{X: x, Y: y, Button: mouse.Button})
 		} else {
 			// Remove previous mouse motion messages...
-			m.msgs = slices.DeleteFunc(m.msgs, func(msg tea.Msg) bool {
+			e.msgs = slices.DeleteFunc(e.msgs, func(msg tea.Msg) bool {
 				_, ok := msg.(tea.MouseMotionMsg)
 				return ok
 			})
 			// ...to keep only the last one
-			top, left := m.padding()
-			m.msgs = append(m.msgs, tea.MouseMotionMsg{
-				X: (msg.Mouse().X - left) * zoom,
-				Y: ((msg.Mouse().Y - top) * 2) * zoom,
-			})
+			e.msgs = append(e.msgs, tea.MouseMotionMsg{X: x, Y: y})
 		}
 	case TickMsg:
-		msgs := append(m.msgs, msg)
+		msgs := append(e.msgs, msg)
 		for _, msg := range msgs {
-			cmds = append(cmds, m.model.Update(msg))
+			cmds = append(cmds, e.model.Update(msg))
 		}
 		cmds = append(cmds, func() tea.Msg {
 			return ModelUpdatedMsg{}
 		})
-		m.msgs = nil
+		e.msgs = nil
 	case ModelUpdatedMsg:
+		cmds = append(cmds, e.model.Update(msg))
 		cmds = append(cmds, func() tea.Msg {
-			m.intersector.Intersect(m.model)
+			e.intersector.Intersect(e.model)
 			return ModelIntersectedMsg{}
 		})
 	case ModelIntersectedMsg:
-		// Render
-		top, left := m.padding()
-		m.view = m.renderer.Render(m.model.Sprites(), top, left)
+		width, height, paddingHorizontal, paddingVertical := e.size()
+		e.view = e.renderer.Render(e.model.Sprites(), width, height, paddingHorizontal, paddingVertical)
 	}
 
-	return m, tea.Batch(cmds...)
+	return e, tea.Batch(cmds...)
 }
 
-func (m Engine) padding() (top int, left int) {
-	if m.width > (Width / zoom) {
-		left = (m.width - (Width / zoom)) / 2
+func (e Engine) size() (width, height int, paddingHorizontal, paddingVertical int) {
+	// Fit in window with optional padding
+	if (e.windowWidth >= e.width) && (e.windowHeight >= e.height) {
+		width, height = e.width, e.height
+	} else {
+		widthRatio := float64(e.windowWidth) / float64(e.width)
+		heightRatio := float64(e.windowHeight) / float64(e.height)
+
+		ratio := widthRatio
+		if heightRatio < widthRatio {
+			ratio = heightRatio
+		}
+
+		width = int(float64(e.width) * ratio)
+		height = int(float64(e.height) * ratio)
 	}
-	if m.height > ((Height / zoom) / 2) {
-		top = (m.height - ((Height / zoom) / 2)) / 2
-	}
-	return
+
+	return width, height,
+		(e.windowWidth - width) / 2,
+		(e.windowHeight - height) / 2
 }
 
-func (m Engine) View() string {
-	return m.view
+func (e Engine) View() string {
+	return e.view
 }

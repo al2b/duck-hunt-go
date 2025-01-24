@@ -8,26 +8,37 @@ import (
 	"strings"
 )
 
-func NewRenderer() *Renderer {
-	return &Renderer{}
+func NewRenderer(width, height int) *Renderer {
+	return &Renderer{
+		width:  width,
+		height: height,
+	}
 }
 
 type Renderer struct {
-	WindowWidth, WindowHeight int
+	width, height int
 }
 
-func (r *Renderer) Render(sprites Sprites, paddingTop, paddingLeft int) string {
+func (r *Renderer) WidthRatio() int {
+	return 1
+}
+
+func (r *Renderer) HeightRatio() int {
+	return 2
+}
+
+func (r *Renderer) Render(sprites Sprites, width, height int, paddingHorizontal, paddingVertical int) string {
 	switch mode {
 	case Mode8:
-		return r.render8(sprites, paddingTop, paddingLeft)
+		return r.render8(sprites, width, height, paddingHorizontal, paddingVertical)
 	case Mode24:
-		return r.render24(sprites, paddingTop, paddingLeft)
+		return r.render24(sprites, width, height, paddingHorizontal, paddingVertical)
 	}
 	return ""
 }
 
-func (r *Renderer) render8(sprites Sprites, paddingTop, paddingLeft int) string {
-	frame := image.NewPaletted(image.Rect(0, 0, Width, Height), nil)
+func (r *Renderer) render8(sprites Sprites, width, height int, paddingHorizontal, paddingVertical int) string {
+	frame := image.NewPaletted(image.Rect(0, 0, r.width, r.height), nil)
 
 	// Sort by depth (z coordinate)
 	slices.SortStableFunc(sprites, func(a, b Sprite) int {
@@ -41,32 +52,32 @@ func (r *Renderer) render8(sprites Sprites, paddingTop, paddingLeft int) string 
 		}
 	}
 
-	// Zoom
-	if zoom != 1 {
-		frame = Image8Resize(frame, Width/zoom, Height/zoom)
+	// Resize
+	if width != r.width || height != r.height {
+		frame = Image8Resize(frame, width, height)
 	}
 
 	// Padding
-	top := strings.Repeat("\n", paddingTop)
-	left := strings.Repeat(" ", paddingLeft)
+	horizontal := strings.Repeat(" ", paddingHorizontal/r.WidthRatio())
+	vertical := strings.Repeat("\n", paddingVertical/r.HeightRatio())
 
 	bounds := frame.Bounds()
 
 	str := strings.Builder{}
 
-	str.WriteString(top)
+	str.WriteString(vertical)
 	for y := 0; y < bounds.Max.Y; y += 2 {
 		var cct, ccb uint8
-		str.WriteString(left)
+		str.WriteString(horizontal)
 		for x := 0; x < bounds.Max.X; x++ {
 			var t ansi.Style
-			// Top
+			// Block top
 			ct := frame.ColorIndexAt(x, y)
 			if ct != cct {
 				cct = ct
 				t = t.BackgroundColor(ansi.ExtendedColor(cct))
 			}
-			// Bottom
+			// Block bottom
 			cb := frame.ColorIndexAt(x, y+1)
 			if cb != ccb {
 				ccb = cb
@@ -86,8 +97,8 @@ func (r *Renderer) render8(sprites Sprites, paddingTop, paddingLeft int) string 
 	return str.String()
 }
 
-func (r *Renderer) render24(sprites Sprites, paddingTop, paddingLeft int) string {
-	frame := image.NewNRGBA(image.Rect(0, 0, Width, Height))
+func (r *Renderer) render24(sprites Sprites, width, height int, paddingHorizontal, paddingVertical int) string {
+	frame := image.NewNRGBA(image.Rect(0, 0, r.width, r.height))
 
 	// Sort by depth (z coordinate)
 	slices.SortStableFunc(sprites, func(a, b Sprite) int {
@@ -101,33 +112,33 @@ func (r *Renderer) render24(sprites Sprites, paddingTop, paddingLeft int) string
 		}
 	}
 
-	// Zoom
-	if zoom != 1 {
-		frame = Image24Resize(frame, Width/zoom, Height/zoom)
+	// Resize
+	if width != r.width || height != r.height {
+		frame = Image24Resize(frame, width, height)
 	}
 
 	// Padding
-	top := strings.Repeat("\n", paddingTop)
-	left := strings.Repeat(" ", paddingLeft)
+	horizontal := strings.Repeat(" ", paddingHorizontal/r.WidthRatio())
+	vertical := strings.Repeat("\n", paddingVertical/r.HeightRatio())
 
 	bounds := frame.Bounds()
 
 	str := strings.Builder{}
 
-	str.WriteString(top)
+	str.WriteString(vertical)
 	for y := 0; y < bounds.Max.Y; y += 2 {
 		var cct, ccb color.NRGBA
-		str.WriteString(left)
+		str.WriteString(horizontal)
 		for x := 0; x < bounds.Max.X; x++ {
 			var t ansi.Style
-			// Top
+			// Block top
 			ct := frame.NRGBAAt(x, y)
 			ct.A = 0xff
 			if ct != cct {
 				cct = ct
 				t = t.BackgroundColor(cct)
 			}
-			// Bottom
+			// Block bottom
 			cb := frame.NRGBAAt(x, y+1)
 			cb.A = 0xff
 			if cb != ccb {

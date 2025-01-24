@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	width  = engine.Width
+	width  = 256
 	Ground = 184
 )
 
