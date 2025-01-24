@@ -2,9 +2,9 @@ package model
 
 import (
 	"duck-hunt-go/engine"
-	"duck-hunt-go/model/game"
-	"duck-hunt-go/model/intro"
-	"duck-hunt-go/model/mouse"
+	"duck-hunt-go/scene/game"
+	"duck-hunt-go/scene/intro"
+	"duck-hunt-go/scene/mouse"
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
 

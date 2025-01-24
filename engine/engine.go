@@ -9,24 +9,18 @@ var (
 	pause = false
 )
 
-func New(model Model, width, height int, fps int) Engine {
+func New(scene Scene) Engine {
 	return Engine{
-		width:       width,
-		height:      height,
-		fps:         fps,
-		model:       model,
+		scene:       scene,
 		intersector: NewIntersector(),
-		renderer:    NewRenderer(width, height),
+		renderer:    NewRenderer(scene.Width(), scene.Height()),
 	}
 }
 
 type Engine struct {
-	width, height int
-	fps           int
+	scene Scene
 	// Window
 	windowWidth, windowHeight int
-	// Model
-	model Model
 	// Messages
 	msgs []tea.Msg
 	// Intersections
@@ -44,8 +38,8 @@ func (e Engine) Init() (tea.Model, tea.Cmd) {
 		// According to documentation, these should be enabled as a program option
 		tea.EnterAltScreen,
 		tea.EnableMouseAllMotion,
-		e.model.Init(),
-		tick(e.fps),
+		e.scene.Init(),
+		tick(e.scene.FPS()),
 	)
 }
 
@@ -80,7 +74,7 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return e, nil
 		}
 	case TickMsg:
-		cmds = append(cmds, tick(e.fps))
+		cmds = append(cmds, tick(e.scene.FPS()))
 	}
 
 	if pause {
@@ -94,8 +88,8 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		mouse := msg.Mouse()
 		// Mouse position
 		width, height, paddingHorizontal, paddingVertical := e.size()
-		x := (((msg.Mouse().X * e.renderer.WidthRatio()) - paddingHorizontal) * e.width) / width
-		y := (((msg.Mouse().Y * e.renderer.HeightRatio()) - paddingVertical) * e.height) / height
+		x := (((msg.Mouse().X * e.renderer.WidthRatio()) - paddingHorizontal) * e.scene.Width()) / width
+		y := (((msg.Mouse().Y * e.renderer.HeightRatio()) - paddingVertical) * e.scene.Height()) / height
 		if mouse.Button != tea.MouseNone {
 			e.msgs = append(e.msgs, tea.MouseClickMsg{X: x, Y: y, Button: mouse.Button})
 		} else {
@@ -110,41 +104,42 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case TickMsg:
 		msgs := append(e.msgs, msg)
 		for _, msg := range msgs {
-			cmds = append(cmds, e.model.Update(msg))
+			cmds = append(cmds, e.scene.Update(msg))
 		}
 		cmds = append(cmds, func() tea.Msg {
 			return ModelUpdatedMsg{}
 		})
 		e.msgs = nil
 	case ModelUpdatedMsg:
-		cmds = append(cmds, e.model.Update(msg))
+		cmds = append(cmds, e.scene.Update(msg))
 		cmds = append(cmds, func() tea.Msg {
-			e.intersector.Intersect(e.model)
+			e.intersector.Intersect(e.scene)
 			return ModelIntersectedMsg{}
 		})
 	case ModelIntersectedMsg:
 		width, height, paddingHorizontal, paddingVertical := e.size()
-		e.view = e.renderer.Render(e.model.Sprites(), width, height, paddingHorizontal, paddingVertical)
+		e.view = e.renderer.Render(e.scene.Sprites(), width, height, paddingHorizontal, paddingVertical)
 	}
 
 	return e, tea.Batch(cmds...)
 }
 
 func (e Engine) size() (width, height int, paddingHorizontal, paddingVertical int) {
+	sceneWidth, sceneHeight := e.scene.Width(), e.scene.Height()
 	// Fit in window with optional padding
-	if (e.windowWidth >= e.width) && (e.windowHeight >= e.height) {
-		width, height = e.width, e.height
+	if (e.windowWidth >= sceneWidth) && (e.windowHeight >= sceneHeight) {
+		width, height = sceneWidth, sceneHeight
 	} else {
-		widthRatio := float64(e.windowWidth) / float64(e.width)
-		heightRatio := float64(e.windowHeight) / float64(e.height)
+		widthRatio := float64(e.windowWidth) / float64(sceneWidth)
+		heightRatio := float64(e.windowHeight) / float64(sceneHeight)
 
 		ratio := widthRatio
 		if heightRatio < widthRatio {
 			ratio = heightRatio
 		}
 
-		width = int(float64(e.width) * ratio)
-		height = int(float64(e.height) * ratio)
+		width = int(float64(sceneWidth) * ratio)
+		height = int(float64(sceneHeight) * ratio)
 	}
 
 	return width, height,

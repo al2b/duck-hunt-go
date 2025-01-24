@@ -2,7 +2,7 @@ package duck
 
 import (
 	"duck-hunt-go/engine"
-	"duck-hunt-go/model/game/layout"
+	"duck-hunt-go/scene/game/layout"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"math"
 	"math/rand/v2"

@@ -2,7 +2,7 @@ package main
 
 import (
 	"duck-hunt-go/engine"
-	"duck-hunt-go/model"
+	"duck-hunt-go/scene"
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"os"
@@ -12,10 +12,7 @@ func main() {
 
 	p := tea.NewProgram(
 		engine.New(
-			model.New(),
-			256,
-			240,
-			60,
+			scene.New(),
 		),
 	)
 	_, err := p.Run()
