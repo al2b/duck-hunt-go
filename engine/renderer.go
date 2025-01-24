@@ -8,37 +8,33 @@ import (
 	"strings"
 )
 
-func NewRenderer(width, height int) *Renderer {
-	return &Renderer{
-		width:  width,
-		height: height,
-	}
+type Renderer interface {
+	Name() string
+	WidthRatio() int
+	HeightRatio() int
+	Render(sprites Sprites, width, height int, resizeWidth, resizeHeight int, paddingHorizontal, paddingVertical int) string
 }
 
-type Renderer struct {
-	width, height int
+/* ******************* */
+/* Half Block Bottom 8 */
+/* ******************* */
+
+type RendererHalfBlockBottom8 struct{}
+
+func (r *RendererHalfBlockBottom8) Name() string {
+	return "Half Block Bottom 8"
 }
 
-func (r *Renderer) WidthRatio() int {
+func (r *RendererHalfBlockBottom8) WidthRatio() int {
 	return 1
 }
 
-func (r *Renderer) HeightRatio() int {
+func (r *RendererHalfBlockBottom8) HeightRatio() int {
 	return 2
 }
 
-func (r *Renderer) Render(sprites Sprites, width, height int, paddingHorizontal, paddingVertical int) string {
-	switch mode {
-	case Mode8:
-		return r.render8(sprites, width, height, paddingHorizontal, paddingVertical)
-	case Mode24:
-		return r.render24(sprites, width, height, paddingHorizontal, paddingVertical)
-	}
-	return ""
-}
-
-func (r *Renderer) render8(sprites Sprites, width, height int, paddingHorizontal, paddingVertical int) string {
-	frame := image.NewPaletted(image.Rect(0, 0, r.width, r.height), nil)
+func (r *RendererHalfBlockBottom8) Render(sprites Sprites, width, height int, resizeWidth, resizeHeight int, paddingHorizontal, paddingVertical int) string {
+	frame := image.NewPaletted(image.Rect(0, 0, width, height), nil)
 
 	// Sort by depth (z coordinate)
 	slices.SortStableFunc(sprites, func(a, b Sprite) int {
@@ -53,8 +49,8 @@ func (r *Renderer) render8(sprites Sprites, width, height int, paddingHorizontal
 	}
 
 	// Resize
-	if width != r.width || height != r.height {
-		frame = Image8Resize(frame, width, height)
+	if resizeWidth != width || resizeHeight != height {
+		frame = Image8Resize(frame, resizeWidth, resizeHeight)
 	}
 
 	// Padding
@@ -97,8 +93,26 @@ func (r *Renderer) render8(sprites Sprites, width, height int, paddingHorizontal
 	return str.String()
 }
 
-func (r *Renderer) render24(sprites Sprites, width, height int, paddingHorizontal, paddingVertical int) string {
-	frame := image.NewNRGBA(image.Rect(0, 0, r.width, r.height))
+/* ******************** */
+/* Half Block Bottom 24 */
+/* ******************** */
+
+type RendererHalfBlockBottom24 struct{}
+
+func (r *RendererHalfBlockBottom24) Name() string {
+	return "Half Block Bottom 24"
+}
+
+func (r *RendererHalfBlockBottom24) WidthRatio() int {
+	return 1
+}
+
+func (r *RendererHalfBlockBottom24) HeightRatio() int {
+	return 2
+}
+
+func (r *RendererHalfBlockBottom24) Render(sprites Sprites, width, height int, resizeWidth, resizeHeight int, paddingHorizontal, paddingVertical int) string {
+	frame := image.NewNRGBA(image.Rect(0, 0, width, height))
 
 	// Sort by depth (z coordinate)
 	slices.SortStableFunc(sprites, func(a, b Sprite) int {
@@ -113,8 +127,8 @@ func (r *Renderer) render24(sprites Sprites, width, height int, paddingHorizonta
 	}
 
 	// Resize
-	if width != r.width || height != r.height {
-		frame = Image24Resize(frame, width, height)
+	if resizeWidth != width || resizeHeight != height {
+		frame = Image24Resize(frame, resizeWidth, resizeHeight)
 	}
 
 	// Padding

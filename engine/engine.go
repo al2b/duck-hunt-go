@@ -13,7 +13,7 @@ func New(scene Scene) Engine {
 	return Engine{
 		scene:       scene,
 		intersector: NewIntersector(),
-		renderer:    NewRenderer(scene.Width(), scene.Height()),
+		renderer:    &RendererHalfBlockBottom24{},
 	}
 }
 
@@ -26,7 +26,7 @@ type Engine struct {
 	// Intersections
 	intersector *Intersector
 	// View
-	renderer *Renderer
+	renderer Renderer
 	view     string
 }
 
@@ -57,11 +57,11 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return e, tea.Quit
 		// Mode
 		case "m":
-			switch mode {
-			case Mode8:
-				mode = Mode24
-			case Mode24:
-				mode = Mode8
+			switch e.renderer.(type) {
+			case *RendererHalfBlockBottom8:
+				e.renderer = &RendererHalfBlockBottom24{}
+			case *RendererHalfBlockBottom24:
+				e.renderer = &RendererHalfBlockBottom8{}
 			}
 			return e, nil
 		// Debug
@@ -117,8 +117,8 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return ModelIntersectedMsg{}
 		})
 	case ModelIntersectedMsg:
-		width, height, paddingHorizontal, paddingVertical := e.size()
-		e.view = e.renderer.Render(e.scene.Sprites(), width, height, paddingHorizontal, paddingVertical)
+		resizeWidth, resizeHeight, paddingHorizontal, paddingVertical := e.size()
+		e.view = e.renderer.Render(e.scene.Sprites(), e.scene.Width(), e.scene.Height(), resizeWidth, resizeHeight, paddingHorizontal, paddingVertical)
 	}
 
 	return e, tea.Batch(cmds...)
