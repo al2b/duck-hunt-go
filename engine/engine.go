@@ -59,7 +59,8 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		e.windowWidth, e.windowHeight = msg.Width*e.renderer.WidthRatio(), msg.Height*e.renderer.HeightRatio()
+		widthRatio, heightRatio := e.renderer.Ratio()
+		e.windowWidth, e.windowHeight = msg.Width*widthRatio, msg.Height*heightRatio
 		return e, ConsoleLog("Window size: %dx%d", e.windowWidth, e.windowHeight)
 	case tea.KeyPressMsg:
 		switch msg.String() {
@@ -100,8 +101,9 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		mouse := msg.Mouse()
 		// Mouse position
 		width, height, paddingHorizontal, paddingVertical := e.size()
-		x := (((msg.Mouse().X * e.renderer.WidthRatio()) - paddingHorizontal) * e.scene.Width()) / width
-		y := (((msg.Mouse().Y * e.renderer.HeightRatio()) - paddingVertical) * e.scene.Height()) / height
+		widthRatio, heightRatio := e.renderer.Ratio()
+		x := (((msg.Mouse().X * widthRatio) - paddingHorizontal) * e.scene.Width()) / width
+		y := (((msg.Mouse().Y * heightRatio) - paddingVertical) * e.scene.Height()) / height
 		if mouse.Button != tea.MouseNone {
 			e.msgs = append(e.msgs, tea.MouseClickMsg{X: x, Y: y, Button: mouse.Button})
 		} else {

@@ -10,8 +10,7 @@ import (
 
 type Renderer interface {
 	Name() string
-	WidthRatio() int
-	HeightRatio() int
+	Ratio() (int, int)
 	Render(sprites Sprites, width, height int, resizeWidth, resizeHeight int, paddingHorizontal, paddingVertical int) string
 }
 
@@ -25,12 +24,8 @@ func (r *RendererHalfBlockBottom8) Name() string {
 	return "Half Block Bottom 8"
 }
 
-func (r *RendererHalfBlockBottom8) WidthRatio() int {
-	return 1
-}
-
-func (r *RendererHalfBlockBottom8) HeightRatio() int {
-	return 2
+func (r *RendererHalfBlockBottom8) Ratio() (int, int) {
+	return 1, 2
 }
 
 func (r *RendererHalfBlockBottom8) Render(sprites Sprites, width, height int, resizeWidth, resizeHeight int, paddingHorizontal, paddingVertical int) string {
@@ -53,9 +48,11 @@ func (r *RendererHalfBlockBottom8) Render(sprites Sprites, width, height int, re
 		frame = Image8Resize(frame, resizeWidth, resizeHeight)
 	}
 
+	widthRatio, heightRatio := r.Ratio()
+
 	// Padding
-	horizontal := strings.Repeat(" ", paddingHorizontal/r.WidthRatio())
-	vertical := strings.Repeat("\n", paddingVertical/r.HeightRatio())
+	horizontal := strings.Repeat(" ", paddingHorizontal/widthRatio)
+	vertical := strings.Repeat("\n", paddingVertical/heightRatio)
 
 	bounds := frame.Bounds()
 
@@ -103,12 +100,8 @@ func (r *RendererHalfBlockBottom24) Name() string {
 	return "Half Block Bottom 24"
 }
 
-func (r *RendererHalfBlockBottom24) WidthRatio() int {
-	return 1
-}
-
-func (r *RendererHalfBlockBottom24) HeightRatio() int {
-	return 2
+func (r *RendererHalfBlockBottom24) Ratio() (int, int) {
+	return 1, 2
 }
 
 func (r *RendererHalfBlockBottom24) Render(sprites Sprites, width, height int, resizeWidth, resizeHeight int, paddingHorizontal, paddingVertical int) string {
@@ -131,9 +124,11 @@ func (r *RendererHalfBlockBottom24) Render(sprites Sprites, width, height int, r
 		frame = Image24Resize(frame, resizeWidth, resizeHeight)
 	}
 
+	widthRatio, heightRatio := r.Ratio()
+
 	// Padding
-	horizontal := strings.Repeat(" ", paddingHorizontal/r.WidthRatio())
-	vertical := strings.Repeat("\n", paddingVertical/r.HeightRatio())
+	horizontal := strings.Repeat(" ", paddingHorizontal/widthRatio)
+	vertical := strings.Repeat("\n", paddingVertical/heightRatio)
 
 	bounds := frame.Bounds()
 
