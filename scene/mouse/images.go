@@ -14,8 +14,7 @@ const (
 var imagesFS embed.FS
 
 var (
-	image = engine.Must(engine.LoadImageFiles(imagesFS,
-		"images/mouse.8.png",
-		"images/mouse.24.png",
-	))
+	imageMouse = engine.Must(
+		engine.LoadImageFile(imagesFS, "images/mouse.png"),
+	)
 )

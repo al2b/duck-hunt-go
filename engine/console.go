@@ -55,10 +55,10 @@ func (c *Console) Sprites() Sprites {
 	}
 
 	return Sprites{
-		CoordinatedSprite{
-			Coordinates: NewCoordinates(0, 0, math.MaxFloat64),
-			Image:       NewTextImage(text.String()),
-		},
+		NewCoordinatedSprite(
+			NewCoordinates(0, 0, math.MaxFloat64),
+			NewText(text.String()).Image(),
+		),
 	}
 }
 

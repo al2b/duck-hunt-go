@@ -26,10 +26,10 @@ func (m *Intro) Update(_ tea.Msg) tea.Cmd {
 
 func (m *Intro) Sprites() engine.Sprites {
 	return engine.Sprites{
-		engine.CoordinatedSprite{
-			Coordinates: m.coordinates,
-			Image:       image,
-		},
+		engine.NewCoordinatedSprite(
+			m.coordinates,
+			imageLayout,
+		),
 	}
 }
 

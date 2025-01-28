@@ -70,10 +70,10 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 
 func (m *Duck) Sprites() engine.Sprites {
 	return engine.Sprites{
-		engine.CoordinatedSprite{
-			Coordinates: m.coordinates,
-			Image:       m.animation().Image(),
-		},
+		engine.NewCoordinatedSprite(
+			m.coordinates,
+			m.animation().Image(),
+		),
 	}
 }
 

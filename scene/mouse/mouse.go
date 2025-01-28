@@ -33,10 +33,10 @@ func (m *Mouse) Update(msg tea.Msg) tea.Cmd {
 
 func (m *Mouse) Sprites() engine.Sprites {
 	return engine.Sprites{
-		engine.CoordinatedSprite{
-			Coordinates: m.coordinates,
-			Image:       image,
-		},
+		engine.NewCoordinatedSprite(
+			m.coordinates,
+			imageMouse,
+		),
 	}
 }
 

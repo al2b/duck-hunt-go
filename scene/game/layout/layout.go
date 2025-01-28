@@ -32,22 +32,22 @@ func (m *Layout) Update(_ tea.Msg) tea.Cmd {
 
 func (m *Layout) Sprites() engine.Sprites {
 	return engine.Sprites{
-		engine.CoordinatedSprite{
-			Coordinates: m.coordinates.SetZ(100),
-			Image:       image,
-		},
-		engine.CoordinatedSprite{
-			Coordinates: m.coordinates.SetZ(-math.MaxFloat64),
-			Image:       imageSky,
-		},
-		engine.CoordinatedSprite{
-			Coordinates: m.coordinates.Add(6, 32, 10),
-			Image:       imageTree,
-		},
-		engine.CoordinatedSprite{
-			Coordinates: m.coordinates.Add(193, 122, 20),
-			Image:       imageShrub,
-		},
+		engine.NewCoordinatedSprite(
+			m.coordinates.SetZ(100),
+			imageLayout,
+		),
+		engine.NewCoordinatedSprite(
+			m.coordinates.SetZ(-math.MaxFloat64),
+			imageSky,
+		),
+		engine.NewCoordinatedSprite(
+			m.coordinates.Add(6, 32, 10),
+			imageTree,
+		),
+		engine.NewCoordinatedSprite(
+			m.coordinates.Add(193, 122, 20),
+			imageShrub,
+		),
 	}
 }
 

@@ -22,7 +22,7 @@ const (
 
 var animations = map[int]*engine.Animation{
 	animationFlyTop: engine.NewAnimation(
-		image,
+		imageDuck,
 		engine.AnimationFrames{
 			{X: 0 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight},
 			{X: 0 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight},
@@ -31,7 +31,7 @@ var animations = map[int]*engine.Animation{
 		},
 	),
 	animationFlyTopRight: engine.NewAnimation(
-		image,
+		imageDuck,
 		engine.AnimationFrames{
 			{X: 1 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight},
 			{X: 1 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight},
@@ -40,7 +40,7 @@ var animations = map[int]*engine.Animation{
 		},
 	),
 	animationFlyRight: engine.NewAnimation(
-		image,
+		imageDuck,
 		engine.AnimationFrames{
 			{X: 2 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight},
 			{X: 2 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight},
@@ -49,7 +49,7 @@ var animations = map[int]*engine.Animation{
 		},
 	),
 	animationFlyBottomRight: engine.NewAnimation(
-		image,
+		imageDuck,
 		engine.AnimationFrames{
 			{X: 3 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight},
 			{X: 3 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight},
@@ -58,7 +58,7 @@ var animations = map[int]*engine.Animation{
 		},
 	),
 	animationFlyBottom: engine.NewAnimation(
-		image,
+		imageDuck,
 		engine.AnimationFrames{
 			{X: 0 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight, FlipV: true},
 			{X: 0 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight, FlipV: true},
@@ -67,7 +67,7 @@ var animations = map[int]*engine.Animation{
 		},
 	),
 	animationFlyBottomLeft: engine.NewAnimation(
-		image,
+		imageDuck,
 		engine.AnimationFrames{
 			{X: 3 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
 			{X: 3 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
@@ -76,7 +76,7 @@ var animations = map[int]*engine.Animation{
 		},
 	),
 	animationFlyLeft: engine.NewAnimation(
-		image,
+		imageDuck,
 		engine.AnimationFrames{
 			{X: 2 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
 			{X: 2 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
@@ -85,7 +85,7 @@ var animations = map[int]*engine.Animation{
 		},
 	),
 	animationFlyTopLeft: engine.NewAnimation(
-		image,
+		imageDuck,
 		engine.AnimationFrames{
 			{X: 1 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
 			{X: 1 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},

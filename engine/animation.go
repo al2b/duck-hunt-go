@@ -1,10 +1,11 @@
 package engine
 
 import (
+	"github.com/disintegration/imaging"
 	"image"
 )
 
-func NewAnimation(image Image, frames []AnimationFrame) *Animation {
+func NewAnimation(image image.Image, frames []AnimationFrame) *Animation {
 	return &Animation{
 		image:    image,
 		frames:   frames,
@@ -14,7 +15,7 @@ func NewAnimation(image Image, frames []AnimationFrame) *Animation {
 }
 
 type Animation struct {
-	image    Image
+	image    image.Image
 	frames   AnimationFrames
 	frame    int
 	velocity int
@@ -24,11 +25,11 @@ func (a *Animation) Update() {
 	a.frame = (a.frame + 1) % (len(a.frames) * a.velocity)
 }
 
-func (a *Animation) Image() Image {
-	return &AnimationFrameImage{
+func (a *Animation) Image() image.Image {
+	return (&AnimationFrameImage{
 		animation: a,
 		frame:     a.frames[a.frame/a.velocity],
-	}
+	}).Image()
 }
 
 type AnimationFrame struct {
@@ -44,8 +45,8 @@ type AnimationFrameImage struct {
 	frame     AnimationFrame
 }
 
-func (s *AnimationFrameImage) Image8() Image8 {
-	img := Image8Crop(s.animation.image.Image8(), image.Rect(
+func (s *AnimationFrameImage) Image() image.Image {
+	img := imaging.Crop(s.animation.image, image.Rect(
 		s.frame.X,
 		s.frame.Y,
 		s.frame.X+(s.frame.Width-1),
@@ -53,30 +54,11 @@ func (s *AnimationFrameImage) Image8() Image8 {
 	))
 
 	if s.frame.FlipH {
-		img = Image8FlipH(img)
+		img = imaging.FlipH(img)
 	}
 
 	if s.frame.FlipV {
-		img = Image8FlipV(img)
-	}
-
-	return img
-}
-
-func (s *AnimationFrameImage) Image24() Image24 {
-	img := Image24Crop(s.animation.image.Image24(), image.Rect(
-		s.frame.X,
-		s.frame.Y,
-		s.frame.X+(s.frame.Width-1),
-		s.frame.Y+(s.frame.Height-1),
-	))
-
-	if s.frame.FlipH {
-		img = Image24FlipH(img)
-	}
-
-	if s.frame.FlipV {
-		img = Image24FlipV(img)
+		img = imaging.FlipV(img)
 	}
 
 	return img

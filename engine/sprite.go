@@ -8,7 +8,7 @@ import (
 
 type Sprite interface {
 	Point
-	Image
+	Image() image.Image
 }
 
 type Sprites []Sprite
@@ -26,7 +26,7 @@ func (s Sprites) Flatten(width, height int) *image.NRGBA {
 	})
 
 	for _, sprite := range s {
-		img := sprite.Image24()
+		img := sprite.Image()
 		if img != nil {
 			draw.Draw(dst, dst.Bounds(), img, image.Point{
 				X: -int(sprite.X()),
@@ -38,7 +38,30 @@ func (s Sprites) Flatten(width, height int) *image.NRGBA {
 	return dst
 }
 
+func NewCoordinatedSprite(coordinates Coordinates, image image.Image) *CoordinatedSprite {
+	return &CoordinatedSprite{
+		coordinates: coordinates,
+		image:       image,
+	}
+}
+
 type CoordinatedSprite struct {
-	Coordinates
-	Image
+	coordinates Coordinates
+	image       image.Image
+}
+
+func (s *CoordinatedSprite) X() float64 {
+	return s.coordinates.X()
+}
+
+func (s *CoordinatedSprite) Y() float64 {
+	return s.coordinates.Y()
+}
+
+func (s *CoordinatedSprite) Z() float64 {
+	return s.coordinates.Z()
+}
+
+func (s *CoordinatedSprite) Image() image.Image {
+	return s.image
 }

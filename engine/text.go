@@ -1,7 +1,9 @@
 package engine
 
 import (
+	"github.com/disintegration/imaging"
 	"image"
+	"image/draw"
 	"strings"
 )
 
@@ -10,22 +12,23 @@ const (
 	charHeight = 5
 )
 
-var fontImage = Must(LoadImageFiles(imagesFS,
-	"images/font.8.png",
-	"images/font.24.png",
-))
+var (
+	imageFont5x5 = Must(
+		LoadImageFile(imagesFS, "images/font.5x5.png"),
+	)
+)
 
-func NewTextImage(text string) TextImage {
-	return TextImage{
+func NewText(text string) Text {
+	return Text{
 		text: text,
 	}
 }
 
-type TextImage struct {
+type Text struct {
 	text string
 }
 
-func (t TextImage) Image8() Image8 {
+func (t Text) Image() image.Image {
 	lines := strings.Split(t.text, "\n")
 
 	// Compute dimensions
@@ -38,61 +41,24 @@ func (t TextImage) Image8() Image8 {
 	}
 	height = len(lines)
 
-	img := NewImage8(image.Rect(0, 0, width*charWidth, height*charHeight))
-	fontImg := fontImage.Image8()
+	img := image.NewNRGBA(image.Rect(0, 0, width*charWidth, height*charHeight))
+	fontImg := imageFont5x5
 
 	for l, line := range lines {
 		for c, char := range line {
 			charIndex := int(char)
 			charX := (charIndex % 16) * charWidth
 			charY := (charIndex / 16) * charHeight
-			charImg := Image8Crop(fontImg, image.Rect(
+			charImg := imaging.Crop(fontImg, image.Rect(
 				charX,
 				charY,
 				charX+charWidth,
 				charY+charHeight,
 			))
-			Image8Draw(img, charImg, image.Point{
-				X: c * charWidth,
-				Y: l * charHeight,
-			})
-		}
-	}
-
-	return img
-}
-
-func (t TextImage) Image24() Image24 {
-	lines := strings.Split(t.text, "\n")
-
-	// Compute dimensions
-	var width, height int
-	for _, line := range lines {
-		w := len(line)
-		if w > width {
-			width = w
-		}
-	}
-	height = len(lines)
-
-	img := NewImage24(image.Rect(0, 0, width*charWidth, height*charHeight))
-	fontImg := fontImage.Image24()
-
-	for l, line := range lines {
-		for c, char := range line {
-			charIndex := int(char)
-			charX := (charIndex % 16) * charWidth
-			charY := (charIndex / 16) * charHeight
-			charImg := Image24Crop(fontImg, image.Rect(
-				charX,
-				charY,
-				charX+charWidth,
-				charY+charHeight,
-			))
-			Image24Draw(img, charImg, image.Point{
-				X: c * charWidth,
-				Y: l * charHeight,
-			})
+			draw.Draw(img, img.Bounds(), charImg, image.Point{
+				X: -c * charWidth,
+				Y: -l * charHeight,
+			}, draw.Over)
 		}
 	}
 

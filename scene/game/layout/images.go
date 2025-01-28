@@ -3,26 +3,22 @@ package layout
 import (
 	"duck-hunt-go/engine"
 	"embed"
+	"image"
+	"image/color"
 )
 
 //go:embed images/*
 var imagesFS embed.FS
 
 var (
-	image = engine.Must(engine.LoadImageFiles(imagesFS,
-		"images/layout.8.png",
-		"images/layout.24.png",
-	))
-	imageSky = engine.NewUniformImage(
-		engine.Color8(117),
-		engine.Color24{R: 143, G: 192, B: 255, A: 255},
+	imageLayout = engine.Must(
+		engine.LoadImageFile(imagesFS, "images/layout.png"),
 	)
-	imageTree = engine.Must(engine.LoadImageFiles(imagesFS,
-		"images/tree.8.png",
-		"images/tree.24.png",
-	))
-	imageShrub = engine.Must(engine.LoadImageFiles(imagesFS,
-		"images/shrub.8.png",
-		"images/shrub.24.png",
-	))
+	imageSky  = image.NewUniform(color.NRGBA{R: 143, G: 192, B: 255, A: 255})
+	imageTree = engine.Must(
+		engine.LoadImageFile(imagesFS, "images/tree.png"),
+	)
+	imageShrub = engine.Must(
+		engine.LoadImageFile(imagesFS, "images/shrub.png"),
+	)
 )

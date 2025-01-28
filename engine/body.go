@@ -32,10 +32,10 @@ func (b *Body) ResolvShape() *resolv.ConvexPolygon {
 	)
 }
 
-func (b *Body) Image() Image {
-	return &BodyImage{
+func (b *Body) Image() image.Image {
+	return (&BodyImage{
 		body: b,
-	}
+	}).Image()
 }
 
 type Bodies []*Body
@@ -86,67 +86,44 @@ type BodyImage struct {
 	body *Body
 }
 
-func (s *BodyImage) Image8() Image8 {
-	img := NewImage8(image.Rect(
+func (s *BodyImage) Image() image.Image {
+	img := image.NewNRGBA(image.Rect(
 		0,
 		0,
 		s.body.shape.Width(),
 		s.body.shape.Height(),
 	))
 
-	s.image(
-		image8Set(img, Color8Green),
-		image8Set(img, Color8Red),
-		image8Set(img, Color8Blue),
-	)
+	c := ColorGreen
 
-	return img
-}
-
-func (s *BodyImage) Image24() Image24 {
-	img := NewImage24(image.Rect(
-		0,
-		0,
-		s.body.shape.Width(),
-		s.body.shape.Height(),
-	))
-
-	s.image(
-		image24Set(img, Color24Green),
-		image24Set(img, Color24Red),
-		image24Set(img, Color24Blue),
-	)
-
-	return img
-}
-
-func (s *BodyImage) image(set, setIntersected, setIntersection imageSet) {
 	if len(s.body.Intersections) > 0 {
-		set = setIntersected
+		c = ColorRed
 	}
 
 	for i := 0; i < len(s.body.shape)-1; i++ {
-		imageLine(
+		ImageLine(img,
 			int(s.body.shape[i].X), int(s.body.shape[i].Y),
 			int(s.body.shape[i+1].X), int(s.body.shape[i+1].Y),
-			set,
+			c,
 		)
 	}
 
-	imageLine(
+	ImageLine(img,
 		int(s.body.shape[len(s.body.shape)-1].X), int(s.body.shape[len(s.body.shape)-1].Y),
 		int(s.body.shape[0].X), int(s.body.shape[0].Y),
-		set,
+		c,
 	)
 
 	// Intersections
 	for _, i := range s.body.Intersections {
 		for _, it := range i.IntersectionSet.Intersections {
-			imageLine(
+			ImageLine(img,
 				Round(it.Point.X-s.body.X()), Round(it.Point.Y-s.body.Y()),
 				Round(it.Point.X+(it.Normal.X*20)-s.body.X()), Round(it.Point.Y+(it.Normal.Y*20)-s.body.Y()),
-				setIntersection,
+				ColorBlue,
 			)
 		}
 	}
+
+	return img
 }

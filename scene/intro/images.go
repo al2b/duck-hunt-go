@@ -9,8 +9,7 @@ import (
 var imagesFS embed.FS
 
 var (
-	image = engine.Must(engine.LoadImageFiles(imagesFS,
-		"images/layout.8.png",
-		"images/layout.24.png",
-	))
+	imageLayout = engine.Must(
+		engine.LoadImageFile(imagesFS, "images/layout.png"),
+	)
 )
