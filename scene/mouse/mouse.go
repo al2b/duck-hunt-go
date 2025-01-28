@@ -23,9 +23,10 @@ func (m *Mouse) Init() tea.Cmd {
 func (m *Mouse) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.MouseMotionMsg:
-		m.coordinates = m.coordinates.
-			SetX(float64(msg.X - (imageWidth / 2))).
-			SetY(float64(msg.Y - (imageHeight / 2)))
+		m.coordinates = m.coordinates.SetXY(
+			float64(msg.X-(imageWidth/2)),
+			float64(msg.Y-(imageHeight/2)),
+		)
 	}
 
 	return nil

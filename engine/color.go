@@ -10,6 +10,8 @@ import (
 )
 
 var (
+	ColorBlack = color.RGBA{R: 0x00, G: 0x00, B: 0x00}
+	ColorWhite = color.RGBA{R: 0xff, G: 0xff, B: 0xff}
 	ColorRed   = color.RGBA{R: 0xff, G: 0x00, B: 0x00}
 	ColorGreen = color.RGBA{R: 0x00, G: 0xff, B: 0x00}
 	ColorBlue  = color.RGBA{R: 0x00, G: 0x00, B: 0xff}

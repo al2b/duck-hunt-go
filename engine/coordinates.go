@@ -46,6 +46,12 @@ func (c Coordinates) SetY(y float64) Coordinates {
 	return c
 }
 
+func (c Coordinates) SetXY(x, y float64) Coordinates {
+	c.x = x
+	c.y = y
+	return c
+}
+
 func (c Coordinates) Z() float64 {
 	return c.z
 }

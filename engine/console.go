@@ -57,7 +57,7 @@ func (c *Console) Sprites() Sprites {
 	return Sprites{
 		NewCoordinatedSprite(
 			NewCoordinates(0, 0, math.MaxFloat64),
-			NewText(text.String()).Image(),
+			NewText5x5(text.String(), ColorWhite).Image(),
 		),
 	}
 }
