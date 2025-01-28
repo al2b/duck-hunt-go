@@ -18,7 +18,7 @@ func New(scene Scene) Engine {
 		scene:       scene,
 		console:     NewConsole(),
 		intersector: NewIntersector(),
-		renderer:    &RendererHalfBlockBottom24{},
+		renderers:   NewRenderers(),
 	}
 }
 
@@ -33,8 +33,8 @@ type Engine struct {
 	// Intersections
 	intersector *Intersector
 	// View
-	renderer Renderer
-	view     string
+	renderers *Renderers
+	view      string
 }
 
 func (e Engine) Init() (tea.Model, tea.Cmd) {
@@ -48,6 +48,7 @@ func (e Engine) Init() (tea.Model, tea.Cmd) {
 		e.console.Init(),
 		e.scene.Init(),
 		tick(e.scene.FPS()),
+		ConsoleLog("Renderer: %s", e.renderers.Current()),
 	)
 }
 
@@ -59,8 +60,8 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		widthRatio, heightRatio := e.renderer.Ratio()
-		e.windowWidth, e.windowHeight = msg.Width*widthRatio, msg.Height*heightRatio
+		ratioW, ratioH := e.renderers.Current().Ratio()
+		e.windowWidth, e.windowHeight = msg.Width*ratioW, msg.Height*ratioH
 		return e, ConsoleLog("Window size: %dx%d", e.windowWidth, e.windowHeight)
 	case tea.KeyPressMsg:
 		switch msg.String() {
@@ -68,14 +69,10 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter", "q", "ctrl+c", "esc":
 			return e, tea.Quit
 		// Mode
+		case "l":
+			return e, ConsoleLog("Renderer: %s", e.renderers.Previous())
 		case "m":
-			switch e.renderer.(type) {
-			case *RendererHalfBlockBottom8:
-				e.renderer = &RendererHalfBlockBottom24{}
-			case *RendererHalfBlockBottom24:
-				e.renderer = &RendererHalfBlockBottom8{}
-			}
-			return e, ConsoleLog("Renderer: %s", e.renderer.Name())
+			return e, ConsoleLog("Renderer: %s", e.renderers.Next())
 		// Debug
 		case "d":
 			debug = !debug
@@ -101,9 +98,9 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		mouse := msg.Mouse()
 		// Mouse position
 		width, height, paddingHorizontal, paddingVertical := e.size()
-		widthRatio, heightRatio := e.renderer.Ratio()
-		x := (((msg.Mouse().X * widthRatio) - paddingHorizontal) * e.scene.Width()) / width
-		y := (((msg.Mouse().Y * heightRatio) - paddingVertical) * e.scene.Height()) / height
+		ratioW, ratioH := e.renderers.Current().Ratio()
+		x := (((msg.Mouse().X * ratioW) - paddingHorizontal) * e.scene.Width()) / width
+		y := (((msg.Mouse().Y * ratioH) - paddingVertical) * e.scene.Height()) / height
 		if mouse.Button != tea.MouseNone {
 			e.msgs = append(e.msgs, tea.MouseClickMsg{X: x, Y: y, Button: mouse.Button})
 		} else {
@@ -131,36 +128,37 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return ModelIntersectedMsg{}
 		})
 	case ModelIntersectedMsg:
-		resizeWidth, resizeHeight, paddingHorizontal, paddingVertical := e.size()
-		e.view = e.renderer.Render(
-			append(
-				e.scene.Sprites(),
-				e.console.Sprites()...,
+		resizeW, resizeH, padH, padV := e.size()
+		e.view = e.renderers.Current().Render(
+			ImageResize(
+				e.scene.Sprites().
+					Append(e.console.Sprites()).
+					Flatten(
+						e.scene.Width(),
+						e.scene.Height(),
+					),
+				resizeW, resizeH,
 			),
-			e.scene.Width(),
-			e.scene.Height(),
-			resizeWidth,
-			resizeHeight,
-			paddingHorizontal,
-			paddingVertical,
+			padH,
+			padV,
 		)
 	}
 
 	return e, tea.Batch(cmds...)
 }
 
-func (e Engine) size() (width, height int, paddingHorizontal, paddingVertical int) {
+func (e Engine) size() (width, height int, padH, padV int) {
 	sceneWidth, sceneHeight := e.scene.Width(), e.scene.Height()
 	// Fit in window with optional padding
 	if (e.windowWidth >= sceneWidth) && (e.windowHeight >= sceneHeight) {
 		width, height = sceneWidth, sceneHeight
 	} else {
-		widthRatio := float64(e.windowWidth) / float64(sceneWidth)
-		heightRatio := float64(e.windowHeight) / float64(sceneHeight)
+		ratioW := float64(e.windowWidth) / float64(sceneWidth)
+		ratioH := float64(e.windowHeight) / float64(sceneHeight)
 
-		ratio := widthRatio
-		if heightRatio < widthRatio {
-			ratio = heightRatio
+		ratio := ratioW
+		if ratioH < ratioW {
+			ratio = ratioH
 		}
 
 		width = int(float64(sceneWidth) * ratio)

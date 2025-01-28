@@ -6,6 +6,7 @@ require (
 	github.com/charmbracelet/bubbletea/v2 v2.0.0-alpha.2
 	github.com/charmbracelet/x/ansi v0.4.3
 	github.com/disintegration/imaging v1.6.2
+	github.com/mattn/go-ciede2000 v0.0.0-20170301095244-782e8c62fec3
 	github.com/solarlune/resolv v0.8.1
 )
 

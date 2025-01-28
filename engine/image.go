@@ -232,6 +232,13 @@ func Image24Resize(src Image24, width, height int) *image.NRGBA {
 	return imaging.Resize(src, width, height, imaging.NearestNeighbor)
 }
 
+func ImageResize(src *image.NRGBA, width, height int) *image.NRGBA {
+	if src.Bounds().Dx() == width || src.Bounds().Dy() == height {
+		return src
+	}
+	return imaging.Resize(src, width, height, imaging.NearestNeighbor)
+}
+
 func Image8Draw(dst *image.Paletted, src image.PalettedImage, point image.Point) {
 	rec := dst.Bounds().Intersect(src.Bounds())
 
