@@ -9,11 +9,6 @@ import (
 	"sync"
 )
 
-const (
-	charWidth  = 5
-	charHeight = 5
-)
-
 var (
 	imageFont5x5 = Must(
 		LoadImageFile(imagesFS, "images/font.5x5.png"),
