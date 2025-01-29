@@ -40,6 +40,7 @@ func (s *Scene) Init() tea.Cmd {
 	s.state = StateGame
 
 	return tea.Batch(
+		tea.SetWindowTitle("Duck Hunt"),
 		s.mouse.Init(),
 		s.models[s.state].Init(),
 	)
