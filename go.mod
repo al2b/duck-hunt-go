@@ -4,6 +4,7 @@ go 1.23
 
 require (
 	github.com/charmbracelet/bubbletea/v2 v2.0.0-alpha.2
+	github.com/charmbracelet/colorprofile v0.1.6
 	github.com/charmbracelet/x/ansi v0.4.3
 	github.com/disintegration/imaging v1.6.2
 	github.com/mattn/go-ciede2000 v0.0.0-20170301095244-782e8c62fec3
@@ -11,7 +12,6 @@ require (
 )
 
 require (
-	github.com/charmbracelet/colorprofile v0.1.6 // indirect
 	github.com/charmbracelet/x/cellbuf v0.0.3 // indirect
 	github.com/charmbracelet/x/term v0.2.0 // indirect
 	github.com/charmbracelet/x/wcwidth v0.0.0-20241011142426-46044092ad91 // indirect
