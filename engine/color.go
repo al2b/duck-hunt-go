@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"fmt"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/mattn/go-ciede2000"
 	"image/color"
@@ -17,15 +18,15 @@ var (
 	ColorBlue  = color.RGBA{R: 0x00, G: 0x00, B: 0xff}
 )
 
-func NewColorBinder(binding iter.Seq2[color.Color, color.Color]) *ColorBinder {
+func NewColorBinder(binding ColorBinding) *ColorBinder {
 	return &ColorBinder{
-		binding: binding,
+		Binding: binding,
 		cache:   map[color.Color]color.Color{},
 	}
 }
 
 type ColorBinder struct {
-	binding iter.Seq2[color.Color, color.Color]
+	Binding ColorBinding
 	cache   map[color.Color]color.Color
 }
 
@@ -33,7 +34,7 @@ func (b *ColorBinder) Bind(in color.Color) (out color.Color) {
 	var ok bool
 	if out, ok = b.cache[in]; !ok {
 		dist := math.MaxFloat64
-		for i, o := range b.binding {
+		for i, o := range b.Binding.All() {
 			if d := ciede2000.Diff(in, i); d < dist {
 				dist, out = d, o
 			}
@@ -44,28 +45,15 @@ func (b *ColorBinder) Bind(in color.Color) (out color.Color) {
 	return out
 }
 
-func ColorBindingSystem() iter.Seq2[color.Color, color.Color] {
-	return maps.All(map[color.Color]color.Color{
-		color.RGBA{R: 0, G: 0, B: 0}:       ansi.Black,
-		color.RGBA{R: 128, G: 0, B: 0}:     ansi.Red,
-		color.RGBA{R: 0, G: 128, B: 0}:     ansi.Green,
-		color.RGBA{R: 128, G: 128, B: 0}:   ansi.Yellow,
-		color.RGBA{R: 0, G: 0, B: 128}:     ansi.Blue,
-		color.RGBA{R: 128, G: 0, B: 128}:   ansi.Magenta,
-		color.RGBA{R: 0, G: 128, B: 128}:   ansi.Cyan,
-		color.RGBA{R: 192, G: 192, B: 192}: ansi.White,
-		color.RGBA{R: 128, G: 128, B: 128}: ansi.BrightBlack,
-		color.RGBA{R: 255, G: 0, B: 0}:     ansi.BrightRed,
-		color.RGBA{R: 0, G: 255, B: 0}:     ansi.BrightGreen,
-		color.RGBA{R: 255, G: 255, B: 0}:   ansi.BrightYellow,
-		color.RGBA{R: 0, G: 0, B: 255}:     ansi.BrightBlue,
-		color.RGBA{R: 255, G: 0, B: 255}:   ansi.BrightMagenta,
-		color.RGBA{R: 0, G: 255, B: 255}:   ansi.BrightCyan,
-		color.RGBA{R: 255, G: 255, B: 255}: ansi.BrightWhite,
-	})
+type ColorBinding interface {
+	fmt.Stringer
+	All() iter.Seq2[color.Color, color.Color]
 }
 
-func ColorBindingExtended() iter.Seq2[color.Color, color.Color] {
+type ColorBindingANSI256 struct{}
+
+func (c ColorBindingANSI256) String() string { return "ANSI256" }
+func (c ColorBindingANSI256) All() iter.Seq2[color.Color, color.Color] {
 	return func(yield func(color.Color, color.Color) bool) {
 		// Extended
 		for i := 0; i < 216; i++ {
@@ -93,7 +81,10 @@ func ColorBindingExtended() iter.Seq2[color.Color, color.Color] {
 	}
 }
 
-func ColorBindingGrayscale() iter.Seq2[color.Color, color.Color] {
+type ColorBindingANSI256Grayscale struct{}
+
+func (c ColorBindingANSI256Grayscale) String() string { return "ANSI256 - Grayscale" }
+func (c ColorBindingANSI256Grayscale) All() iter.Seq2[color.Color, color.Color] {
 	return func(yield func(color.Color, color.Color) bool) {
 		if !yield(
 			color.RGBA{R: 0, G: 0, B: 0},
@@ -122,9 +113,58 @@ func ColorBindingGrayscale() iter.Seq2[color.Color, color.Color] {
 	}
 }
 
-func ColorBindingMonochrome() iter.Seq2[color.Color, color.Color] {
+type ColorBindingANSI256BlackAndWhite struct{}
+
+func (c ColorBindingANSI256BlackAndWhite) String() string { return "ANSI256 - Black And White" }
+func (c ColorBindingANSI256BlackAndWhite) All() iter.Seq2[color.Color, color.Color] {
 	return maps.All(map[color.Color]color.Color{
 		color.RGBA{R: 0, G: 0, B: 0}:       ansi.ExtendedColor(16),
 		color.RGBA{R: 255, G: 255, B: 255}: ansi.ExtendedColor(231),
+	})
+}
+
+type ColorBindingANSI struct{}
+
+func (c ColorBindingANSI) String() string { return "ANSI" }
+func (c ColorBindingANSI) All() iter.Seq2[color.Color, color.Color] {
+	return maps.All(map[color.Color]color.Color{
+		color.RGBA{R: 0, G: 0, B: 0}:       ansi.Black,
+		color.RGBA{R: 128, G: 0, B: 0}:     ansi.Red,
+		color.RGBA{R: 0, G: 128, B: 0}:     ansi.Green,
+		color.RGBA{R: 128, G: 128, B: 0}:   ansi.Yellow,
+		color.RGBA{R: 0, G: 0, B: 128}:     ansi.Blue,
+		color.RGBA{R: 128, G: 0, B: 128}:   ansi.Magenta,
+		color.RGBA{R: 0, G: 128, B: 128}:   ansi.Cyan,
+		color.RGBA{R: 192, G: 192, B: 192}: ansi.White,
+		color.RGBA{R: 128, G: 128, B: 128}: ansi.BrightBlack,
+		color.RGBA{R: 255, G: 0, B: 0}:     ansi.BrightRed,
+		color.RGBA{R: 0, G: 255, B: 0}:     ansi.BrightGreen,
+		color.RGBA{R: 255, G: 255, B: 0}:   ansi.BrightYellow,
+		color.RGBA{R: 0, G: 0, B: 255}:     ansi.BrightBlue,
+		color.RGBA{R: 255, G: 0, B: 255}:   ansi.BrightMagenta,
+		color.RGBA{R: 0, G: 255, B: 255}:   ansi.BrightCyan,
+		color.RGBA{R: 255, G: 255, B: 255}: ansi.BrightWhite,
+	})
+}
+
+type ColorBindingANSIGrayscale struct{}
+
+func (c ColorBindingANSIGrayscale) String() string { return "ANSI - Grayscale" }
+func (c ColorBindingANSIGrayscale) All() iter.Seq2[color.Color, color.Color] {
+	return maps.All(map[color.Color]color.Color{
+		color.RGBA{R: 0, G: 0, B: 0}:       ansi.Black,
+		color.RGBA{R: 192, G: 192, B: 192}: ansi.White,
+		color.RGBA{R: 128, G: 128, B: 128}: ansi.BrightBlack,
+		color.RGBA{R: 255, G: 255, B: 255}: ansi.BrightWhite,
+	})
+}
+
+type ColorBindingANSIBlackAndWhite struct{}
+
+func (c ColorBindingANSIBlackAndWhite) String() string { return "ANSI - Black And White" }
+func (c ColorBindingANSIBlackAndWhite) All() iter.Seq2[color.Color, color.Color] {
+	return maps.All(map[color.Color]color.Color{
+		color.RGBA{R: 0, G: 0, B: 0}:       ansi.Black,
+		color.RGBA{R: 255, G: 255, B: 255}: ansi.BrightWhite,
 	})
 }

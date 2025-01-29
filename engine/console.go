@@ -3,6 +3,7 @@ package engine
 import (
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea/v2"
+	"log"
 	"math"
 	"slices"
 	"strings"
@@ -20,6 +21,7 @@ type Console struct {
 }
 
 func (c *Console) Init() tea.Cmd {
+	log.Println("Initialize console...")
 	return nil
 }
 

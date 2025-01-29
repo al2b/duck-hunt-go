@@ -2,260 +2,118 @@ package engine
 
 import (
 	"fmt"
+	tea "github.com/charmbracelet/bubbletea/v2"
+	"github.com/charmbracelet/colorprofile"
 	"github.com/charmbracelet/x/ansi"
 	"image"
 	"image/color"
+	"log"
 	"strings"
 )
 
 type Renderer interface {
+	fmt.Stringer
+	Support(profile colorprofile.Profile) bool
 	Ratio() (int, int)
 	Render(img *image.NRGBA, paddingH, paddingV int) string
-	fmt.Stringer
 }
 
 func NewRenderers() *Renderers {
 	return &Renderers{
-		renderers: []Renderer{
-			NewRendererHalfBlockTop(),
-			NewRendererHalfBlockBottom(),
-			NewRendererHalfBlockTopExtended(),
-			NewRendererHalfBlockBottomExtended(),
-			NewRendererHalfBlockTopSystem(),
-			NewRendererHalfBlockBottomSystem(),
-			NewRendererHalfBlockTopGrayscale(),
-			NewRendererHalfBlockBottomGrayscale(),
-			NewRendererHalfBlockTopMonochrome(),
-			NewRendererHalfBlockBottomMonochrome(),
+		discard: RendererDiscard{},
+		available: []Renderer{
+			NewRendererHalfBlockTrueColor(true),
+			NewRendererHalfBlockTrueColor(false),
+			NewRendererHalfBlockANSI256(true, ColorBindingANSI256{}),
+			NewRendererHalfBlockANSI256(false, ColorBindingANSI256{}),
+			NewRendererHalfBlockANSI256(true, ColorBindingANSI256Grayscale{}),
+			NewRendererHalfBlockANSI256(false, ColorBindingANSI256Grayscale{}),
+			NewRendererHalfBlockANSI256(true, ColorBindingANSI256BlackAndWhite{}),
+			NewRendererHalfBlockANSI256(false, ColorBindingANSI256BlackAndWhite{}),
+			NewRendererHalfBlockANSI(true, ColorBindingANSI{}),
+			NewRendererHalfBlockANSI(false, ColorBindingANSI{}),
+			NewRendererHalfBlockANSI(true, ColorBindingANSIGrayscale{}),
+			NewRendererHalfBlockANSI(false, ColorBindingANSIGrayscale{}),
+			NewRendererHalfBlockANSI(true, ColorBindingANSIBlackAndWhite{}),
+			NewRendererHalfBlockANSI(false, ColorBindingANSIBlackAndWhite{}),
 		},
 	}
 }
 
 type Renderers struct {
-	renderers []Renderer
+	discard   Renderer
+	available []Renderer
+	enabled   []Renderer
 	current   int
 }
 
+func (r *Renderers) Init() tea.Cmd {
+	log.Println("Initialize renderers...")
+	return nil
+}
+
+func (r *Renderers) Update(msg tea.Msg) tea.Cmd {
+	switch msg := msg.(type) {
+	case tea.ColorProfileMsg:
+		return r.updateProfile(msg.Profile)
+	}
+	return nil
+}
+
+func (r *Renderers) updateProfile(profile colorprofile.Profile) tea.Cmd {
+	log.Println("Color profile:", profile)
+
+	// Enable supported renderers
+	for _, renderer := range r.available {
+		if renderer.Support(profile) {
+			log.Println("Enable renderer: ", renderer)
+			r.enabled = append(r.enabled, renderer)
+		} else {
+			log.Println("Disable renderer: ", renderer)
+		}
+	}
+
+	return nil
+}
+
 func (r *Renderers) Current() Renderer {
-	return r.renderers[r.current]
+	if len(r.enabled) == 0 {
+		return r.discard
+	}
+
+	return r.enabled[r.current]
 }
 
 func (r *Renderers) Next() Renderer {
-	r.current = (r.current + 1) % len(r.renderers)
+	r.current = (r.current + 1) % len(r.enabled)
 	return r.Current()
 }
 
 func (r *Renderers) Previous() Renderer {
-	r.current = (r.current - 1 + len(r.renderers)) % len(r.renderers)
+	r.current = (r.current - 1 + len(r.enabled)) % len(r.enabled)
 	return r.Current()
 }
 
-/* **************** */
-/* Half Block - Top */
-/* **************** */
+/* ******* */
+/* Discard */
+/* ******* */
 
-func NewRendererHalfBlockTop() *RendererHalfBlockTop {
-	return &RendererHalfBlockTop{
-		RendererHalfBlock: &RendererHalfBlock{
-			Top: true,
-		},
-	}
+type RendererDiscard struct{}
+
+func (r RendererDiscard) String() string {
+	return "Discard"
 }
 
-type RendererHalfBlockTop struct {
-	*RendererHalfBlock
+func (r RendererDiscard) Support(_ colorprofile.Profile) bool {
+	return true
 }
 
-func (r *RendererHalfBlockTop) String() string {
-	return "Half Block - Top"
+func (r RendererDiscard) Ratio() (int, int) {
+	return 1, 2
 }
 
-/* ******************* */
-/* Half Block - Bottom */
-/* ******************* */
-
-func NewRendererHalfBlockBottom() *RendererHalfBlockBottom {
-	return &RendererHalfBlockBottom{
-		RendererHalfBlock: &RendererHalfBlock{
-			Top: false,
-		},
-	}
-}
-
-type RendererHalfBlockBottom struct {
-	*RendererHalfBlock
-}
-
-func (r *RendererHalfBlockBottom) String() string {
-	return "Half Block - Bottom"
-}
-
-/* *************************** */
-/* Half Block - Top - Extended */
-/* *************************** */
-
-func NewRendererHalfBlockTopExtended() *RendererHalfBlockTopExtended {
-	return &RendererHalfBlockTopExtended{
-		RendererHalfBlock: &RendererHalfBlock{
-			Top:    true,
-			Binder: NewColorBinder(ColorBindingExtended()),
-		},
-	}
-}
-
-type RendererHalfBlockTopExtended struct {
-	*RendererHalfBlock
-}
-
-func (r *RendererHalfBlockTopExtended) String() string {
-	return "Half Block - Top - Extended"
-}
-
-/* ****************************** */
-/* Half Block - Bottom - Extended */
-/* ****************************** */
-
-func NewRendererHalfBlockBottomExtended() *RendererHalfBlockBottomExtended {
-	return &RendererHalfBlockBottomExtended{
-		RendererHalfBlock: &RendererHalfBlock{
-			Top:    false,
-			Binder: NewColorBinder(ColorBindingExtended()),
-		},
-	}
-}
-
-type RendererHalfBlockBottomExtended struct {
-	*RendererHalfBlock
-}
-
-func (r *RendererHalfBlockBottomExtended) String() string {
-	return "Half Block - Bottom - Extended"
-}
-
-/* ************************* */
-/* Half Block - Top - System */
-/* ************************* */
-
-func NewRendererHalfBlockTopSystem() *RendererHalfBlockTopSystem {
-	return &RendererHalfBlockTopSystem{
-		RendererHalfBlock: &RendererHalfBlock{
-			Top:    true,
-			Binder: NewColorBinder(ColorBindingSystem()),
-		},
-	}
-}
-
-type RendererHalfBlockTopSystem struct {
-	*RendererHalfBlock
-}
-
-func (r *RendererHalfBlockTopSystem) String() string {
-	return "Half Block - Top - System"
-}
-
-/* **************************** */
-/* Half Block - Bottom - System */
-/* **************************** */
-
-func NewRendererHalfBlockBottomSystem() *RendererHalfBlockBottomSystem {
-	return &RendererHalfBlockBottomSystem{
-		RendererHalfBlock: &RendererHalfBlock{
-			Top:    false,
-			Binder: NewColorBinder(ColorBindingSystem()),
-		},
-	}
-}
-
-type RendererHalfBlockBottomSystem struct {
-	*RendererHalfBlock
-}
-
-func (r *RendererHalfBlockBottomSystem) String() string {
-	return "Half Block - Bottom - System"
-}
-
-/* **************************** */
-/* Half Block - Top - Grayscale */
-/* **************************** */
-
-func NewRendererHalfBlockTopGrayscale() *RendererHalfBlockTopGrayscale {
-	return &RendererHalfBlockTopGrayscale{
-		RendererHalfBlock: &RendererHalfBlock{
-			Top:    true,
-			Binder: NewColorBinder(ColorBindingGrayscale()),
-		},
-	}
-}
-
-type RendererHalfBlockTopGrayscale struct {
-	*RendererHalfBlock
-}
-
-func (r *RendererHalfBlockTopGrayscale) String() string {
-	return "Half Block - Top - Grayscale"
-}
-
-/* ******************************* */
-/* Half Block - Bottom - Grayscale */
-/* ******************************* */
-
-func NewRendererHalfBlockBottomGrayscale() *RendererHalfBlockBottomGrayscale {
-	return &RendererHalfBlockBottomGrayscale{
-		RendererHalfBlock: &RendererHalfBlock{
-			Top:    false,
-			Binder: NewColorBinder(ColorBindingGrayscale()),
-		},
-	}
-}
-
-type RendererHalfBlockBottomGrayscale struct {
-	*RendererHalfBlock
-}
-
-func (r *RendererHalfBlockBottomGrayscale) String() string {
-	return "Half Block - Bottom - Grayscale"
-}
-
-/* ***************************** */
-/* Half Block - Top - Monochrome */
-/* ***************************** */
-
-func NewRendererHalfBlockTopMonochrome() *RendererHalfBlockTopMonochrome {
-	return &RendererHalfBlockTopMonochrome{
-		RendererHalfBlock: &RendererHalfBlock{
-			Top:    true,
-			Binder: NewColorBinder(ColorBindingMonochrome()),
-		},
-	}
-}
-
-type RendererHalfBlockTopMonochrome struct {
-	*RendererHalfBlock
-}
-
-func (r *RendererHalfBlockTopMonochrome) String() string {
-	return "Half Block - Top - Monochrome"
-}
-
-/* ******************************** */
-/* Half Block - Bottom - Monochrome */
-/* ******************************** */
-
-func NewRendererHalfBlockBottomMonochrome() *RendererHalfBlockBottomMonochrome {
-	return &RendererHalfBlockBottomMonochrome{
-		RendererHalfBlock: &RendererHalfBlock{
-			Top:    false,
-			Binder: NewColorBinder(ColorBindingMonochrome()),
-		},
-	}
-}
-
-type RendererHalfBlockBottomMonochrome struct {
-	*RendererHalfBlock
-}
-
-func (r *RendererHalfBlockBottomMonochrome) String() string {
-	return "Half Block - Bottom - Monochrome"
+func (r RendererDiscard) Render(_ *image.NRGBA, _, _ int) string {
+	return ""
 }
 
 /* ********** */
@@ -265,6 +123,12 @@ func (r *RendererHalfBlockBottomMonochrome) String() string {
 type RendererHalfBlock struct {
 	Binder *ColorBinder
 	Top    bool
+}
+
+func (r *RendererHalfBlock) String() string {
+	return fmt.Sprintf("Half Block - %s",
+		map[bool]string{true: "Top", false: "Bottom"}[r.Top],
+	)
 }
 
 func (r *RendererHalfBlock) Ratio() (int, int) {
@@ -332,4 +196,81 @@ func (r *RendererHalfBlock) Render(img *image.NRGBA, padH, padV int) string {
 	}
 
 	return str.String()
+}
+
+/* ********************** */
+/* Half Block - TrueColor */
+/* ********************** */
+
+func NewRendererHalfBlockTrueColor(top bool) *RendererHalfBlockTrueColor {
+	return &RendererHalfBlockTrueColor{
+		RendererHalfBlock: &RendererHalfBlock{
+			Top: top,
+		},
+	}
+}
+
+type RendererHalfBlockTrueColor struct{ *RendererHalfBlock }
+
+func (r *RendererHalfBlockTrueColor) String() string {
+	return fmt.Sprintf("%s - %s",
+		r.RendererHalfBlock,
+		colorprofile.TrueColor,
+	)
+}
+
+func (r *RendererHalfBlockTrueColor) Support(profile colorprofile.Profile) bool {
+	return profile == colorprofile.TrueColor
+}
+
+/* ******************** */
+/* Half Block - ANSI256 */
+/* ******************** */
+
+func NewRendererHalfBlockANSI256(top bool, binding ColorBinding) *RendererHalfBlockANSI256 {
+	return &RendererHalfBlockANSI256{
+		RendererHalfBlock: &RendererHalfBlock{
+			Top:    top,
+			Binder: NewColorBinder(binding),
+		},
+	}
+}
+
+type RendererHalfBlockANSI256 struct{ *RendererHalfBlock }
+
+func (r *RendererHalfBlockANSI256) String() string {
+	return fmt.Sprintf("%s - %s",
+		r.RendererHalfBlock,
+		r.RendererHalfBlock.Binder.Binding,
+	)
+}
+
+func (r *RendererHalfBlockANSI256) Support(profile colorprofile.Profile) bool {
+	return profile <= colorprofile.ANSI256
+}
+
+/* ***************** */
+/* Half Block - ANSI */
+/* ***************** */
+
+func NewRendererHalfBlockANSI(top bool, binding ColorBinding) *RendererHalfBlockANSI {
+	return &RendererHalfBlockANSI{
+		RendererHalfBlock: &RendererHalfBlock{
+			Top:    top,
+			Binder: NewColorBinder(binding),
+		},
+	}
+}
+
+type RendererHalfBlockANSI struct{ *RendererHalfBlock }
+
+func (r *RendererHalfBlockANSI) String() string {
+	return fmt.Sprintf("%s - %s",
+		r.RendererHalfBlock,
+		r.RendererHalfBlock.Binder.Binding,
+	)
+}
+
+func (r *RendererHalfBlockANSI) Support(profile colorprofile.Profile) bool {
+	return profile <= colorprofile.ANSI
 }

@@ -3,6 +3,7 @@ package engine
 import (
 	"embed"
 	tea "github.com/charmbracelet/bubbletea/v2"
+	"log"
 	"slices"
 )
 
@@ -38,6 +39,7 @@ type Engine struct {
 }
 
 func (e Engine) Init() (tea.Model, tea.Cmd) {
+	log.Println("Initialize engine...")
 	return e, tea.Batch(
 		// Force requesting window size again for certain terminal who
 		// don't respond in time to the first automatic bubble tea request
@@ -45,15 +47,19 @@ func (e Engine) Init() (tea.Model, tea.Cmd) {
 		// According to documentation, these should be enabled as a program option
 		tea.EnterAltScreen,
 		tea.EnableMouseAllMotion,
+		e.renderers.Init(),
+		ConsoleLog("Renderer: %s", e.renderers.Current()),
 		e.console.Init(),
 		e.scene.Init(),
 		tick(e.scene.FPS()),
-		ConsoleLog("Renderer: %s", e.renderers.Current()),
 	)
 }
 
 func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
+
+	// Renderers
+	cmds = append(cmds, e.renderers.Update(msg))
 
 	// Console
 	cmds = append(cmds, e.console.Update(msg))
