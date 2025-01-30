@@ -122,14 +122,14 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case TickMsg:
 		msgs := append(e.msgs, msg)
 		for _, msg := range msgs {
-			cmds = append(cmds, e.scene.Update(NewTeaMsg(msg)))
+			cmds = append(cmds, e.scene.Update(msg))
 		}
 		cmds = append(cmds, func() tea.Msg {
 			return ModelUpdatedMsg{}
 		})
 		e.msgs = nil
 	case ModelUpdatedMsg:
-		cmds = append(cmds, e.scene.Update(NewTeaMsg(msg)))
+		cmds = append(cmds, e.scene.Update(msg))
 		cmds = append(cmds, func() tea.Msg {
 			e.intersector.Intersect(e.scene)
 			return ModelIntersectedMsg{}
@@ -177,20 +177,4 @@ func (e Engine) size() (width, height int, paddingHorizontal, paddingVertical in
 
 func (e Engine) View() string {
 	return e.view
-}
-
-type Msg interface {
-	Msg() tea.Msg
-}
-
-func NewTeaMsg(msg tea.Msg) TeaMsg {
-	return TeaMsg{msg}
-}
-
-type TeaMsg struct {
-	msg tea.Msg
-}
-
-func (m TeaMsg) Msg() tea.Msg {
-	return m.msg
 }

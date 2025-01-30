@@ -30,8 +30,8 @@ func (m *Game) Init() tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
-func (m *Game) Update(msg engine.Msg) tea.Cmd {
-	switch msg := msg.Msg().(type) {
+func (m *Game) Update(msg tea.Msg) tea.Cmd {
+	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch msg.String() {
 		// Restart
