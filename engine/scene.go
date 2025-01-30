@@ -1,8 +1,7 @@
 package engine
 
 type Scene interface {
-	Width() int
-	Height() int
+	Size() (int, int)
 	FPS() int
 	Model
 }

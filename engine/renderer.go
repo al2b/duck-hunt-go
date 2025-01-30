@@ -16,7 +16,7 @@ type Renderer interface {
 	fmt.Stringer
 	Support(profile colorprofile.Profile) bool
 	Ratio() (int, int)
-	Render(img *image.NRGBA, paddingH, paddingV int) string
+	Render(img *image.NRGBA, padH, padV int) string
 }
 
 func NewRenderers() *Renderers {

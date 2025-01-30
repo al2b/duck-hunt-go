@@ -24,12 +24,8 @@ type Scene struct {
 	state  State
 }
 
-func (s *Scene) Width() int {
-	return 256
-}
-
-func (s *Scene) Height() int {
-	return 240
+func (s *Scene) Size() (int, int) {
+	return 256, 240
 }
 
 func (s *Scene) FPS() int {

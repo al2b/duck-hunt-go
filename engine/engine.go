@@ -104,9 +104,10 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		mouse := msg.Mouse()
 		// Mouse position
 		width, height, paddingHorizontal, paddingVertical := e.size()
-		ratioW, ratioH := e.renderers.Current().Ratio()
-		x := (((msg.Mouse().X * ratioW) - paddingHorizontal) * e.scene.Width()) / width
-		y := (((msg.Mouse().Y * ratioH) - paddingVertical) * e.scene.Height()) / height
+		ratioWidth, ratioHeight := e.renderers.Current().Ratio()
+		sceneWidth, sceneHeight := e.scene.Size()
+		x := (((msg.Mouse().X * ratioWidth) - paddingHorizontal) * sceneWidth) / width
+		y := (((msg.Mouse().Y * ratioHeight) - paddingVertical) * sceneHeight) / height
 		if mouse.Button != tea.MouseNone {
 			e.msgs = append(e.msgs, tea.MouseClickMsg{X: x, Y: y, Button: mouse.Button})
 		} else {
@@ -139,10 +140,7 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			ImageResize(
 				e.scene.Sprites().
 					Append(e.console.Sprites()).
-					Flatten(
-						e.scene.Width(),
-						e.scene.Height(),
-					),
+					Flatten(e.scene.Size()),
 				resizeW, resizeH,
 			),
 			padH,
@@ -154,7 +152,7 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (e Engine) size() (width, height int, padH, padV int) {
-	sceneWidth, sceneHeight := e.scene.Width(), e.scene.Height()
+	sceneWidth, sceneHeight := e.scene.Size()
 	// Fit in window with optional padding
 	if (e.windowWidth >= sceneWidth) && (e.windowHeight >= sceneHeight) {
 		width, height = sceneWidth, sceneHeight
