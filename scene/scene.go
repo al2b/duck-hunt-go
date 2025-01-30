@@ -43,7 +43,7 @@ func (s *Scene) Init() tea.Cmd {
 }
 
 func (s *Scene) Update(msg engine.Msg) tea.Cmd {
-	switch msg := msg.Msg.(type) {
+	switch msg := msg.Msg().(type) {
 	case tea.KeyPressMsg:
 		switch msg.String() {
 		// Switch state

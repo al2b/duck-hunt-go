@@ -31,7 +31,7 @@ func (m *Game) Init() tea.Cmd {
 }
 
 func (m *Game) Update(msg engine.Msg) tea.Cmd {
-	switch msg := msg.Msg.(type) {
+	switch msg := msg.Msg().(type) {
 	case tea.KeyPressMsg:
 		switch msg.String() {
 		// Restart

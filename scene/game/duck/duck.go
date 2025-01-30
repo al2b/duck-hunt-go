@@ -40,7 +40,7 @@ func (m *Duck) Init() tea.Cmd {
 }
 
 func (m *Duck) Update(msg engine.Msg) tea.Cmd {
-	switch msg := msg.Msg.(type) {
+	switch msg := msg.Msg().(type) {
 	case tea.MouseClickMsg:
 		// Coordinates
 		m.coordinates = m.coordinates.SetXY(
