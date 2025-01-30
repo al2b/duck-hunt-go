@@ -10,12 +10,8 @@ import (
 )
 
 var (
-	imageFont5x5 = Must(
-		LoadImageFile(imagesFS, "images/font.5x5.png"),
-	)
-	imageFont8x8 = Must(
-		LoadImageFile(imagesFS, "images/font.8x8.png"),
-	)
+	imageFont5x5 = MustLoadImageFile(imagesFS, "images/font.5x5.png")
+	imageFont8x8 = MustLoadImageFile(imagesFS, "images/font.8x8.png")
 )
 
 /* *** */

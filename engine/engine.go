@@ -151,18 +151,19 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return e, tea.Batch(cmds...)
 }
 
-func (e Engine) size() (width, height int, padH, padV int) {
+func (e Engine) size() (width, height int, paddingHorizontal, paddingVertical int) {
 	sceneWidth, sceneHeight := e.scene.Size()
-	// Fit in window with optional padding
+
+	// Fit scene in window with optional padding
 	if (e.windowWidth >= sceneWidth) && (e.windowHeight >= sceneHeight) {
 		width, height = sceneWidth, sceneHeight
 	} else {
-		ratioW := float64(e.windowWidth) / float64(sceneWidth)
-		ratioH := float64(e.windowHeight) / float64(sceneHeight)
+		ratioWidth := float64(e.windowWidth) / float64(sceneWidth)
+		ratioHeight := float64(e.windowHeight) / float64(sceneHeight)
 
-		ratio := ratioW
-		if ratioH < ratioW {
-			ratio = ratioH
+		ratio := ratioWidth
+		if ratioHeight < ratioWidth {
+			ratio = ratioHeight
 		}
 
 		width = int(float64(sceneWidth) * ratio)

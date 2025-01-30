@@ -23,6 +23,14 @@ func LoadImageFile(fs fs.ReadFileFS, path string) (img image.Image, err error) {
 	return img, nil
 }
 
+func MustLoadImageFile(fs fs.ReadFileFS, path string) image.Image {
+	img, err := LoadImageFile(fs, path)
+	if err != nil {
+		panic(err)
+	}
+	return img
+}
+
 func ImageResize(src *image.NRGBA, width, height int) *image.NRGBA {
 	if src.Bounds().Dx() == width || src.Bounds().Dy() == height {
 		return src

@@ -9,7 +9,5 @@ import (
 var imagesFS embed.FS
 
 var (
-	imageDuck = engine.Must(
-		engine.LoadImageFile(imagesFS, "images/duck.png"),
-	)
+	imageDuck = engine.MustLoadImageFile(imagesFS, "images/duck.png")
 )

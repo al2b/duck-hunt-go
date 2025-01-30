@@ -14,7 +14,5 @@ const (
 var imagesFS embed.FS
 
 var (
-	imageGun = engine.Must(
-		engine.LoadImageFile(imagesFS, "images/gun.png"),
-	)
+	imageGun = engine.MustLoadImageFile(imagesFS, "images/gun.png")
 )
