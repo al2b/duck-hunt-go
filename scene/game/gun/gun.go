@@ -26,8 +26,8 @@ func (m *Gun) Init() tea.Cmd {
 	return nil
 }
 
-func (m *Gun) Update(msg tea.Msg) tea.Cmd {
-	switch msg := msg.(type) {
+func (m *Gun) Update(msg engine.Msg) tea.Cmd {
+	switch msg := msg.Msg.(type) {
 	case tea.MouseMotionMsg:
 		// Motion
 		m.motion.MoveTo(m.coordinates,

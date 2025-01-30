@@ -26,7 +26,7 @@ func (m *Layout) Init() tea.Cmd {
 	return nil
 }
 
-func (m *Layout) Update(_ tea.Msg) tea.Cmd {
+func (m *Layout) Update(_ engine.Msg) tea.Cmd {
 	return nil
 }
 

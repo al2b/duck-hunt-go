@@ -20,8 +20,8 @@ func (m *Mouse) Init() tea.Cmd {
 	return nil
 }
 
-func (m *Mouse) Update(msg tea.Msg) tea.Cmd {
-	switch msg := msg.(type) {
+func (m *Mouse) Update(msg engine.Msg) tea.Cmd {
+	switch msg := msg.Msg.(type) {
 	case tea.MouseMotionMsg:
 		m.coordinates = m.coordinates.SetXY(
 			float64(msg.X-(imageWidth/2)),

@@ -23,7 +23,7 @@ func (m *Intro) Init() tea.Cmd {
 	return nil
 }
 
-func (m *Intro) Update(_ tea.Msg) tea.Cmd {
+func (m *Intro) Update(_ engine.Msg) tea.Cmd {
 	return nil
 }
 
