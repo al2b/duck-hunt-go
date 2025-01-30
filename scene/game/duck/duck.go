@@ -17,15 +17,15 @@ func New() *Duck {
 }
 
 type Duck struct {
-	// Coordinates
-	coordinates engine.Coordinates
+	engine.Coordinates
+	*engine.Animation
 	// Movement
 	movement engine.Vector
 }
 
 func (m *Duck) Init() tea.Cmd {
 	// Coordinates
-	m.coordinates = engine.NewCoordinates(
+	m.Coordinates = engine.NewCoordinates(
 		85+math.Round(rand.Float64()*85),
 		layout.Ground-maxHeight,
 		5+math.Round(rand.Float64()*20),
@@ -36,6 +36,9 @@ func (m *Duck) Init() tea.Cmd {
 		VectorFromAngle(235 + (rand.Float64() * 90)).
 		Scale(1)
 
+	// Animation
+	m.Animation = m.animation()
+
 	return nil
 }
 
@@ -43,7 +46,7 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.MouseClickMsg:
 		// Coordinates
-		m.coordinates = m.coordinates.SetXY(
+		m.Coordinates = m.Coordinates.SetXY(
 			float64(msg.X),
 			float64(msg.Y),
 		)
@@ -55,27 +58,27 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 		case tea.KeyLeft:
 			m.movement = m.movement.Rotate(-10)
 		case tea.KeyUp:
-			m.coordinates = m.coordinates.SubZ(10)
+			m.Coordinates = m.Coordinates.SubZ(10)
 		case tea.KeyDown:
-			m.coordinates = m.coordinates.AddZ(10)
+			m.Coordinates = m.Coordinates.AddZ(10)
 		}
 	case engine.TickMsg:
 		// Coordinates
-		m.coordinates = m.coordinates.Move(m.movement)
+		m.Coordinates = m.Coordinates.Move(m.movement)
 		// Animation
-		m.animation().Update()
+		animation := m.animation()
+		if animation != m.Animation {
+			m.Animation = animation
+		} else {
+			m.Animation.Update()
+		}
 	}
 
 	return nil
 }
 
 func (m *Duck) Sprites() engine.Sprites {
-	return engine.Sprites{
-		engine.NewCoordinatedSprite(
-			m.coordinates,
-			m.animation().Image(),
-		),
-	}
+	return engine.Sprites{m}
 }
 
 func (m *Duck) animation() *engine.Animation {
@@ -105,7 +108,7 @@ func (m *Duck) animation() *engine.Animation {
 
 func (m *Duck) Bodies() (bodies engine.Bodies) {
 	return bodies.Append(
-		engine.NewBody(m.coordinates,
+		engine.NewBody(m.Coordinates,
 			engine.BodyShape{
 				{0, 0},
 				{31, 0},
