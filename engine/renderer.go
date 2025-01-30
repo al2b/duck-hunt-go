@@ -5,6 +5,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/colorprofile"
 	"github.com/charmbracelet/x/ansi"
+	"github.com/mattn/go-ciede2000"
 	"image"
 	"image/color"
 	"log"
@@ -19,8 +20,11 @@ type Renderer interface {
 }
 
 func NewRenderers() *Renderers {
+	mixed := NewRendererMixedBlockAscii(ColorWhite, ColorBlack)
+
 	return &Renderers{
 		discard: RendererDiscard{},
+		mixed:   mixed,
 		available: []Renderer{
 			NewRendererHalfBlockTrueColor(true),
 			NewRendererHalfBlockTrueColor(false),
@@ -36,12 +40,14 @@ func NewRenderers() *Renderers {
 			NewRendererHalfBlockANSI(false, ColorBindingANSIGrayscale{}),
 			NewRendererHalfBlockANSI(true, ColorBindingANSIBlackAndWhite{}),
 			NewRendererHalfBlockANSI(false, ColorBindingANSIBlackAndWhite{}),
+			mixed,
 		},
 	}
 }
 
 type Renderers struct {
 	discard   Renderer
+	mixed     *RendererMixedBlockAscii
 	available []Renderer
 	enabled   []Renderer
 	current   int
@@ -49,13 +55,20 @@ type Renderers struct {
 
 func (r *Renderers) Init() tea.Cmd {
 	log.Println("Initialize renderers...")
-	return nil
+	return tea.Batch(
+		tea.RequestForegroundColor,
+		tea.RequestBackgroundColor,
+	)
 }
 
 func (r *Renderers) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.ColorProfileMsg:
 		return r.updateProfile(msg.Profile)
+	case tea.ForegroundColorMsg:
+		r.mixed.SetForeground(msg.Color)
+	case tea.BackgroundColorMsg:
+		r.mixed.SetBackground(msg.Color)
 	}
 	return nil
 }
@@ -100,21 +113,10 @@ func (r *Renderers) Previous() Renderer {
 
 type RendererDiscard struct{}
 
-func (r RendererDiscard) String() string {
-	return "Discard"
-}
-
-func (r RendererDiscard) Support(_ colorprofile.Profile) bool {
-	return true
-}
-
-func (r RendererDiscard) Ratio() (int, int) {
-	return 1, 2
-}
-
-func (r RendererDiscard) Render(_ *image.NRGBA, _, _ int) string {
-	return ""
-}
+func (r RendererDiscard) String() string                         { return "Discard" }
+func (r RendererDiscard) Support(_ colorprofile.Profile) bool    { return true }
+func (r RendererDiscard) Ratio() (int, int)                      { return 1, 2 }
+func (r RendererDiscard) Render(_ *image.NRGBA, _, _ int) string { return "" }
 
 /* ********** */
 /* Half Block */
@@ -131,9 +133,7 @@ func (r *RendererHalfBlock) String() string {
 	)
 }
 
-func (r *RendererHalfBlock) Ratio() (int, int) {
-	return 1, 2
-}
+func (r *RendererHalfBlock) Ratio() (int, int) { return 1, 2 }
 
 func (r *RendererHalfBlock) Render(img *image.NRGBA, padH, padV int) string {
 	// Padding
@@ -185,7 +185,7 @@ func (r *RendererHalfBlock) Render(img *image.NRGBA, padH, padV int) string {
 			if t != nil {
 				str.WriteString(t.String())
 			}
-			// Half Block
+			// Block
 			if r.Top {
 				str.WriteString("▀")
 			} else {
@@ -273,4 +273,105 @@ func (r *RendererHalfBlockANSI) String() string {
 
 func (r *RendererHalfBlockANSI) Support(profile colorprofile.Profile) bool {
 	return profile <= colorprofile.ANSI
+}
+
+/* ******************* */
+/* Mixed Block - Ascii */
+/* ******************* */
+
+func NewRendererMixedBlockAscii(foreground, background color.Color) *RendererMixedBlockAscii {
+	return &RendererMixedBlockAscii{
+		foreground: foreground,
+		background: background,
+		cache:      map[color.Color]color.Color{},
+	}
+}
+
+type RendererMixedBlockAscii struct {
+	foreground color.Color
+	background color.Color
+	cache      map[color.Color]color.Color
+}
+
+func (r *RendererMixedBlockAscii) String() string {
+	return "Mixed Block - " + colorprofile.Ascii.String()
+}
+
+func (r *RendererMixedBlockAscii) Support(profile colorprofile.Profile) bool {
+	return profile <= colorprofile.Ascii
+}
+
+func (r *RendererMixedBlockAscii) Ratio() (int, int) { return 1, 2 }
+
+func (r *RendererMixedBlockAscii) SetForeground(c color.Color) {
+	if c != r.foreground {
+		r.foreground = c
+		// Clear cache
+		r.cache = map[color.Color]color.Color{}
+	}
+}
+
+func (r *RendererMixedBlockAscii) SetBackground(c color.Color) {
+	if c != r.background {
+		r.background = c
+		// Clear cache
+		r.cache = map[color.Color]color.Color{}
+	}
+}
+
+func (r *RendererMixedBlockAscii) bind(in color.Color) (out color.Color) {
+	var ok bool
+	if out, ok = r.cache[in]; !ok {
+		distForeground := ciede2000.Diff(in, r.foreground)
+		distBackground := ciede2000.Diff(in, r.background)
+		if distForeground <= distBackground {
+			out = r.foreground
+		} else {
+			out = r.background
+		}
+		r.cache[in] = out
+	}
+
+	return out
+}
+
+func (r *RendererMixedBlockAscii) Render(img *image.NRGBA, padH, padV int) string {
+	// Padding
+	ratioW, ratioH := r.Ratio()
+	padHStr := strings.Repeat(" ", padH/ratioW)
+	padVStr := strings.Repeat("\n", padV/ratioH)
+
+	// Image bounds
+	bounds := img.Bounds()
+
+	// String
+	str := strings.Builder{}
+	str.WriteString(padVStr)
+
+	for y := 0; y < bounds.Max.Y; y += 2 {
+		str.WriteString(padHStr)
+		for x := 0; x < bounds.Max.X; x++ {
+			// Color top
+			ct := r.bind(img.NRGBAAt(x, y))
+			//  Color bottom
+			cb := r.bind(img.NRGBAAt(x, y+1))
+			// Block
+			if ct == cb {
+				if ct == r.foreground {
+					str.WriteString("█")
+				} else {
+					str.WriteString(" ")
+				}
+			} else {
+				if ct == r.foreground {
+					str.WriteString("▀")
+				} else {
+					str.WriteString("▄")
+				}
+			}
+		}
+		str.WriteString(ansi.ResetStyle + "\n")
+	}
+
+	return str.String()
 }
