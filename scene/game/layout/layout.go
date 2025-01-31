@@ -53,7 +53,7 @@ func (m *Layout) Sprites() engine.Sprites {
 
 func (m *Layout) Bodies() engine.Bodies {
 	return engine.Bodies{
-		engine.NewBody(m.coordinates,
+		engine.NewCoordinatedBody(m.coordinates,
 			engine.BodyShape{
 				{0, 0},
 				{width - 1, 0},
@@ -62,7 +62,7 @@ func (m *Layout) Bodies() engine.Bodies {
 			},
 		),
 		// Tree
-		engine.NewBody(m.coordinates.Add(6, 32, 10),
+		engine.NewCoordinatedBody(m.coordinates.Add(6, 32, 10),
 			engine.BodyShape{
 				{0, 0},
 				{68, 0},
@@ -71,7 +71,7 @@ func (m *Layout) Bodies() engine.Bodies {
 			},
 		),
 		// Shrub
-		engine.NewBody(m.coordinates.Add(193, 122, 20),
+		engine.NewCoordinatedBody(m.coordinates.Add(193, 122, 20),
 			engine.BodyShape{
 				{0, 60},
 				{0, 29},

@@ -108,7 +108,7 @@ func (m *Duck) animation() *engine.Animation {
 
 func (m *Duck) Bodies() (bodies engine.Bodies) {
 	return bodies.Append(
-		engine.NewBody(m.Coordinates,
+		engine.NewCoordinatedBody(m.Coordinates,
 			engine.BodyShape{
 				{0, 0},
 				{31, 0},

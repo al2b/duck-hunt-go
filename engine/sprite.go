@@ -13,8 +13,15 @@ type Sprite interface {
 
 type Sprites []Sprite
 
-func (s Sprites) Append(sprites Sprites) Sprites {
+func (s Sprites) Append(sprites ...Sprite) Sprites {
 	return append(s, sprites...)
+}
+
+func (s Sprites) Appends(sprites ...Sprites) Sprites {
+	for _, sprites := range sprites {
+		s = append(s, sprites...)
+	}
+	return s
 }
 
 func (s Sprites) Flatten(width, height int) *image.NRGBA {
@@ -40,26 +47,14 @@ func (s Sprites) Flatten(width, height int) *image.NRGBA {
 
 func NewCoordinatedSprite(coordinates Coordinates, image image.Image) *CoordinatedSprite {
 	return &CoordinatedSprite{
-		coordinates: coordinates,
+		Coordinates: coordinates,
 		image:       image,
 	}
 }
 
 type CoordinatedSprite struct {
-	coordinates Coordinates
-	image       image.Image
-}
-
-func (s *CoordinatedSprite) X() float64 {
-	return s.coordinates.X()
-}
-
-func (s *CoordinatedSprite) Y() float64 {
-	return s.coordinates.Y()
-}
-
-func (s *CoordinatedSprite) Z() float64 {
-	return s.coordinates.Z()
+	Coordinates
+	image image.Image
 }
 
 func (s *CoordinatedSprite) Image() image.Image {

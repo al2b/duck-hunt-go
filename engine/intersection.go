@@ -1,12 +1,17 @@
 package engine
 
 import (
+	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/solarlune/resolv"
 )
 
 type Intersection struct {
-	Body            *Body
+	Body            Body
 	IntersectionSet resolv.IntersectionSet
+}
+
+type IntersectionMsg struct {
+	Intersection
 }
 
 type Intersections []Intersection
@@ -17,13 +22,12 @@ func NewIntersector() *Intersector {
 
 type Intersector struct{}
 
-func (r *Intersector) Intersect(model Model) {
+func (r *Intersector) Intersect(model Model) tea.Cmd {
+	var cmds []tea.Cmd
+
 	bodies := model.Bodies()
 
 	// Empty bodies intersections
-	for _, body := range bodies {
-		body.Intersections = nil
-	}
 
 	for i := 0; i < len(bodies); i++ {
 		for j := 0; j < len(bodies); j++ {
@@ -33,11 +37,16 @@ func (r *Intersector) Intersect(model Model) {
 			body1 := bodies[i]
 			body2 := bodies[j]
 			if intersectionSet := body1.ResolvShape().Intersection(body2.ResolvShape()); !intersectionSet.IsEmpty() {
-				body1.Intersections = append(body1.Intersections, Intersection{
-					Body:            body2,
-					IntersectionSet: intersectionSet,
-				})
+				cmds = append(cmds,
+					body1.Update(IntersectionMsg{
+						Intersection{
+							Body:            body2,
+							IntersectionSet: intersectionSet,
+						},
+					}))
 			}
 		}
 	}
+
+	return tea.Batch(cmds...)
 }

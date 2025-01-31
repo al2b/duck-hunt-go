@@ -1,24 +1,58 @@
 package engine
 
 import (
+	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/solarlune/resolv"
 	"image"
 )
 
-func NewBody(coordinates Point, shape BodyShape) *Body {
-	return &Body{
-		Point: coordinates,
-		shape: shape,
+type Body interface {
+	Point
+	Shape() BodyShape
+	Update(msg tea.Msg) tea.Cmd
+	ResolvShape() *resolv.ConvexPolygon
+	Intersections() Intersections
+}
+
+type Bodies []Body
+
+func (b Bodies) Append(bodies ...Body) Bodies {
+	return append(b, bodies...)
+}
+
+func (b Bodies) Appends(bodies ...Bodies) Bodies {
+	for _, bodies := range bodies {
+		b = append(b, bodies...)
+	}
+	return b
+}
+
+func NewCoordinatedBody(coordinates Coordinates, shape BodyShape) *CoordinatedBody {
+	return &CoordinatedBody{
+		Coordinates: coordinates,
+		shape:       shape,
 	}
 }
 
-type Body struct {
-	Point
+type CoordinatedBody struct {
+	Coordinates
 	shape         BodyShape
-	Intersections Intersections
+	intersections Intersections
 }
 
-func (b *Body) ResolvShape() *resolv.ConvexPolygon {
+func (b *CoordinatedBody) Shape() BodyShape {
+	return b.shape
+}
+
+func (b *CoordinatedBody) Update(msg tea.Msg) tea.Cmd {
+	switch msg := msg.(type) {
+	case IntersectionMsg:
+		b.intersections = append(b.intersections, msg.Intersection)
+	}
+	return nil
+}
+
+func (b *CoordinatedBody) ResolvShape() *resolv.ConvexPolygon {
 	var points []float64
 
 	for _, sp := range b.shape {
@@ -32,24 +66,8 @@ func (b *Body) ResolvShape() *resolv.ConvexPolygon {
 	)
 }
 
-func (b *Body) Image() image.Image {
-	return (&BodyImage{
-		body: b,
-	}).Image()
-}
-
-type Bodies []*Body
-
-func (b Bodies) Append(bodies ...*Body) Bodies {
-	b = append(b, bodies...)
-	return b
-}
-
-func (b Bodies) Appends(bodies ...Bodies) Bodies {
-	for _, bodies := range bodies {
-		b = append(b, bodies...)
-	}
-	return b
+func (b *CoordinatedBody) Intersections() Intersections {
+	return b.intersections
 }
 
 type BodyIntersection func()
@@ -83,39 +101,43 @@ func (s *BodyShape) Height() int {
 }
 
 type BodyImage struct {
-	body *Body
+	body Body
 }
 
 func (s *BodyImage) Image() image.Image {
+	shape := s.body.Shape()
+
 	img := image.NewNRGBA(image.Rect(
 		0,
 		0,
-		s.body.shape.Width(),
-		s.body.shape.Height(),
+		shape.Width(),
+		shape.Height(),
 	))
 
 	c := ColorGreen
 
-	if len(s.body.Intersections) > 0 {
+	intersections := s.body.Intersections()
+
+	if len(intersections) > 0 {
 		c = ColorRed
 	}
 
-	for i := 0; i < len(s.body.shape)-1; i++ {
+	for i := 0; i < len(shape)-1; i++ {
 		ImageLine(img,
-			int(s.body.shape[i].X), int(s.body.shape[i].Y),
-			int(s.body.shape[i+1].X), int(s.body.shape[i+1].Y),
+			int(shape[i].X), int(shape[i].Y),
+			int(shape[i+1].X), int(shape[i+1].Y),
 			c,
 		)
 	}
 
 	ImageLine(img,
-		int(s.body.shape[len(s.body.shape)-1].X), int(s.body.shape[len(s.body.shape)-1].Y),
-		int(s.body.shape[0].X), int(s.body.shape[0].Y),
+		int(shape[len(shape)-1].X), int(shape[len(shape)-1].Y),
+		int(shape[0].X), int(shape[0].Y),
 		c,
 	)
 
 	// Intersections
-	for _, i := range s.body.Intersections {
+	for _, i := range intersections {
 		for _, it := range i.IntersectionSet.Intersections {
 			ImageLine(img,
 				Round(it.Point.X-s.body.X()), Round(it.Point.Y-s.body.Y()),

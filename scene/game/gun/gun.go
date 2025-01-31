@@ -54,7 +54,7 @@ func (m *Gun) Sprites() engine.Sprites {
 
 func (m *Gun) Bodies() (bodies engine.Bodies) {
 	return bodies.Append(
-		engine.NewBody(m.coordinates,
+		engine.NewCoordinatedBody(m.coordinates,
 			engine.BodyShape{
 				{13, 0},
 				{23, 0},

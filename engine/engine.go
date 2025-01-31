@@ -131,7 +131,7 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case ModelUpdatedMsg:
 		cmds = append(cmds, e.scene.Update(msg))
 		cmds = append(cmds, func() tea.Msg {
-			e.intersector.Intersect(e.scene)
+			cmds = append(cmds, e.intersector.Intersect(e.scene))
 			return ModelIntersectedMsg{}
 		})
 	case ModelIntersectedMsg:
@@ -139,7 +139,7 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		e.view = e.renderers.Current().Render(
 			ImageResize(
 				e.scene.Sprites().
-					Append(e.console.Sprites()).
+					Appends(e.console.Sprites()).
 					Flatten(e.scene.Size()),
 				resizeW, resizeH,
 			),
