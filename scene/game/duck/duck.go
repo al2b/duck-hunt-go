@@ -18,26 +18,26 @@ func New() *Duck {
 
 type Duck struct {
 	engine.Coordinates
-	*engine.Animation
+	Animation
 	// Movement
 	movement engine.Vector
 }
 
 func (m *Duck) Init() tea.Cmd {
-	// Coordinates
+	// Init coordinates
 	m.Coordinates = engine.NewCoordinates(
 		85+math.Round(rand.Float64()*85),
 		layout.Ground-maxHeight,
 		5+math.Round(rand.Float64()*20),
 	)
 
-	// Movement
+	// Init movement
 	m.movement = engine.
 		VectorFromAngle(235 + (rand.Float64() * 90)).
 		Scale(1)
 
-	// Animation
-	m.Animation = m.animation()
+	// Init animation
+	m.Animation.Update(m.movement.Angle())
 
 	return nil
 }
@@ -45,7 +45,7 @@ func (m *Duck) Init() tea.Cmd {
 func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.MouseClickMsg:
-		// Coordinates
+		// Set coordinates
 		m.Coordinates = m.Coordinates.SetXY(
 			float64(msg.X),
 			float64(msg.Y),
@@ -63,15 +63,10 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 			m.Coordinates = m.Coordinates.AddZ(10)
 		}
 	case engine.TickMsg:
-		// Coordinates
+		// Update coordinates
 		m.Coordinates = m.Coordinates.Move(m.movement)
-		// Animation
-		animation := m.animation()
-		if animation != m.Animation {
-			m.Animation = animation
-		} else {
-			m.Animation.Update()
-		}
+		// Update animation
+		m.Animation.Update(m.movement.Angle())
 	}
 
 	return nil
@@ -79,31 +74,6 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 
 func (m *Duck) Sprites() engine.Sprites {
 	return engine.Sprites{m}
-}
-
-func (m *Duck) animation() *engine.Animation {
-	angle := m.movement.Angle()
-
-	animation := animationFlyRight
-
-	switch true {
-	case 23 <= angle && angle <= 67:
-		animation = animationFlyBottomRight
-	case 68 <= angle && angle <= 112:
-		animation = animationFlyBottom
-	case 113 <= angle && angle <= 157:
-		animation = animationFlyBottomLeft
-	case 158 <= angle && angle <= 202:
-		animation = animationFlyLeft
-	case 203 <= angle && angle <= 247:
-		animation = animationFlyTopLeft
-	case 248 <= angle && angle <= 292:
-		animation = animationFlyTop
-	case 293 <= angle && angle <= 337:
-		animation = animationFlyTopRight
-	}
-
-	return animations[animation]
 }
 
 func (m *Duck) Bodies() (bodies engine.Bodies) {

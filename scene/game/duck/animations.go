@@ -9,8 +9,10 @@ const (
 	animationHeight = 32
 )
 
+type animationType int
+
 const (
-	animationFlyTop int = iota
+	animationFlyTop animationType = iota
 	animationFlyTopRight
 	animationFlyRight
 	animationFlyBottomRight
@@ -20,7 +22,40 @@ const (
 	animationFlyTopLeft
 )
 
-var animations = map[int]*engine.Animation{
+type Animation struct {
+	*engine.Animation
+}
+
+func (a *Animation) Update(angle float64) {
+	var t animationType
+
+	switch true {
+	case 23 <= angle && angle <= 67:
+		t = animationFlyBottomRight
+	case 68 <= angle && angle <= 112:
+		t = animationFlyBottom
+	case 113 <= angle && angle <= 157:
+		t = animationFlyBottomLeft
+	case 158 <= angle && angle <= 202:
+		t = animationFlyLeft
+	case 203 <= angle && angle <= 247:
+		t = animationFlyTopLeft
+	case 248 <= angle && angle <= 292:
+		t = animationFlyTop
+	case 293 <= angle && angle <= 337:
+		t = animationFlyTopRight
+	default:
+		t = animationFlyRight
+	}
+
+	if a.Animation != animations[t] {
+		a.Animation = animations[t]
+	} else {
+		a.Animation.Update()
+	}
+}
+
+var animations = map[animationType]*engine.Animation{
 	animationFlyTop: engine.NewAnimation(
 		imageDuck,
 		engine.AnimationFrames{
