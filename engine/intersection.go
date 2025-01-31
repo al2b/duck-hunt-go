@@ -36,7 +36,7 @@ func (r *Intersector) Intersect(model Model) tea.Cmd {
 			}
 			body1 := bodies[i]
 			body2 := bodies[j]
-			if intersectionSet := body1.ResolvShape().Intersection(body2.ResolvShape()); !intersectionSet.IsEmpty() {
+			if intersectionSet := r.resolvShape(body1).Intersection(r.resolvShape(body2)); !intersectionSet.IsEmpty() {
 				cmds = append(cmds,
 					body1.Update(IntersectionMsg{
 						Intersection{
@@ -49,4 +49,18 @@ func (r *Intersector) Intersect(model Model) tea.Cmd {
 	}
 
 	return tea.Batch(cmds...)
+}
+
+func (r *Intersector) resolvShape(body Body) *resolv.ConvexPolygon {
+	var points []float64
+
+	for _, sp := range body.Shape() {
+		points = append(points, sp.X, sp.Y)
+	}
+
+	return resolv.NewConvexPolygon(
+		body.X(),
+		body.Y(),
+		points,
+	)
 }

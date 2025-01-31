@@ -2,7 +2,6 @@ package engine
 
 import (
 	tea "github.com/charmbracelet/bubbletea/v2"
-	"github.com/solarlune/resolv"
 	"image"
 )
 
@@ -10,7 +9,6 @@ type Body interface {
 	Point
 	Shape() BodyShape
 	Update(msg tea.Msg) tea.Cmd
-	ResolvShape() *resolv.ConvexPolygon
 	Intersections() Intersections
 }
 
@@ -50,20 +48,6 @@ func (b *CoordinatedBody) Update(msg tea.Msg) tea.Cmd {
 		b.intersections = append(b.intersections, msg.Intersection)
 	}
 	return nil
-}
-
-func (b *CoordinatedBody) ResolvShape() *resolv.ConvexPolygon {
-	var points []float64
-
-	for _, sp := range b.shape {
-		points = append(points, sp.X, sp.Y)
-	}
-
-	return resolv.NewConvexPolygon(
-		b.X(),
-		b.Y(),
-		points,
-	)
 }
 
 func (b *CoordinatedBody) Intersections() Intersections {
