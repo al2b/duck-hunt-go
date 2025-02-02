@@ -3,6 +3,7 @@ module duck-hunt-go
 go 1.23
 
 require (
+	github.com/alecthomas/kong v1.7.0
 	github.com/charmbracelet/bubbletea/v2 v2.0.0-alpha.2
 	github.com/charmbracelet/colorprofile v0.1.6
 	github.com/charmbracelet/x/ansi v0.4.3

@@ -47,15 +47,15 @@ func (m *Layout) Update(msg tea.Msg) tea.Cmd {
 	)
 }
 
-func (m *Layout) Sprites() engine.Sprites {
-	return engine.Sprites{
+func (m *Layout) Sprites() (sprites engine.Sprites) {
+	return sprites.Append(
 		m, m.tree, m.shrub,
 		// Sky
 		engine.NewCoordinatedSprite(
 			m.Coordinates.SetZ(-math.MaxFloat64),
 			imageSky,
 		),
-	}
+	)
 }
 
 func (m *Layout) Bodies() (bodies engine.Bodies) {

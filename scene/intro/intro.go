@@ -33,8 +33,8 @@ func (m *Intro) Update(_ tea.Msg) tea.Cmd {
 	return nil
 }
 
-func (m *Intro) Sprites() engine.Sprites {
-	return engine.Sprites{
+func (m *Intro) Sprites() (sprites engine.Sprites) {
+	return sprites.Append(
 		m,
 		// Menu
 		engine.NewCoordinatedSprite(
@@ -49,5 +49,5 @@ func (m *Intro) Sprites() engine.Sprites {
 			m.Coordinates.SetXY(64, 168),
 			engine.NewText8x8("GAME C   CLAY SHOOTING", textColor).Image(),
 		),
-	}
+	)
 }

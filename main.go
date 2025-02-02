@@ -2,21 +2,39 @@ package main
 
 import (
 	"duck-hunt-go/engine"
+	"duck-hunt-go/engine/log"
 	"duck-hunt-go/scene"
-	"fmt"
+	"github.com/alecthomas/kong"
 	tea "github.com/charmbracelet/bubbletea/v2"
-	"os"
 )
 
+var cli struct {
+	Log string `type:"path" short:"l" env:"LOG" help:"Log to file path." placeholder:"PATH"`
+}
+
 func main() {
-	p := tea.NewProgram(
+	kong.Parse(&cli,
+		kong.Name("duck-hunt"),
+		kong.Description("A free adaptation of duck hunt in your terminal"),
+		kong.UsageOnError(),
+	)
+
+	var options []engine.Option
+
+	// Log
+	if cli.Log != "" {
+		options = append(options, engine.WithLogHandler(
+			log.MustNewFileHandler(cli.Log),
+		))
+	}
+
+	program := tea.NewProgram(
 		engine.New(
-			scene.New(),
+			scene.New(), options...,
 		),
 	)
-	_, err := p.Run()
-	if err != nil {
-		fmt.Printf("Alas, there's been an error: %v", err)
-		os.Exit(1)
+
+	if _, err := program.Run(); err != nil {
+		panic(err)
 	}
 }
