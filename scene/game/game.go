@@ -31,15 +31,6 @@ func (m *Game) Init() tea.Cmd {
 }
 
 func (m *Game) Update(msg tea.Msg) tea.Cmd {
-	switch msg := msg.(type) {
-	case tea.KeyPressMsg:
-		switch msg.String() {
-		// Restart
-		case "r":
-			return m.Init()
-		}
-	}
-
 	return tea.Batch(
 		m.layout.Update(msg),
 		m.duck.Update(msg),

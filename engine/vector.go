@@ -2,17 +2,16 @@ package engine
 
 import "math"
 
-func VectorFromAngle(angle float64) Vector {
-	r := Radians(angle)
-	return Vector{
-		X: math.Cos(r),
-		Y: math.Sin(r),
-	}
-}
-
 type Vector struct {
 	X float64
 	Y float64
+}
+
+func (v Vector) SetAngle(angle float64) Vector {
+	r := Radians(angle)
+	v.X = math.Cos(r)
+	v.Y = math.Sin(r)
+	return v
 }
 
 // Rotate rotates the vector by the given angle

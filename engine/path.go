@@ -1,12 +1,5 @@
 package engine
 
-func NewPath() *Path {
-	return &Path{
-		frames: 0,
-		frame:  0,
-	}
-}
-
 type Path struct {
 	Coordinates
 	vector Vector
@@ -14,7 +7,7 @@ type Path struct {
 	frame  int
 }
 
-func (p *Path) To(x, y float64, frames int) {
+func (p Path) To(x, y float64, frames int) Path {
 	p.vector = Vector{
 		x - p.X(),
 		y - p.Y(),
@@ -22,14 +15,17 @@ func (p *Path) To(x, y float64, frames int) {
 
 	p.frames = frames
 	p.frame = 0
+
+	return p
 }
 
-func (p *Path) Update() {
+func (p Path) Update() Path {
 	if p.frame >= p.frames {
-		return
+		return p
 	}
 
 	p.frame++
-
 	p.Coordinates = p.Coordinates.Move(p.vector)
+
+	return p
 }

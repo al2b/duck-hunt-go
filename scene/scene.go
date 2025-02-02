@@ -62,6 +62,14 @@ func (s *Scene) Update(msg tea.Msg) (cmd tea.Cmd) {
 				s.state = StateIntro
 				return s.intro.Init()
 			}
+		// Init current state
+		case "i":
+			switch s.state {
+			case StateIntro:
+				return s.intro.Init()
+			case StateGame:
+				return s.game.Init()
+			}
 		}
 	}
 
