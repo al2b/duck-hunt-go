@@ -28,3 +28,8 @@ func (m Motion) Update() Motion {
 	m.Coordinates = m.Coordinates.Move(m.vector)
 	return m
 }
+
+func (m Motion) Reflect(normal Vector) Motion {
+	m.vector = m.vector.Reflect(normal)
+	return m
+}

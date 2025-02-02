@@ -24,8 +24,8 @@ func NewFileHandler(path string) (*slog.TextHandler, error) {
 	return slog.NewTextHandler(file, &slog.HandlerOptions{}), nil
 }
 
-// DiscardHandler discards all log output.
-// DiscardHandler.Enabled returns false for all Levels.
+// Should be natively available in go 1.24 :)
+// See: https://go-review.googlesource.com/c/go/+/626486
 var DiscardHandler slog.Handler = discardHandler{}
 
 type discardHandler struct{}

@@ -4,7 +4,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/solarlune/resolv"
 	"reflect"
-	"slices"
 )
 
 type Intersection struct {
@@ -14,18 +13,46 @@ type Intersection struct {
 
 type Intersections []Intersection
 
-func (i Intersections) From(receiver Body) Intersections {
+func (i Intersections) From(receiver Body) (intersections Intersections) {
 	t := reflect.TypeOf(receiver)
-	return slices.DeleteFunc(i, func(i Intersection) bool {
-		return reflect.TypeOf(i.Receiver) != t
-	})
+	for _, intersection := range i {
+		if reflect.TypeOf(intersection.Receiver) == t {
+			intersections = append(intersections, intersection)
+		}
+	}
+	return
 }
 
-func (i Intersections) To(collider any) Intersections {
+func (i Intersections) To(collider any) (intersections Intersections) {
 	t := reflect.TypeOf(collider)
-	return slices.DeleteFunc(i, func(i Intersection) bool {
-		return reflect.TypeOf(i.Collider) != t
-	})
+	for _, intersection := range i {
+		if reflect.TypeOf(intersection.Collider) == t {
+			intersections = append(intersections, intersection)
+		}
+	}
+	return
+}
+
+func (i Intersections) MTV() Vector {
+	vec := resolv.NewVector(0, 0)
+
+	for _, intersection := range i {
+		for _, intersectionSet := range intersection.IntersectionSets {
+			vec = vec.Add(intersectionSet.MTV)
+		}
+	}
+
+	return Vector{
+		X: vec.X,
+		Y: vec.Y,
+	}
+}
+
+func (i Intersections) Normal() Vector {
+	return Vector{
+		X: i[0].IntersectionSets[0].Intersections[0].Normal.X,
+		Y: i[0].IntersectionSets[0].Intersections[0].Normal.Y,
+	}
 }
 
 type IntersectionsMsg struct {

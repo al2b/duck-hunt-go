@@ -47,7 +47,7 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 			float64(msg.X),
 			float64(msg.Y),
 		)
-		return engine.ConsoleLog("Duck!")
+		return engine.ConsoleLog("Go!")
 	case tea.KeyPressMsg:
 		switch key := msg.Key(); key.Code {
 		case tea.KeyRight:
@@ -64,6 +64,14 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 		m.Motion = m.Motion.Update()
 		// Update animation
 		m.Animation.Update(m.Angle())
+	case engine.IntersectionsMsg:
+		intersections := msg.Intersections.
+			From(m).
+			To(&layout.Element{})
+		if len(intersections) > 0 {
+			m.Coordinates = m.Coordinates.Move(intersections.MTV())
+			m.Motion = m.Motion.Reflect(intersections.Normal())
+		}
 	}
 
 	return nil

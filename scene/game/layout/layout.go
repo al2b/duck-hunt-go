@@ -8,8 +8,8 @@ import (
 
 func New() *Layout {
 	return &Layout{
-		tree:  &Tree{},
-		shrub: &Shrub{},
+		tree:  &Tree,
+		shrub: &Shrub,
 	}
 }
 
@@ -17,8 +17,8 @@ type Layout struct {
 	engine.Coordinates
 	engine.StaticImage
 	engine.RectangleShape
-	tree  *Tree
-	shrub *Shrub
+	tree  *Element
+	shrub *Element
 }
 
 func (m *Layout) Init() tea.Cmd {
