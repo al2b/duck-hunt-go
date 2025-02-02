@@ -3,14 +3,30 @@ package engine
 import (
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/solarlune/resolv"
+	"reflect"
+	"slices"
 )
 
 type Intersection struct {
-	Body1, Body2     Body
-	IntersectionSets []resolv.IntersectionSet
+	Receiver, Collider Body
+	IntersectionSets   []resolv.IntersectionSet
 }
 
 type Intersections []Intersection
+
+func (i Intersections) From(receiver Body) Intersections {
+	t := reflect.TypeOf(receiver)
+	return slices.DeleteFunc(i, func(i Intersection) bool {
+		return reflect.TypeOf(i.Receiver) != t
+	})
+}
+
+func (i Intersections) To(collider any) Intersections {
+	t := reflect.TypeOf(collider)
+	return slices.DeleteFunc(i, func(i Intersection) bool {
+		return reflect.TypeOf(i.Collider) != t
+	})
+}
 
 type IntersectionsMsg struct {
 	Intersections
@@ -31,27 +47,27 @@ func (r *Intersector) Intersect(bodies Bodies) tea.Cmd {
 				continue
 			}
 
-			body1 := bodies[i]
-			body2 := bodies[j]
+			receiver := bodies[i]
+			collider := bodies[j]
 
 			intersection := Intersection{
-				Body1: body1,
-				Body2: body2,
+				Receiver: receiver,
+				Collider: collider,
 			}
 
-			for _, shape1 := range body1.Shape() {
-				for _, shape2 := range body2.Shape() {
-					resolvShape1 := resolv.NewConvexPolygon(
-						body1.X(),
-						body1.Y(),
-						shape1,
+			for _, receiverShape := range receiver.Shape() {
+				for _, colliderShape := range collider.Shape() {
+					receiverResolvShape := resolv.NewConvexPolygon(
+						receiver.X(),
+						receiver.Y(),
+						receiverShape,
 					)
-					resolvShape2 := resolv.NewConvexPolygon(
-						body2.X(),
-						body2.Y(),
-						shape2,
+					colliderResolvShape := resolv.NewConvexPolygon(
+						collider.X(),
+						collider.Y(),
+						colliderShape,
 					)
-					if intersectionSet := resolvShape1.Intersection(resolvShape2); !intersectionSet.IsEmpty() {
+					if intersectionSet := receiverResolvShape.Intersection(colliderResolvShape); !intersectionSet.IsEmpty() {
 						intersection.IntersectionSets = append(intersection.IntersectionSets, intersectionSet)
 					}
 				}

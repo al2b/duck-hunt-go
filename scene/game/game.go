@@ -10,7 +10,7 @@ import (
 
 func New() *Game {
 	return &Game{
-		layout: &layout.Layout{},
+		layout: layout.New(),
 		duck:   &duck.Duck{},
 		gun:    &gun.Gun{},
 	}
