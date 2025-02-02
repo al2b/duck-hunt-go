@@ -6,15 +6,14 @@ import (
 )
 
 type Gun struct {
-	engine.Coordinates
+	*engine.Path
 	engine.StaticImage
 	engine.PolygonShape
-	motion *engine.Motion
 }
 
 func (m *Gun) Init() tea.Cmd {
-	// Init coordinates
-	m.Coordinates = engine.NewCoordinates(0, 0, 1000)
+	// Init path
+	m.Path = engine.NewPath()
 
 	// Init image
 	m.StaticImage = engine.NewStaticImage(imageGun)
@@ -31,24 +30,21 @@ func (m *Gun) Init() tea.Cmd {
 		0, 13,
 	)
 
-	// Init motion
-	m.motion = engine.NewMotion()
-
 	return nil
 }
 
 func (m *Gun) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.MouseMotionMsg:
-		// Mutate motion
-		m.motion.MoveTo(m.Coordinates,
+		// Change path
+		m.Path.To(
 			float64(msg.X-(width/2)),
 			float64(msg.Y-(height/2)),
 			10,
 		)
 	case engine.TickMsg:
-		// Update motion
-		m.Coordinates = m.motion.Update(m.Coordinates)
+		// Update path
+		m.Path.Update()
 	}
 
 	return nil
