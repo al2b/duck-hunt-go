@@ -8,18 +8,10 @@ import (
 	"math/rand/v2"
 )
 
-const (
-	maxHeight = 32
-)
-
-func New() *Duck {
-	return &Duck{}
-}
-
 type Duck struct {
 	engine.Coordinates
 	Animation
-	// Movement
+	engine.RectangleShape
 	movement engine.Vector
 }
 
@@ -27,7 +19,7 @@ func (m *Duck) Init() tea.Cmd {
 	// Init coordinates
 	m.Coordinates = engine.NewCoordinates(
 		85+math.Round(rand.Float64()*85),
-		layout.Ground-maxHeight,
+		layout.Ground-height,
 		5+math.Round(rand.Float64()*20),
 	)
 
@@ -38,6 +30,12 @@ func (m *Duck) Init() tea.Cmd {
 
 	// Init animation
 	m.Animation.Update(m.movement.Angle())
+
+	// Init shape
+	m.RectangleShape = engine.NewRectangleShape(
+		0, 0,
+		width-1, height-1,
+	)
 
 	return nil
 }
@@ -70,21 +68,4 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 	}
 
 	return nil
-}
-
-func (m *Duck) Sprites() engine.Sprites {
-	return engine.Sprites{m}
-}
-
-func (m *Duck) Bodies() (bodies engine.Bodies) {
-	return bodies.Append(
-		engine.NewCoordinatedBody(m.Coordinates,
-			engine.BodyShape{
-				{0, 0},
-				{31, 0},
-				{31, 31},
-				{0, 31},
-			},
-		),
-	)
 }

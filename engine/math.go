@@ -2,7 +2,7 @@ package engine
 
 import "math"
 
-type Point interface {
+type Positionable interface {
 	X() float64
 	Y() float64
 	Z() float64

@@ -10,18 +10,17 @@ import (
 
 func New() *Scene {
 	return &Scene{
-		mouse: mouse.New(),
-		models: StateModels{
-			StateIntro: intro.New(),
-			StateGame:  game.New(),
-		},
+		mouse: &mouse.Mouse{},
+		intro: intro.New(),
+		game:  game.New(),
 	}
 }
 
 type Scene struct {
-	mouse  engine.Model
-	models StateModels
-	state  State
+	mouse *mouse.Mouse
+	intro *intro.Intro
+	game  *game.Game
+	state State
 }
 
 func (s *Scene) Size() (int, int) {
@@ -32,17 +31,24 @@ func (s *Scene) FPS() int {
 	return 60
 }
 
-func (s *Scene) Init() tea.Cmd {
+func (s *Scene) Init() (cmd tea.Cmd) {
 	s.state = StateGame
+
+	switch s.state {
+	case StateIntro:
+		cmd = s.intro.Init()
+	case StateGame:
+		cmd = s.game.Init()
+	}
 
 	return tea.Batch(
 		tea.SetWindowTitle("Duck Hunt"),
 		s.mouse.Init(),
-		s.models[s.state].Init(),
+		cmd,
 	)
 }
 
-func (s *Scene) Update(msg tea.Msg) tea.Cmd {
+func (s *Scene) Update(msg tea.Msg) (cmd tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch msg.String() {
@@ -51,28 +57,43 @@ func (s *Scene) Update(msg tea.Msg) tea.Cmd {
 			switch s.state {
 			case StateIntro:
 				s.state = StateGame
+				return s.game.Init()
 			case StateGame:
 				s.state = StateIntro
+				return s.intro.Init()
 			}
-			return s.models[s.state].Init()
 		}
+	}
+
+	switch s.state {
+	case StateIntro:
+		cmd = s.intro.Update(msg)
+	case StateGame:
+		cmd = s.game.Update(msg)
 	}
 
 	return tea.Batch(
 		s.mouse.Update(msg),
-		s.models[s.state].Update(msg),
+		cmd,
 	)
 }
 
 func (s *Scene) Sprites() (sprites engine.Sprites) {
-	sprites = append(sprites, s.mouse.Sprites()...)
-	sprites = append(sprites, s.models[s.state].Sprites()...)
-	return sprites
+	switch s.state {
+	case StateIntro:
+		sprites = sprites.Appends(s.intro.Sprites())
+	case StateGame:
+		sprites = sprites.Appends(s.game.Sprites())
+	}
+
+	return sprites.Append(s.mouse)
 }
 
 func (s *Scene) Bodies() (bodies engine.Bodies) {
-	return bodies.Appends(
-		s.mouse.Bodies(),
-		s.models[s.state].Bodies(),
-	)
+	switch s.state {
+	case StateGame:
+		bodies = bodies.Appends(s.game.Bodies())
+	}
+
+	return bodies
 }

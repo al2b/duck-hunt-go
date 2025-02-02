@@ -2,11 +2,19 @@ package duck
 
 import (
 	"duck-hunt-go/engine"
+	"embed"
 )
 
 const (
-	animationWidth  = 32
-	animationHeight = 32
+	width  = 32
+	height = 32
+)
+
+//go:embed images/*
+var imagesFS embed.FS
+
+var (
+	imageDuck = engine.MustLoadImageFile(imagesFS, "images/duck.png")
 )
 
 type animationType int
@@ -59,73 +67,73 @@ var animations = map[animationType]*engine.Animation{
 	animationFlyTop: engine.NewAnimation(
 		imageDuck,
 		engine.AnimationFrames{
-			{X: 0 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight},
-			{X: 0 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight},
-			{X: 0 * animationWidth, Y: 2 * animationWidth, Width: animationWidth, Height: animationHeight},
-			{X: 0 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight},
+			{X: 0 * width, Y: 0 * width, Width: width, Height: height},
+			{X: 0 * width, Y: 1 * width, Width: width, Height: height},
+			{X: 0 * width, Y: 2 * width, Width: width, Height: height},
+			{X: 0 * width, Y: 1 * width, Width: width, Height: height},
 		},
 	),
 	animationFlyTopRight: engine.NewAnimation(
 		imageDuck,
 		engine.AnimationFrames{
-			{X: 1 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight},
-			{X: 1 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight},
-			{X: 1 * animationWidth, Y: 2 * animationWidth, Width: animationWidth, Height: animationHeight},
-			{X: 1 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight},
+			{X: 1 * width, Y: 0 * width, Width: width, Height: height},
+			{X: 1 * width, Y: 1 * width, Width: width, Height: height},
+			{X: 1 * width, Y: 2 * width, Width: width, Height: height},
+			{X: 1 * width, Y: 1 * width, Width: width, Height: height},
 		},
 	),
 	animationFlyRight: engine.NewAnimation(
 		imageDuck,
 		engine.AnimationFrames{
-			{X: 2 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight},
-			{X: 2 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight},
-			{X: 2 * animationWidth, Y: 2 * animationWidth, Width: animationWidth, Height: animationHeight},
-			{X: 2 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight},
+			{X: 2 * width, Y: 0 * width, Width: width, Height: height},
+			{X: 2 * width, Y: 1 * width, Width: width, Height: height},
+			{X: 2 * width, Y: 2 * width, Width: width, Height: height},
+			{X: 2 * width, Y: 1 * width, Width: width, Height: height},
 		},
 	),
 	animationFlyBottomRight: engine.NewAnimation(
 		imageDuck,
 		engine.AnimationFrames{
-			{X: 3 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight},
-			{X: 3 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight},
-			{X: 3 * animationWidth, Y: 2 * animationWidth, Width: animationWidth, Height: animationHeight},
-			{X: 3 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight},
+			{X: 3 * width, Y: 0 * width, Width: width, Height: height},
+			{X: 3 * width, Y: 1 * width, Width: width, Height: height},
+			{X: 3 * width, Y: 2 * width, Width: width, Height: height},
+			{X: 3 * width, Y: 1 * width, Width: width, Height: height},
 		},
 	),
 	animationFlyBottom: engine.NewAnimation(
 		imageDuck,
 		engine.AnimationFrames{
-			{X: 0 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight, FlipV: true},
-			{X: 0 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight, FlipV: true},
-			{X: 0 * animationWidth, Y: 2 * animationWidth, Width: animationWidth, Height: animationHeight, FlipV: true},
-			{X: 0 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight, FlipV: true},
+			{X: 0 * width, Y: 0 * width, Width: width, Height: height, FlipV: true},
+			{X: 0 * width, Y: 1 * width, Width: width, Height: height, FlipV: true},
+			{X: 0 * width, Y: 2 * width, Width: width, Height: height, FlipV: true},
+			{X: 0 * width, Y: 1 * width, Width: width, Height: height, FlipV: true},
 		},
 	),
 	animationFlyBottomLeft: engine.NewAnimation(
 		imageDuck,
 		engine.AnimationFrames{
-			{X: 3 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
-			{X: 3 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
-			{X: 3 * animationWidth, Y: 2 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
-			{X: 3 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
+			{X: 3 * width, Y: 0 * width, Width: width, Height: height, FlipH: true},
+			{X: 3 * width, Y: 1 * width, Width: width, Height: height, FlipH: true},
+			{X: 3 * width, Y: 2 * width, Width: width, Height: height, FlipH: true},
+			{X: 3 * width, Y: 1 * width, Width: width, Height: height, FlipH: true},
 		},
 	),
 	animationFlyLeft: engine.NewAnimation(
 		imageDuck,
 		engine.AnimationFrames{
-			{X: 2 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
-			{X: 2 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
-			{X: 2 * animationWidth, Y: 2 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
-			{X: 2 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
+			{X: 2 * width, Y: 0 * width, Width: width, Height: height, FlipH: true},
+			{X: 2 * width, Y: 1 * width, Width: width, Height: height, FlipH: true},
+			{X: 2 * width, Y: 2 * width, Width: width, Height: height, FlipH: true},
+			{X: 2 * width, Y: 1 * width, Width: width, Height: height, FlipH: true},
 		},
 	),
 	animationFlyTopLeft: engine.NewAnimation(
 		imageDuck,
 		engine.AnimationFrames{
-			{X: 1 * animationWidth, Y: 0 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
-			{X: 1 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
-			{X: 1 * animationWidth, Y: 2 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
-			{X: 1 * animationWidth, Y: 1 * animationWidth, Width: animationWidth, Height: animationHeight, FlipH: true},
+			{X: 1 * width, Y: 0 * width, Width: width, Height: height, FlipH: true},
+			{X: 1 * width, Y: 1 * width, Width: width, Height: height, FlipH: true},
+			{X: 1 * width, Y: 2 * width, Width: width, Height: height, FlipH: true},
+			{X: 1 * width, Y: 1 * width, Width: width, Height: height, FlipH: true},
 		},
 	),
 }

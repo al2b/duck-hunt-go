@@ -13,11 +13,6 @@ type Motion struct {
 	frame  int
 }
 
-func (m *Motion) Reset() {
-	m.frames = 0
-	m.frame = 0
-}
-
 func (m *Motion) MoveTo(coordinates Coordinates, x, y float64, frames int) {
 	m.vector = Vector{
 		x - coordinates.X(),

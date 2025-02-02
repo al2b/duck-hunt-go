@@ -7,7 +7,7 @@ import (
 )
 
 type Sprite interface {
-	Point
+	Positionable
 	Image() image.Image
 }
 

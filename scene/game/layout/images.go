@@ -7,6 +7,11 @@ import (
 	"image/color"
 )
 
+const (
+	width  = 256
+	Ground = 184
+)
+
 //go:embed images/*
 var imagesFS embed.FS
 

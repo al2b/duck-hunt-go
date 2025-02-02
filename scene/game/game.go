@@ -10,24 +10,24 @@ import (
 
 func New() *Game {
 	return &Game{
-		models: []engine.Model{
-			layout.New(),
-			duck.New(),
-			gun.New(),
-		},
+		layout: &layout.Layout{},
+		duck:   &duck.Duck{},
+		gun:    &gun.Gun{},
 	}
 }
 
 type Game struct {
-	models []engine.Model
+	layout *layout.Layout
+	duck   *duck.Duck
+	gun    *gun.Gun
 }
 
 func (m *Game) Init() tea.Cmd {
-	var cmds []tea.Cmd
-	for _, model := range m.models {
-		cmds = append(cmds, model.Init())
-	}
-	return tea.Batch(cmds...)
+	return tea.Batch(
+		m.layout.Init(),
+		m.duck.Init(),
+		m.gun.Init(),
+	)
 }
 
 func (m *Game) Update(msg tea.Msg) tea.Cmd {
@@ -40,23 +40,21 @@ func (m *Game) Update(msg tea.Msg) tea.Cmd {
 		}
 	}
 
-	var cmds []tea.Cmd
-	for _, model := range m.models {
-		cmds = append(cmds, model.Update(msg))
-	}
-	return tea.Batch(cmds...)
+	return tea.Batch(
+		m.layout.Update(msg),
+		m.duck.Update(msg),
+		m.gun.Update(msg),
+	)
 }
 
 func (m *Game) Sprites() (sprites engine.Sprites) {
-	for _, model := range m.models {
-		sprites = append(sprites, model.Sprites()...)
-	}
-	return sprites
+	return sprites.
+		Appends(m.layout.Sprites()).
+		Append(m.duck, m.gun)
 }
 
 func (m *Game) Bodies() (bodies engine.Bodies) {
-	for _, model := range m.models {
-		bodies = append(bodies, model.Bodies()...)
-	}
-	return bodies
+	return bodies.
+		Appends(m.layout.Bodies()).
+		Append(m.duck, m.gun)
 }

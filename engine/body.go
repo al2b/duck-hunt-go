@@ -1,95 +1,55 @@
 package engine
 
-import (
-	tea "github.com/charmbracelet/bubbletea/v2"
-	"image"
-)
+import "image"
 
 type Body interface {
-	Point
-	Shape() BodyShape
-	Update(msg tea.Msg) tea.Cmd
-	Intersections() Intersections
+	Positionable
+	Shape() Shape
 }
 
 type Bodies []Body
 
-func (b Bodies) Append(bodies ...Body) Bodies {
-	return append(b, bodies...)
+func (s Bodies) Append(bodies ...Body) Bodies {
+	return append(s, bodies...)
 }
 
-func (b Bodies) Appends(bodies ...Bodies) Bodies {
+func (s Bodies) Appends(bodies ...Bodies) Bodies {
 	for _, bodies := range bodies {
-		b = append(b, bodies...)
+		s = append(s, bodies...)
 	}
-	return b
+	return s
 }
 
-func NewCoordinatedBody(coordinates Coordinates, shape BodyShape) *CoordinatedBody {
-	return &CoordinatedBody{
-		Coordinates: coordinates,
-		shape:       shape,
+func NewRectangleBody(coordinates Coordinates, shape RectangleShape) RectangleBody {
+	return RectangleBody{
+		Coordinates:    coordinates,
+		RectangleShape: shape,
 	}
 }
 
-type CoordinatedBody struct {
+type RectangleBody struct {
 	Coordinates
-	shape         BodyShape
-	intersections Intersections
+	RectangleShape
 }
 
-func (b *CoordinatedBody) Shape() BodyShape {
-	return b.shape
-}
-
-func (b *CoordinatedBody) Update(msg tea.Msg) tea.Cmd {
-	switch msg := msg.(type) {
-	case IntersectionMsg:
-		b.intersections = append(b.intersections, msg.Intersection)
+func NewPolygonBody(coordinates Coordinates, shape PolygonShape) PolygonBody {
+	return PolygonBody{
+		Coordinates:  coordinates,
+		PolygonShape: shape,
 	}
-	return nil
 }
 
-func (b *CoordinatedBody) Intersections() Intersections {
-	return b.intersections
+type PolygonBody struct {
+	Coordinates
+	PolygonShape
 }
 
-type BodyIntersection func()
-
-type BodyShapePoint struct {
-	X, Y float64
+type BodySprite struct {
+	Body
 }
 
-type BodyShape []BodyShapePoint
-
-func (s *BodyShape) Width() int {
-	var width int
-	for _, p := range *s {
-		x := int(p.X)
-		if x > width {
-			width = x
-		}
-	}
-	return width + 1
-}
-
-func (s *BodyShape) Height() int {
-	var height int
-	for _, p := range *s {
-		y := int(p.Y)
-		if y > height {
-			height = y
-		}
-	}
-	return height + 1
-}
-
-type BodyImage struct {
-	body Body
-}
-
-func (s *BodyImage) Image() image.Image {
-	shape := s.body.Shape()
+func (s BodySprite) Image() image.Image {
+	shape := s.Body.Shape()
 
 	img := image.NewNRGBA(image.Rect(
 		0,
@@ -98,35 +58,12 @@ func (s *BodyImage) Image() image.Image {
 		shape.Height(),
 	))
 
-	c := ColorGreen
-
-	intersections := s.body.Intersections()
-
-	if len(intersections) > 0 {
-		c = ColorRed
-	}
-
-	for i := 0; i < len(shape)-1; i++ {
-		ImageLine(img,
-			int(shape[i].X), int(shape[i].Y),
-			int(shape[i+1].X), int(shape[i+1].Y),
-			c,
-		)
-	}
-
-	ImageLine(img,
-		int(shape[len(shape)-1].X), int(shape[len(shape)-1].Y),
-		int(shape[0].X), int(shape[0].Y),
-		c,
-	)
-
-	// Intersections
-	for _, i := range intersections {
-		for _, it := range i.IntersectionSet.Intersections {
+	for i, _ := range shape {
+		for j := 0; j < len(shape[i])-2; j += 2 {
 			ImageLine(img,
-				Round(it.Point.X-s.body.X()), Round(it.Point.Y-s.body.Y()),
-				Round(it.Point.X+(it.Normal.X*20)-s.body.X()), Round(it.Point.Y+(it.Normal.Y*20)-s.body.Y()),
-				ColorBlue,
+				int(shape[i][j]), int(shape[i][j+1]),
+				int(shape[i][j+2]), int(shape[i][j+3]),
+				ColorGreen,
 			)
 		}
 	}

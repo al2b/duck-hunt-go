@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	imageWidth  = 3
-	imageHeight = 3
+	width  = 3
+	height = 3
 )
 
 //go:embed images/*

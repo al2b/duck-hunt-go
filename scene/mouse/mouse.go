@@ -5,17 +5,17 @@ import (
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
 
-func New() *Mouse {
-	return &Mouse{}
-}
-
 type Mouse struct {
-	coordinates engine.Coordinates
+	engine.Coordinates
+	engine.StaticImage
 }
 
 func (m *Mouse) Init() tea.Cmd {
-	// Coordinates
-	m.coordinates = engine.NewCoordinates(0, 0, 1000)
+	// Init coordinates
+	m.Coordinates = engine.NewCoordinates(0, 0, 1000)
+
+	// Init image
+	m.StaticImage = engine.NewStaticImage(imageMouse)
 
 	return nil
 }
@@ -23,24 +23,12 @@ func (m *Mouse) Init() tea.Cmd {
 func (m *Mouse) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.MouseMotionMsg:
-		m.coordinates = m.coordinates.SetXY(
-			float64(msg.X-(imageWidth/2)),
-			float64(msg.Y-(imageHeight/2)),
+		// Update coordinates
+		m.Coordinates = m.Coordinates.SetXY(
+			float64(msg.X-(width/2)),
+			float64(msg.Y-(height/2)),
 		)
 	}
 
-	return nil
-}
-
-func (m *Mouse) Sprites() engine.Sprites {
-	return engine.Sprites{
-		engine.NewCoordinatedSprite(
-			m.coordinates,
-			imageMouse,
-		),
-	}
-}
-
-func (m *Mouse) Bodies() engine.Bodies {
 	return nil
 }

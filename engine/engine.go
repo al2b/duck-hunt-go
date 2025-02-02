@@ -129,23 +129,32 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		})
 		e.msgs = nil
 	case ModelUpdatedMsg:
-		cmds = append(cmds, e.scene.Update(msg))
+		cmds = append(cmds, e.intersector.Intersect(e.scene.Bodies()))
 		cmds = append(cmds, func() tea.Msg {
-			cmds = append(cmds, e.intersector.Intersect(e.scene))
 			return ModelIntersectedMsg{}
 		})
 	case ModelIntersectedMsg:
 		resizeW, resizeH, padH, padV := e.size()
+
+		sprites := e.scene.Sprites().
+			Append(e.console)
+
+		if debug {
+			for _, body := range e.scene.Bodies() {
+				sprites = sprites.Append(BodySprite{body})
+			}
+		}
+
 		e.view = e.renderers.Current().Render(
 			ImageResize(
-				e.scene.Sprites().
-					Appends(e.console.Sprites()).
-					Flatten(e.scene.Size()),
+				sprites.Flatten(e.scene.Size()),
 				resizeW, resizeH,
 			),
 			padH,
 			padV,
 		)
+	default:
+		cmds = append(cmds, e.scene.Update(msg))
 	}
 
 	return e, tea.Batch(cmds...)
