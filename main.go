@@ -5,16 +5,10 @@ import (
 	"duck-hunt-go/scene"
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea/v2"
-	"io"
-	"log"
 	"os"
 )
 
 func main() {
-
-	// Discard logs
-	log.SetOutput(io.Discard)
-
 	p := tea.NewProgram(
 		engine.New(
 			scene.New(),

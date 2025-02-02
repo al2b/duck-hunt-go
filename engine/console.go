@@ -1,10 +1,10 @@
 package engine
 
 import (
+	"duck-hunt-go/engine/log"
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"image"
-	"log"
 	"math"
 	"slices"
 	"strings"
@@ -23,12 +23,10 @@ type Console struct {
 }
 
 func (c *Console) Init() tea.Cmd {
-	log.Println("Initialize console...")
-
 	// Init coordinates
 	c.Coordinates = NewCoordinates(0, 0, math.MaxFloat64)
 
-	return nil
+	return log.Info("Console initialized")
 }
 
 func (c *Console) Update(msg tea.Msg) tea.Cmd {
