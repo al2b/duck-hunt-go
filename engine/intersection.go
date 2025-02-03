@@ -66,41 +66,45 @@ type Intersector struct{}
 
 func (r *Intersector) Intersections(bodies Bodies) (intersections Intersections) {
 	for i := 0; i < len(bodies); i++ {
-		for j := 0; j < len(bodies); j++ {
-			if i == j {
-				continue
-			}
-
-			collider := bodies[i]
-			receiver := bodies[j]
-
-			intersection := Intersection{
-				Collider: collider,
-				Receiver: receiver,
-			}
-
-			for _, colliderShape := range collider.Shape() {
-				for _, receiverShape := range receiver.Shape() {
-					receiverResolvShape := resolv.NewConvexPolygon(
-						collider.X(),
-						collider.Y(),
-						colliderShape,
-					)
-					colliderResolvShape := resolv.NewConvexPolygon(
-						receiver.X(),
-						receiver.Y(),
-						receiverShape,
-					)
-					if intersectionSet := receiverResolvShape.Intersection(colliderResolvShape); !intersectionSet.IsEmpty() {
-						intersection.IntersectionSets = append(intersection.IntersectionSets, intersectionSet)
-					}
+		for j := i + 1; j < len(bodies); j++ {
+			body1 := bodies[i]
+			body2 := bodies[j]
+			if intersection1, ok1 := r.Intersection(body1, body2); ok1 {
+				intersections = append(intersections, intersection1)
+				if intersection2, ok2 := r.Intersection(body2, body1); ok2 {
+					intersections = append(intersections, intersection2)
 				}
 			}
+		}
+	}
 
-			if len(intersection.IntersectionSets) > 0 {
-				intersections = append(intersections, intersection)
+	return
+}
+
+func (r *Intersector) Intersection(collider, receiver Body) (intersection Intersection, ok bool) {
+	intersection.Collider = collider
+	intersection.Receiver = receiver
+
+	for _, colliderShape := range collider.Shape() {
+		for _, receiverShape := range receiver.Shape() {
+			receiverResolvShape := resolv.NewConvexPolygon(
+				collider.X(),
+				collider.Y(),
+				colliderShape,
+			)
+			colliderResolvShape := resolv.NewConvexPolygon(
+				receiver.X(),
+				receiver.Y(),
+				receiverShape,
+			)
+			if intersectionSet := receiverResolvShape.Intersection(colliderResolvShape); !intersectionSet.IsEmpty() {
+				intersection.IntersectionSets = append(intersection.IntersectionSets, intersectionSet)
 			}
 		}
+	}
+
+	if len(intersection.IntersectionSets) > 0 {
+		ok = true
 	}
 
 	return
