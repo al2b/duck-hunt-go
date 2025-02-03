@@ -42,7 +42,7 @@ func (b *ColorBinder) Bind(in color.Color) (out color.Color) {
 		b.cache[in] = out
 	}
 
-	return out
+	return
 }
 
 type ColorBinding interface {

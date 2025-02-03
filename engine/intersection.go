@@ -7,26 +7,26 @@ import (
 )
 
 type Intersection struct {
-	Receiver, Collider Body
+	Collider, Receiver Body
 	IntersectionSets   []resolv.IntersectionSet
 }
 
 type Intersections []Intersection
 
-func (i Intersections) From(receiver Body) (intersections Intersections) {
-	t := reflect.TypeOf(receiver)
+func (i Intersections) From(collider Body) (intersections Intersections) {
+	t := reflect.TypeOf(collider)
 	for _, intersection := range i {
-		if reflect.TypeOf(intersection.Receiver) == t {
+		if reflect.TypeOf(intersection.Collider) == t {
 			intersections = append(intersections, intersection)
 		}
 	}
 	return
 }
 
-func (i Intersections) To(collider any) (intersections Intersections) {
-	t := reflect.TypeOf(collider)
+func (i Intersections) To(receiver any) (intersections Intersections) {
+	t := reflect.TypeOf(receiver)
 	for _, intersection := range i {
-		if reflect.TypeOf(intersection.Collider) == t {
+		if reflect.TypeOf(intersection.Receiver) == t {
 			intersections = append(intersections, intersection)
 		}
 	}
@@ -74,25 +74,25 @@ func (r *Intersector) Intersect(bodies Bodies) tea.Cmd {
 				continue
 			}
 
-			receiver := bodies[i]
-			collider := bodies[j]
+			collider := bodies[i]
+			receiver := bodies[j]
 
 			intersection := Intersection{
-				Receiver: receiver,
 				Collider: collider,
+				Receiver: receiver,
 			}
 
-			for _, receiverShape := range receiver.Shape() {
-				for _, colliderShape := range collider.Shape() {
+			for _, colliderShape := range collider.Shape() {
+				for _, receiverShape := range receiver.Shape() {
 					receiverResolvShape := resolv.NewConvexPolygon(
-						receiver.X(),
-						receiver.Y(),
-						receiverShape,
-					)
-					colliderResolvShape := resolv.NewConvexPolygon(
 						collider.X(),
 						collider.Y(),
 						colliderShape,
+					)
+					colliderResolvShape := resolv.NewConvexPolygon(
+						receiver.X(),
+						receiver.Y(),
+						receiverShape,
 					)
 					if intersectionSet := receiverResolvShape.Intersection(colliderResolvShape); !intersectionSet.IsEmpty() {
 						intersection.IntersectionSets = append(intersection.IntersectionSets, intersectionSet)

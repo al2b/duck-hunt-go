@@ -2,7 +2,7 @@ package engine
 
 import (
 	"bytes"
-	"github.com/disintegration/imaging"
+	"golang.org/x/image/draw"
 	"image"
 	"image/color"
 	"image/png"
@@ -28,7 +28,7 @@ func LoadImageFile(fs fs.ReadFileFS, path string) (img image.Image, err error) {
 		return nil, err
 	}
 
-	return img, nil
+	return
 }
 
 func MustLoadImageFile(fs fs.ReadFileFS, path string) image.Image {
@@ -43,7 +43,12 @@ func ImageResize(src *image.NRGBA, width, height int) *image.NRGBA {
 	if src.Bounds().Dx() == width || src.Bounds().Dy() == height {
 		return src
 	}
-	return imaging.Resize(src, width, height, imaging.NearestNeighbor)
+
+	dst := image.NewNRGBA(image.Rect(0, 0, width, height))
+
+	draw.NearestNeighbor.Scale(dst, dst.Bounds(), src, src.Bounds(), draw.Over, nil)
+
+	return dst
 }
 
 func ImageLine(img *image.NRGBA, x1, y1, x2, y2 int, c color.Color) {
