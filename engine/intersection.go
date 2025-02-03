@@ -1,7 +1,6 @@
 package engine
 
 import (
-	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/solarlune/resolv"
 	"reflect"
 )
@@ -65,9 +64,7 @@ func NewIntersector() *Intersector {
 
 type Intersector struct{}
 
-func (r *Intersector) Intersect(bodies Bodies) tea.Cmd {
-	var intersections Intersections
-
+func (r *Intersector) Intersections(bodies Bodies) (intersections Intersections) {
 	for i := 0; i < len(bodies); i++ {
 		for j := 0; j < len(bodies); j++ {
 			if i == j {
@@ -106,11 +103,5 @@ func (r *Intersector) Intersect(bodies Bodies) tea.Cmd {
 		}
 	}
 
-	if len(intersections) == 0 {
-		return nil
-	}
-
-	return func() tea.Msg {
-		return IntersectionsMsg{Intersections: intersections}
-	}
+	return
 }

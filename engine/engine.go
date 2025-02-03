@@ -143,7 +143,12 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		})
 		e.msgs = nil
 	case ModelUpdatedMsg:
-		cmds = append(cmds, e.intersector.Intersect(e.scene.Bodies()))
+		intersections := e.intersector.Intersections(e.scene.Bodies())
+		if len(intersections) > 0 {
+			cmds = append(cmds, func() tea.Msg {
+				return IntersectionsMsg{Intersections: intersections}
+			})
+		}
 		cmds = append(cmds, func() tea.Msg {
 			return ModelIntersectedMsg{}
 		})
