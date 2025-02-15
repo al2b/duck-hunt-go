@@ -1,6 +1,8 @@
 package engine
 
-import "math"
+import (
+	"math"
+)
 
 type Positionable interface {
 	X() float64
@@ -24,4 +26,11 @@ func Degrees(radians float64) float64 {
 // Radians convert degrees to radians
 func Radians(degrees float64) float64 {
 	return degrees * (math.Pi / 180)
+}
+
+func Abs[T int](x T) T {
+	if x < 0 {
+		return -x
+	}
+	return x
 }

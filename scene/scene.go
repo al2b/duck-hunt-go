@@ -10,7 +10,7 @@ import (
 
 func New() *Scene {
 	return &Scene{
-		mouse: &mouse.Mouse{},
+		mouse: mouse.New(),
 		intro: intro.New(),
 		game:  game.New(),
 	}
@@ -23,8 +23,11 @@ type Scene struct {
 	state State
 }
 
-func (s *Scene) Size() (int, int) {
-	return 256, 240
+func (s *Scene) Size(_ engine.Size) engine.Size {
+	return engine.Size{
+		Width:  256,
+		Height: 240,
+	}
 }
 
 func (s *Scene) FPS() int {
@@ -86,22 +89,12 @@ func (s *Scene) Update(msg tea.Msg) (cmd tea.Cmd) {
 	)
 }
 
-func (s *Scene) Sprites() (sprites engine.Sprites) {
+func (s *Scene) Draw(scene *engine.Image) {
 	switch s.state {
 	case StateIntro:
-		sprites = sprites.Appends(s.intro.Sprites())
+		scene.Draw(s.intro)
 	case StateGame:
-		sprites = sprites.Appends(s.game.Sprites())
+		scene.Draw(s.game)
 	}
-
-	return sprites.Append(s.mouse)
-}
-
-func (s *Scene) Bodies() (bodies engine.Bodies) {
-	switch s.state {
-	case StateGame:
-		bodies = bodies.Appends(s.game.Bodies())
-	}
-
-	return bodies
+	scene.Draw(s.mouse)
 }

@@ -9,8 +9,8 @@ import (
 	"slices"
 )
 
-//go:embed images/*
-var imagesFS embed.FS
+//go:embed assets/*
+var assets embed.FS
 
 var (
 	pause = false
@@ -18,11 +18,10 @@ var (
 
 func New(scene Scene, options ...Option) Engine {
 	engine := Engine{
-		scene:       scene,
-		console:     NewConsole(),
-		intersector: NewIntersector(),
-		renderers:   NewRenderers(),
-		logHandler:  log.DiscardHandler,
+		scene:      scene,
+		console:    NewConsole(),
+		renderers:  NewRenderers(),
+		logHandler: slog.DiscardHandler,
 	}
 
 	// Options
@@ -38,11 +37,9 @@ type Engine struct {
 	// Console
 	console *Console
 	// Window
-	windowWidth, windowHeight int
+	windowSize Size
 	// Messages
 	msgs []tea.Msg
-	// Intersections
-	intersector *Intersector
 	// View
 	renderers *Renderers
 	view      string
@@ -56,7 +53,6 @@ func (e Engine) Init() (tea.Model, tea.Cmd) {
 		// Force requesting window size again for certain terminal who
 		// don't respond in time to the first automatic bubble tea request
 		tea.RequestWindowSize(),
-		// According to documentation, these should be enabled as a program option
 		tea.EnterAltScreen,
 		tea.EnableMouseAllMotion,
 		e.renderers.Init(),
@@ -78,9 +74,12 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		ratioW, ratioH := e.renderers.Current().Ratio()
-		e.windowWidth, e.windowHeight = msg.Width*ratioW, msg.Height*ratioH
-		return e, ConsoleLog("Window size: %dx%d", e.windowWidth, e.windowHeight)
+		ratio := e.renderers.Current().Ratio()
+		e.windowSize = Size{
+			Width:  msg.Width * ratio.Width,
+			Height: msg.Height * ratio.Height,
+		}
+		return e, ConsoleLog("Window size: %s", e.windowSize)
 	case tea.KeyPressMsg:
 		switch msg.String() {
 		// Quit
@@ -91,10 +90,6 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return e, ConsoleLog("Renderer: %s", e.renderers.Previous())
 		case "m":
 			return e, ConsoleLog("Renderer: %s", e.renderers.Next())
-		// Debug
-		case "d":
-			debug = !debug
-			return e, ConsoleLog("Debug: %t", debug)
 		// Pause
 		case "p":
 			pause = !pause
@@ -117,11 +112,11 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.MouseMsg:
 		mouse := msg.Mouse()
 		// Mouse position
-		width, height, paddingHorizontal, paddingVertical := e.size()
-		ratioWidth, ratioHeight := e.renderers.Current().Ratio()
-		sceneWidth, sceneHeight := e.scene.Size()
-		x := (((msg.Mouse().X * ratioWidth) - paddingHorizontal) * sceneWidth) / width
-		y := (((msg.Mouse().Y * ratioHeight) - paddingVertical) * sceneHeight) / height
+		screenSize, screenPadding := e.screenDimensions()
+		ratio := e.renderers.Current().Ratio()
+		sceneSize := e.scene.Size(e.windowSize)
+		x := (((msg.Mouse().X * ratio.Width) - screenPadding.Width) * sceneSize.Width) / screenSize.Width
+		y := (((msg.Mouse().Y * ratio.Height) - screenPadding.Height) * sceneSize.Height) / screenSize.Height
 		if mouse.Button != tea.MouseNone {
 			e.msgs = append(e.msgs, tea.MouseClickMsg{X: x, Y: y, Button: mouse.Button})
 		} else {
@@ -138,39 +133,30 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		for _, msg := range msgs {
 			cmds = append(cmds, e.scene.Update(msg))
 		}
+
 		cmds = append(cmds, func() tea.Msg {
 			return ModelUpdatedMsg{}
 		})
 		e.msgs = nil
 	case ModelUpdatedMsg:
-		intersections := e.intersector.Intersections(e.scene.Bodies())
-		if len(intersections) > 0 {
-			cmds = append(cmds, func() tea.Msg {
-				return IntersectionsMsg{Intersections: intersections}
-			})
-		}
 		cmds = append(cmds, func() tea.Msg {
 			return ModelIntersectedMsg{}
 		})
 	case ModelIntersectedMsg:
-		resizeW, resizeH, padH, padV := e.size()
+		screenSize, screenPadding := e.screenDimensions()
 
-		sprites := e.scene.Sprites().
-			Append(e.console)
+		sceneSize := e.scene.Size(e.windowSize)
 
-		if debug {
-			for _, body := range e.scene.Bodies() {
-				sprites = sprites.Append(BodySprite{body})
-			}
-		}
+		scene := NewImage(sceneSize)
+
+		e.scene.Draw(scene)
+
+		// Console
+		scene.DrawImage(e.console.Position(), e.console.Image())
 
 		e.view = e.renderers.Current().Render(
-			ImageResize(
-				sprites.Flatten(e.scene.Size()),
-				resizeW, resizeH,
-			),
-			padH,
-			padV,
+			scene.Resize(screenSize),
+			screenPadding,
 		)
 	default:
 		cmds = append(cmds, e.scene.Update(msg))
@@ -179,28 +165,29 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return e, tea.Batch(cmds...)
 }
 
-func (e Engine) size() (width, height int, paddingHorizontal, paddingVertical int) {
-	sceneWidth, sceneHeight := e.scene.Size()
+func (e Engine) screenDimensions() (size, padding Size) {
+	sceneSize := e.scene.Size(e.windowSize)
 
 	// Fit scene in window with optional padding
-	if (e.windowWidth >= sceneWidth) && (e.windowHeight >= sceneHeight) {
-		width, height = sceneWidth, sceneHeight
+	if (e.windowSize.Width >= sceneSize.Width) && (e.windowSize.Height >= sceneSize.Height) {
+		size = sceneSize
 	} else {
-		ratioWidth := float64(e.windowWidth) / float64(sceneWidth)
-		ratioHeight := float64(e.windowHeight) / float64(sceneHeight)
+		ratioWidth := float64(e.windowSize.Width) / float64(sceneSize.Width)
+		ratioHeight := float64(e.windowSize.Height) / float64(sceneSize.Height)
 
 		ratio := ratioWidth
 		if ratioHeight < ratioWidth {
 			ratio = ratioHeight
 		}
 
-		width = int(float64(sceneWidth) * ratio)
-		height = int(float64(sceneHeight) * ratio)
+		size.Width = int(float64(sceneSize.Width) * ratio)
+		size.Height = int(float64(sceneSize.Height) * ratio)
 	}
 
-	return width, height,
-		(e.windowWidth - width) / 2,
-		(e.windowHeight - height) / 2
+	padding.Width = (e.windowSize.Width - size.Width) / 2
+	padding.Height = (e.windowSize.Height - size.Height) / 2
+
+	return
 }
 
 func (e Engine) View() string {

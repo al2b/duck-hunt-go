@@ -1,11 +1,10 @@
 package engine
 
 import (
-	"github.com/disintegration/imaging"
 	"image"
 )
 
-func NewAnimation(image image.Image, frames []AnimationFrame) *Animation {
+func NewAnimation(image *Image, frames []AnimationFrame) *Animation {
 	return &Animation{
 		image:    image,
 		frames:   frames,
@@ -15,7 +14,7 @@ func NewAnimation(image image.Image, frames []AnimationFrame) *Animation {
 }
 
 type Animation struct {
-	image    image.Image
+	image    *Image
 	frames   AnimationFrames
 	frame    int
 	velocity int
@@ -25,7 +24,7 @@ func (a *Animation) Update() {
 	a.frame = (a.frame + 1) % (len(a.frames) * a.velocity)
 }
 
-func (a *Animation) Image() image.Image {
+func (a *Animation) Image() *Image {
 	return (&AnimationFrameImage{
 		animation: a,
 		frame:     a.frames[a.frame/a.velocity],
@@ -45,8 +44,8 @@ type AnimationFrameImage struct {
 	frame     AnimationFrame
 }
 
-func (s *AnimationFrameImage) Image() image.Image {
-	img := imaging.Crop(s.animation.image, image.Rect(
+func (s *AnimationFrameImage) Image() *Image {
+	img := s.animation.image.Crop(image.Rect(
 		s.frame.X,
 		s.frame.Y,
 		s.frame.X+(s.frame.Width-1),
@@ -54,11 +53,11 @@ func (s *AnimationFrameImage) Image() image.Image {
 	))
 
 	if s.frame.FlipH {
-		img = imaging.FlipH(img)
+		img = s.animation.image.FlipHorizontal()
 	}
 
 	if s.frame.FlipV {
-		img = imaging.FlipV(img)
+		img = s.animation.image.FlipVertical()
 	}
 
 	return img

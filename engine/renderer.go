@@ -7,16 +7,16 @@ import (
 	"github.com/charmbracelet/colorprofile"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/mattn/go-ciede2000"
-	"image"
 	"image/color"
+	"math"
 	"strings"
 )
 
 type Renderer interface {
 	fmt.Stringer
 	Support(profile colorprofile.Profile) bool
-	Ratio() (int, int)
-	Render(img *image.NRGBA, padH, padV int) string
+	Ratio() Size
+	Render(img *Image, padding Size) string
 }
 
 func NewRenderers() *Renderers {
@@ -121,10 +121,10 @@ func (r *Renderers) Previous() Renderer {
 
 type RendererDiscard struct{}
 
-func (r RendererDiscard) String() string                         { return "Discard" }
-func (r RendererDiscard) Support(_ colorprofile.Profile) bool    { return true }
-func (r RendererDiscard) Ratio() (int, int)                      { return 1, 2 }
-func (r RendererDiscard) Render(_ *image.NRGBA, _, _ int) string { return "" }
+func (r RendererDiscard) String() string                      { return "Discard" }
+func (r RendererDiscard) Support(_ colorprofile.Profile) bool { return true }
+func (r RendererDiscard) Ratio() Size                         { return Size{Width: 1, Height: 2} }
+func (r RendererDiscard) Render(_ *Image, _ Size) string      { return "" }
 
 /* ********** */
 /* Half Block */
@@ -141,23 +141,23 @@ func (r *RendererHalfBlock) String() string {
 	)
 }
 
-func (r *RendererHalfBlock) Ratio() (int, int) { return 1, 2 }
+func (r *RendererHalfBlock) Ratio() Size { return Size{Width: 1, Height: 2} }
 
-func (r *RendererHalfBlock) Render(img *image.NRGBA, padH, padV int) string {
+func (r *RendererHalfBlock) Render(img *Image, padding Size) string {
 	// Padding
-	ratioW, ratioH := r.Ratio()
-	padHStr := strings.Repeat(" ", padH/ratioW)
-	padVStr := strings.Repeat("\n", padV/ratioH)
+	ratio := r.Ratio()
+	paddingWidthStr := strings.Repeat(" ", padding.Width/ratio.Width)
+	paddingHeightStr := strings.Repeat("\n", padding.Height/ratio.Height)
 
 	// Image bounds
 	bounds := img.Bounds()
 
 	// String
 	str := strings.Builder{}
-	str.WriteString(padVStr)
+	str.WriteString(paddingHeightStr)
 
 	for y := 0; y < bounds.Max.Y; y += 2 {
-		str.WriteString(padHStr)
+		str.WriteString(paddingWidthStr)
 		var cct, ccb color.Color
 		for x := 0; x < bounds.Max.X; x++ {
 			var t ansi.Style
@@ -309,7 +309,7 @@ func (r *RendererMixedBlockAscii) Support(profile colorprofile.Profile) bool {
 	return profile <= colorprofile.Ascii
 }
 
-func (r *RendererMixedBlockAscii) Ratio() (int, int) { return 1, 2 }
+func (r *RendererMixedBlockAscii) Ratio() Size { return Size{Width: 1, Height: 2} }
 
 func (r *RendererMixedBlockAscii) SetForeground(c color.Color) {
 	if c != r.foreground {
@@ -343,21 +343,21 @@ func (r *RendererMixedBlockAscii) bind(in color.Color) (out color.Color) {
 	return out
 }
 
-func (r *RendererMixedBlockAscii) Render(img *image.NRGBA, padH, padV int) string {
+func (r *RendererMixedBlockAscii) Render(img *Image, padding Size) string {
 	// Padding
-	ratioW, ratioH := r.Ratio()
-	padHStr := strings.Repeat(" ", padH/ratioW)
-	padVStr := strings.Repeat("\n", padV/ratioH)
+	ratio := r.Ratio()
+	paddingWidthStr := strings.Repeat(" ", padding.Width/ratio.Width)
+	paddingHeightStr := strings.Repeat("\n", padding.Height/ratio.Height)
 
 	// Image bounds
 	bounds := img.Bounds()
 
 	// String
 	str := strings.Builder{}
-	str.WriteString(padVStr)
+	str.WriteString(paddingHeightStr)
 
 	for y := 0; y < bounds.Max.Y; y += 2 {
-		str.WriteString(padHStr)
+		str.WriteString(paddingWidthStr)
 		for x := 0; x < bounds.Max.X; x++ {
 			// Color top
 			ct := r.bind(img.NRGBAAt(x, y))

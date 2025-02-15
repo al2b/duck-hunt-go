@@ -2,24 +2,54 @@ package layout
 
 import (
 	"duck-hunt-go/engine"
+	"duck-hunt-go/engine/space"
+	tea "github.com/charmbracelet/bubbletea/v2"
 )
 
-var Shrub = Element{
-	Coordinates: engine.NewCoordinates(193, 122, 20),
-	StaticImage: engine.NewStaticImage(imageShrub),
-	PolygonShape: engine.NewPolygonShape(
-		0, 60,
-		0, 29,
-		1, 22,
-		3, 16,
-		7, 11,
-		8, 7,
-		9, 4,
-		16, 0,
-		23, 2,
-		25, 4,
-		29, 15,
-		30, 25,
-		30, 60,
-	),
+func NewShrub(space *space.Space) *Shrub {
+	return &Shrub{
+		space:            space,
+		AbsolutePosition: engine.NewAbsolutePosition(193, 122),
+		StaticImage: engine.NewStaticImage(
+			engine.MustLoadImage(assets, "assets/shrub.png"),
+		),
+	}
+}
+
+type Shrub struct {
+	space *space.Space
+	*engine.AbsolutePosition
+	*engine.StaticImage
+}
+
+func (m *Shrub) Init() tea.Cmd {
+	// Init space body
+	m.space.AddNewPositionableBody(m).
+		AddNewPolygon(engine.Positions{
+			{0, 61},
+			{0, 29},
+			{1, 22},
+			{3, 16},
+			{7, 11},
+			{8, 7},
+			{9, 4},
+			{16, 0},
+			{23, 2},
+			{25, 4},
+			{29, 15},
+			{30, 25},
+			{30, 61},
+		}, 0).
+		SetElasticity(1).
+		SetFriction(0)
+
+	return nil
+}
+
+func (m *Shrub) Update(_ tea.Msg) tea.Cmd {
+	return nil
+}
+
+func (m *Shrub) Draw(scene *engine.Image) {
+	scene.DrawImage(m.Position(), m.Image())
 }

@@ -2,7 +2,6 @@ package duck
 
 import (
 	"duck-hunt-go/engine"
-	"embed"
 )
 
 const (
@@ -10,11 +9,8 @@ const (
 	height = 32
 )
 
-//go:embed images/*
-var imagesFS embed.FS
-
 var (
-	imageDuck = engine.MustLoadImageFile(imagesFS, "images/duck.png")
+	imageDuck = engine.MustLoadImage(assets, "assets/duck.png")
 )
 
 type animationType int
@@ -34,7 +30,7 @@ type Animation struct {
 	*engine.Animation
 }
 
-func (a *Animation) Update(angle float64) {
+func (a *Animation) Step(angle float64) {
 	var t animationType
 
 	switch true {

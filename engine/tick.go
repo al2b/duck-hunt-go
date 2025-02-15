@@ -5,10 +5,20 @@ import (
 	"time"
 )
 
-type TickMsg time.Time
+type TickMsg struct {
+	time.Time
+	time.Duration
+}
 
 func tick(fps int) tea.Cmd {
-	return tea.Tick(time.Second/time.Duration(fps), func(t time.Time) tea.Msg {
-		return TickMsg(t)
-	})
+	duration := time.Second / time.Duration(fps)
+	return tea.Tick(
+		duration,
+		func(time time.Time) tea.Msg {
+			return TickMsg{
+				Time:     time,
+				Duration: duration,
+			}
+		},
+	)
 }

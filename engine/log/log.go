@@ -10,7 +10,7 @@ type Msg struct {
 	slog.Record
 }
 
-func Info(msg string, args ...any) func() tea.Msg {
+func Info(msg string, args ...any) tea.Cmd {
 	t := time.Now()
 	return func() tea.Msg {
 		r := slog.NewRecord(t,

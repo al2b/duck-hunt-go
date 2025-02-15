@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	imageFont5x5 = MustLoadImageFile(imagesFS, "images/font.5x5.png")
-	imageFont8x8 = MustLoadImageFile(imagesFS, "images/font.8x8.png")
+	imageFont5x5 = MustLoadImage(assets, "assets/font.5x5.png")
+	imageFont8x8 = MustLoadImage(assets, "assets/font.8x8.png")
 )
 
 /* *** */
@@ -30,7 +30,7 @@ type Text5x5 struct {
 	color color.Color
 }
 
-func (t Text5x5) Image() image.Image {
+func (t Text5x5) Image() *Image {
 	return textImage(t.text, imageFont5x5, 5, 5, t.color)
 }
 
@@ -50,25 +50,25 @@ type Text8x8 struct {
 	color color.Color
 }
 
-func (t Text8x8) Image() image.Image {
+func (t Text8x8) Image() *Image {
 	return textImage(t.text, imageFont8x8, 8, 8, t.color)
 }
 
-func textImage(text string, imageFont image.Image, charWidth, charHeight int, c color.Color) image.Image {
+func textImage(text string, imageFont image.Image, charWidth, charHeight int, c color.Color) *Image {
 	lines := strings.Split(text, "\n")
 
-	// Compute dimensions
-	var width, height int
+	// Compute size
+	var size Size
 	for _, line := range lines {
-		w := len(line)
-		if w > width {
-			width = w
+		width := len(line)
+		if width > size.Width {
+			size.Width = width
 		}
 	}
-	width *= charWidth
-	height = len(lines) * charHeight
+	size.Width *= charWidth
+	size.Height = len(lines) * charHeight
 
-	img := image.NewNRGBA(image.Rect(0, 0, width, height))
+	img := NewImage(size)
 
 	for l, line := range lines {
 		for c, char := range line {
@@ -93,11 +93,11 @@ func textImage(text string, imageFont image.Image, charWidth, charHeight int, c 
 		r, g, b, _ := c.RGBA()
 		r8, g8, b8 := uint8(r>>8), uint8(g>>8), uint8(b>>8)
 		var wg sync.WaitGroup
-		for y := 0; y < height; y++ {
+		for y := 0; y < size.Height; y++ {
 			wg.Add(1)
 			go func(y int) {
 				defer wg.Done()
-				for x := 0; x < width; x++ {
+				for x := 0; x < size.Width; x++ {
 					offset := img.PixOffset(x, y)
 					if img.Pix[offset] == 255 && img.Pix[offset] == img.Pix[offset+1] && img.Pix[offset] == img.Pix[offset+2] {
 						img.Pix[offset] = r8

@@ -2,33 +2,49 @@ package gun
 
 import (
 	"duck-hunt-go/engine"
+	"duck-hunt-go/engine/space"
+	"embed"
 	tea "github.com/charmbracelet/bubbletea/v2"
+	"time"
 )
 
+//go:embed assets/*
+var assets embed.FS
+
+func New(space *space.Space) *Gun {
+	return &Gun{
+		space: space,
+		Path:  engine.NewPath(),
+		StaticImage: engine.NewStaticImage(
+			engine.MustLoadImage(assets, "assets/gun.png"),
+		),
+	}
+}
+
 type Gun struct {
-	engine.Path
-	engine.StaticImage
-	engine.PolygonShape
+	space *space.Space
+	*engine.Path
+	*engine.StaticImage
 }
 
 func (m *Gun) Init() tea.Cmd {
 	// Init path
-	m.Path = engine.Path{}
+	m.Move(0, 0)
 
-	// Init image
-	m.StaticImage = engine.NewStaticImage(imageGun)
-
-	// Init shape
-	m.PolygonShape = engine.NewPolygonShape(
-		13, 0,
-		23, 0,
-		36, 13,
-		36, 23,
-		23, 36,
-		13, 36,
-		0, 23,
-		0, 13,
-	)
+	// Init space body
+	m.space.AddNewPositionableBody(m).
+		AddNewPolygon(engine.Positions{
+			{-5.5, -18.5},
+			{4.5, -18.5},
+			{17.5, -5.5},
+			{17.5, 4.5},
+			{4.5, 17.5},
+			{-5.5, 17.5},
+			{-18.5, 4.5},
+			{-18.5, -5.5},
+		}, 0).
+		SetElasticity(1).
+		SetFriction(0)
 
 	return nil
 }
@@ -36,16 +52,19 @@ func (m *Gun) Init() tea.Cmd {
 func (m *Gun) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.MouseMotionMsg:
-		// Change path
-		m.Path = m.Path.To(
-			float64(msg.X-(width/2)),
-			float64(msg.Y-(height/2)),
-			10,
-		)
-	case engine.TickMsg:
 		// Update path
-		m.Path = m.Path.Update()
+		m.To(engine.Position{
+			X: float64(msg.X),
+			Y: float64(msg.Y),
+		}, engine.ElasticEasing(1, 0.25), time.Second*1)
+	case engine.TickMsg:
+		// Step path
+		m.Step(msg.Duration)
 	}
 
 	return nil
+}
+
+func (m *Gun) Draw(scene *engine.Image) {
+	scene.DrawCenteredImage(m.Position(), m.Image())
 }

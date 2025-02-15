@@ -4,8 +4,6 @@ import (
 	"duck-hunt-go/engine/log"
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea/v2"
-	"image"
-	"math"
 	"slices"
 	"strings"
 	"time"
@@ -14,18 +12,17 @@ import (
 const consoleDuration = time.Second * 3
 
 func NewConsole() *Console {
-	return &Console{}
+	return &Console{
+		AbsolutePosition: NewAbsolutePosition(0, 0),
+	}
 }
 
 type Console struct {
-	Coordinates
+	*AbsolutePosition
 	entries []ConsoleEntry
 }
 
 func (c *Console) Init() tea.Cmd {
-	// Init coordinates
-	c.Coordinates = NewCoordinates(0, 0, math.MaxFloat64)
-
 	return log.Info("Console initialized")
 }
 
@@ -46,7 +43,7 @@ func (c *Console) Update(msg tea.Msg) tea.Cmd {
 	return nil
 }
 
-func (c *Console) Image() image.Image {
+func (c *Console) Image() *Image {
 	// No entries
 	if len(c.entries) == 0 {
 		return nil

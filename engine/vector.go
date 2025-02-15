@@ -7,7 +7,7 @@ type Vector struct {
 	Y float64
 }
 
-func (v Vector) SetAngle(angle float64) Vector {
+func (v Vector) FromAngle(angle float64) Vector {
 	r := Radians(angle)
 	v.X = math.Cos(r)
 	v.Y = math.Sin(r)

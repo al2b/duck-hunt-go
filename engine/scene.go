@@ -1,9 +1,8 @@
 package engine
 
 type Scene interface {
-	Size() (int, int)
+	Size(windowSize Size) Size
 	FPS() int
 	Model
-	Sprites() Sprites
-	Bodies() Bodies
+	Drawer
 }

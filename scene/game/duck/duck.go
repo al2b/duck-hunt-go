@@ -2,39 +2,44 @@ package duck
 
 import (
 	"duck-hunt-go/engine"
-	"duck-hunt-go/scene/game/layout"
+	"duck-hunt-go/engine/space"
+	"embed"
 	tea "github.com/charmbracelet/bubbletea/v2"
-	"math"
-	"math/rand/v2"
 )
 
+//go:embed assets/*
+var assets embed.FS
+
+func New(space *space.Space) *Duck {
+	return &Duck{
+		space: space,
+	}
+}
+
 type Duck struct {
-	engine.Motion
+	space *space.Space
+	space.Body
 	Animation
-	engine.RectangleShape
 }
 
 func (m *Duck) Init() tea.Cmd {
-	// Init coordinates
-	m.Coordinates = m.Coordinates.Set(
-		85+math.Round(rand.Float64()*85),
-		layout.Ground-height,
-		5+math.Round(rand.Float64()*20),
-	)
+	// Init space body
+	m.Body = m.space.AddNewBody(1.0).
+		SetPosition(engine.Position{
+			X: 128,
+			Y: 1,
+		}).
+		SetVelocity(engine.Vector{}.
+			FromAngle(270).
+			Scale(1),
+		)
 
-	// Init motion
-	m.Motion = m.Motion.
-		SetAngle(235 + (rand.Float64() * 90)).
-		Scale(1)
+	m.Body.AddNewCircle(16).
+		SetElasticity(1).
+		SetFriction(0)
 
 	// Init animation
-	m.Animation.Update(m.Angle())
-
-	// Init shape
-	m.RectangleShape = engine.NewRectangleShape(
-		0, 0,
-		width-1, height-1,
-	)
+	m.Animation.Step(m.Velocity().Angle())
 
 	return nil
 }
@@ -42,37 +47,27 @@ func (m *Duck) Init() tea.Cmd {
 func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.MouseClickMsg:
-		// Set coordinates
-		m.Coordinates = m.Coordinates.SetXY(
-			float64(msg.X),
-			float64(msg.Y),
-		)
+		// Follow mouse position
+		m.SetPosition(engine.Position{
+			X: float64(msg.X),
+			Y: float64(msg.Y),
+		})
 		return engine.ConsoleLog("Go!")
 	case tea.KeyPressMsg:
 		switch key := msg.Key(); key.Code {
 		case tea.KeyRight:
-			m.Motion = m.Motion.Rotate(10)
+			m.SetVelocity(m.Velocity().Rotate(10))
 		case tea.KeyLeft:
-			m.Motion = m.Motion.Rotate(-10)
-		case tea.KeyUp:
-			m.Coordinates = m.Coordinates.SubZ(10)
-		case tea.KeyDown:
-			m.Coordinates = m.Coordinates.AddZ(10)
+			m.SetVelocity(m.Velocity().Rotate(-10))
 		}
 	case engine.TickMsg:
-		// Update motion
-		m.Motion = m.Motion.Update()
-		// Update animation
-		m.Animation.Update(m.Angle())
-	case engine.IntersectionsMsg:
-		intersections := msg.Intersections.
-			From(m).
-			To(&layout.Element{})
-		if len(intersections) > 0 {
-			m.Coordinates = m.Coordinates.Move(intersections.MTV())
-			m.Motion = m.Motion.Reflect(intersections.Normal())
-		}
+		// Step animation
+		m.Animation.Step(m.Velocity().Angle())
 	}
 
 	return nil
+}
+
+func (m *Duck) Draw(scene *engine.Image) {
+	scene.DrawCenteredImage(m.Position(), m.Image())
 }

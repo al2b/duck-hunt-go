@@ -2,64 +2,56 @@ package layout
 
 import (
 	"duck-hunt-go/engine"
+	"duck-hunt-go/engine/space"
+	"embed"
 	tea "github.com/charmbracelet/bubbletea/v2"
-	"math"
 )
 
-func New() *Layout {
+const (
+	Ground = 183
+)
+
+//go:embed assets/*
+var assets embed.FS
+
+func New(space *space.Space) *Layout {
 	return &Layout{
-		tree:  &Tree,
-		shrub: &Shrub,
+		space:            space,
+		AbsolutePosition: engine.NewAbsolutePosition(0, 0),
+		StaticImage: engine.NewStaticImage(
+			engine.MustLoadImage(assets, "assets/layout.png"),
+		),
 	}
 }
 
 type Layout struct {
-	engine.Coordinates
-	engine.StaticImage
-	engine.RectangleShape
-	tree  *Element
-	shrub *Element
+	space *space.Space
+	*engine.AbsolutePosition
+	*engine.StaticImage
 }
 
 func (m *Layout) Init() tea.Cmd {
-	// Init coordinates
-	m.Coordinates = engine.NewCoordinates(0, 0, 0)
+	// Init space segments
+	m.space.AddNewSegment(engine.Position{0, 0}, engine.Position{255, 0}, 0).
+		SetElasticity(1).
+		SetFriction(0)
+	m.space.AddNewSegment(engine.Position{255, 0}, engine.Position{255, Ground}, 0).
+		SetElasticity(1).
+		SetFriction(0)
+	m.space.AddNewSegment(engine.Position{255, Ground}, engine.Position{0, Ground}, 0).
+		SetElasticity(1).
+		SetFriction(0)
+	m.space.AddNewSegment(engine.Position{0, Ground}, engine.Position{0, 0}, 0).
+		SetElasticity(1).
+		SetFriction(0)
 
-	// Init image
-	m.StaticImage = engine.NewStaticImage(imageLayout)
-
-	// Init shape
-	m.RectangleShape = engine.NewRectangleShape(
-		0, 0,
-		width-1, Ground-1,
-	)
-
-	return tea.Batch(
-		m.tree.Init(),
-		m.shrub.Init(),
-	)
+	return nil
 }
 
-func (m *Layout) Update(msg tea.Msg) tea.Cmd {
-	return tea.Batch(
-		m.tree.Update(msg),
-		m.shrub.Update(msg),
-	)
+func (m *Layout) Update(_ tea.Msg) tea.Cmd {
+	return nil
 }
 
-func (m *Layout) Sprites() (sprites engine.Sprites) {
-	return sprites.Append(
-		m, m.tree, m.shrub,
-		// Sky
-		engine.NewCoordinatedSprite(
-			m.Coordinates.SetZ(-math.MaxFloat64),
-			imageSky,
-		),
-	)
-}
-
-func (m *Layout) Bodies() (bodies engine.Bodies) {
-	return bodies.Append(
-		m, m.tree, m.shrub,
-	)
+func (m *Layout) Draw(scene *engine.Image) {
+	scene.DrawImage(m.Position(), m.Image())
 }
