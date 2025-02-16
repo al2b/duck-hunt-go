@@ -8,8 +8,7 @@ import (
 
 func NewTree(space *space.Space) *Tree {
 	return &Tree{
-		space:            space,
-		AbsolutePosition: engine.NewAbsolutePosition(6, 32),
+		space: space,
 		StaticImage: engine.NewStaticImage(
 			engine.MustLoadImage(assets, "assets/tree.png"),
 		),
@@ -18,14 +17,15 @@ func NewTree(space *space.Space) *Tree {
 
 type Tree struct {
 	space *space.Space
-	*engine.AbsolutePosition
+	engine.AbsolutePosition
 	*engine.StaticImage
 }
 
 func (m *Tree) Init() tea.Cmd {
-	// Init space body
+	// Position
+	m.SetPosition(engine.Vec(6, 32))
+	// Space
 	body := m.space.AddNewPositionableBody(m)
-
 	body.AddNewPolygon(engine.Vectors{
 		{22, 0},
 		{26, 0},
@@ -43,7 +43,6 @@ func (m *Tree) Init() tea.Cmd {
 	}, 0).
 		SetElasticity(1).
 		SetFriction(0)
-
 	body.AddNewPolygon(engine.Vectors{
 		{42, 24},
 		{51, 25},
@@ -62,7 +61,6 @@ func (m *Tree) Init() tea.Cmd {
 	}, 0).
 		SetElasticity(1).
 		SetFriction(0)
-
 	body.AddNewPolygon(engine.Vectors{
 		{31, 42},
 		{35, 42},
@@ -77,7 +75,6 @@ func (m *Tree) Init() tea.Cmd {
 	}, 0).
 		SetElasticity(1).
 		SetFriction(0)
-
 	body.AddNewPolygon(engine.Vectors{
 		{8, 48},
 		{14, 48},
@@ -95,7 +92,6 @@ func (m *Tree) Init() tea.Cmd {
 	}, 0).
 		SetElasticity(1).
 		SetFriction(0)
-
 	body.AddNewPolygon(engine.Vectors{
 		{54, 56},
 		{58, 56},

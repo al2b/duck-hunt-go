@@ -12,13 +12,11 @@ import (
 const consoleDuration = time.Second * 3
 
 func NewConsole() *Console {
-	return &Console{
-		AbsolutePosition: NewAbsolutePosition(0, 0),
-	}
+	return &Console{}
 }
 
 type Console struct {
-	*AbsolutePosition
+	AbsolutePosition
 	entries []ConsoleEntry
 }
 

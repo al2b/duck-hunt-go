@@ -4,20 +4,12 @@ type Positioner interface {
 	Position() Vector
 }
 
-func NewAbsolutePosition(x, y float64) *AbsolutePosition {
-	return &AbsolutePosition{
-		position: Vec(x, y),
-	}
+type AbsolutePosition Vector
+
+func (position AbsolutePosition) Position() Vector {
+	return Vector(position)
 }
 
-type AbsolutePosition struct {
-	position Vector
-}
-
-func (position *AbsolutePosition) Position() Vector {
-	return position.position
-}
-
-func (position *AbsolutePosition) Move(x, y float64) {
-	position.position.X, position.position.Y = x, y
+func (position *AbsolutePosition) SetPosition(vector Vector) {
+	*position = AbsolutePosition(vector)
 }

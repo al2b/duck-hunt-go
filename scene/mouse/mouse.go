@@ -11,7 +11,6 @@ var assets embed.FS
 
 func New() *Mouse {
 	return &Mouse{
-		AbsolutePosition: engine.NewAbsolutePosition(0, 0),
 		StaticImage: engine.NewStaticImage(
 			engine.MustLoadImage(assets, "assets/mouse.png"),
 		),
@@ -19,13 +18,13 @@ func New() *Mouse {
 }
 
 type Mouse struct {
-	*engine.AbsolutePosition
+	engine.AbsolutePosition
 	*engine.StaticImage
 }
 
 func (m *Mouse) Init() tea.Cmd {
-	// Init position
-	m.Move(0, 0)
+	// Position
+	m.SetPosition(engine.Vec(0, 0))
 
 	return nil
 }
@@ -33,8 +32,10 @@ func (m *Mouse) Init() tea.Cmd {
 func (m *Mouse) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.MouseMotionMsg:
-		// Update position
-		m.Move(float64(msg.X), float64(msg.Y))
+		// Position
+		m.SetPosition(engine.Vec(
+			float64(msg.X), float64(msg.Y),
+		))
 	}
 	return nil
 }

@@ -8,8 +8,7 @@ import (
 
 func NewShrub(space *space.Space) *Shrub {
 	return &Shrub{
-		space:            space,
-		AbsolutePosition: engine.NewAbsolutePosition(193, 122),
+		space: space,
 		StaticImage: engine.NewStaticImage(
 			engine.MustLoadImage(assets, "assets/shrub.png"),
 		),
@@ -18,12 +17,14 @@ func NewShrub(space *space.Space) *Shrub {
 
 type Shrub struct {
 	space *space.Space
-	*engine.AbsolutePosition
+	engine.AbsolutePosition
 	*engine.StaticImage
 }
 
 func (m *Shrub) Init() tea.Cmd {
-	// Init space body
+	// Position
+	m.SetPosition(engine.Vec(193, 122))
+	// Space
 	m.space.AddNewPositionableBody(m).
 		AddNewPolygon(engine.Vectors{
 			{0, 61},

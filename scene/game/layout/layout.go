@@ -16,8 +16,7 @@ var assets embed.FS
 
 func New(space *space.Space) *Layout {
 	return &Layout{
-		space:            space,
-		AbsolutePosition: engine.NewAbsolutePosition(0, 0),
+		space: space,
 		StaticImage: engine.NewStaticImage(
 			engine.MustLoadImage(assets, "assets/layout.png"),
 		),
@@ -26,12 +25,12 @@ func New(space *space.Space) *Layout {
 
 type Layout struct {
 	space *space.Space
-	*engine.AbsolutePosition
+	engine.AbsolutePosition
 	*engine.StaticImage
 }
 
 func (m *Layout) Init() tea.Cmd {
-	// Init space segments
+	// Space
 	m.space.AddNewSegment(engine.Vec(0, 0), engine.Vec(255, 0), 0).
 		SetElasticity(1).
 		SetFriction(0)

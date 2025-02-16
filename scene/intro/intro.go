@@ -16,7 +16,6 @@ var (
 
 func New() *Intro {
 	return &Intro{
-		AbsolutePosition: engine.NewAbsolutePosition(0, 0),
 		StaticImage: engine.NewStaticImage(
 			engine.MustLoadImage(assets, "assets/layout.png"),
 		),
@@ -24,7 +23,7 @@ func New() *Intro {
 }
 
 type Intro struct {
-	*engine.AbsolutePosition
+	engine.AbsolutePosition
 	*engine.StaticImage
 }
 
