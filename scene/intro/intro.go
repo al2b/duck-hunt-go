@@ -17,16 +17,13 @@ var (
 
 func New() *Intro {
 	return &Intro{
-		StaticImage: engine.NewStaticImage(
-			engine.MustLoadImage(assets, "assets/layout.png"),
-		),
+		layoutImage: engine.MustLoadImage(assets, "assets/layout.png"),
 		cursorImage: engine.MustLoadImage(assets, "assets/cursor.png"),
 	}
 }
 
 type Intro struct {
-	engine.AbsolutePosition
-	engine.StaticImage
+	layoutImage    *engine.Image
 	cursorImage    *engine.Image
 	cursorPosition int
 }
@@ -50,11 +47,10 @@ func (m *Intro) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (m *Intro) Draw(scene *engine.Image) {
-	position := m.Position()
+	// Layout
 	scene.DrawImage(image.Pt(
-		int(position.X),
-		int(position.Y),
-	), m.Image())
+		0, 0,
+	), m.layoutImage)
 
 	// Menu
 	scene.DrawImage(image.Pt(
