@@ -27,14 +27,25 @@ func New() *Intro {
 type Intro struct {
 	engine.AbsolutePosition
 	engine.StaticImage
-	cursorImage *engine.Image
+	cursorImage    *engine.Image
+	cursorPosition int
 }
 
 func (m *Intro) Init() tea.Cmd {
+	m.cursorPosition = 0
 	return nil
 }
 
-func (m *Intro) Update(_ tea.Msg) tea.Cmd {
+func (m *Intro) Update(msg tea.Msg) tea.Cmd {
+	switch msg := msg.(type) {
+	case tea.KeyPressMsg:
+		switch key := msg.Key(); key.Code {
+		case tea.KeyUp:
+			m.cursorPosition = (m.cursorPosition - 1 + 3) % 3
+		case tea.KeyDown:
+			m.cursorPosition = (m.cursorPosition + 1) % 3
+		}
+	}
 	return nil
 }
 
@@ -58,6 +69,7 @@ func (m *Intro) Draw(scene *engine.Image) {
 
 	// Cursor
 	scene.DrawImage(image.Pt(
-		48, 136,
+		48,
+		136+(m.cursorPosition*16),
 	), m.cursorImage)
 }
