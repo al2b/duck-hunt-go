@@ -117,57 +117,6 @@ func (img *Image) FlipVertical() *Image {
 	return dst
 }
 
-func (img *Image) DrawSegment(p0, p1 image.Point, c color.Color) {
-	dx := Abs(p1.X - p0.X)
-	dy := Abs(p1.Y - p0.Y)
-	sx, sy := 1, 1
-	if p0.X >= p1.X {
-		sx = -1
-	}
-	if p0.Y >= p1.Y {
-		sy = -1
-	}
-	err := dx - dy
-	for {
-		img.Set(p0.X, p0.Y, c)
-		if p0.X == p1.X && p0.Y == p1.Y {
-			return
-		}
-		e2 := err * 2
-		if e2 > -dy {
-			err -= dy
-			p0.X += sx
-		}
-		if e2 < dx {
-			err += dx
-			p0.Y += sy
-		}
-	}
-}
-
-func (img *Image) DrawCircle(p image.Point, radius int, c color.Color) {
-	x, y := radius, 0
-	d := 1 - radius
-
-	for x >= y {
-		img.Set(p.X+x, p.Y+y, c)
-		img.Set(p.X-x, p.Y+y, c)
-		img.Set(p.X+x, p.Y-y, c)
-		img.Set(p.X-x, p.Y-y, c)
-		img.Set(p.X+y, p.Y+x, c)
-		img.Set(p.X-y, p.Y+x, c)
-		img.Set(p.X+y, p.Y-x, c)
-		img.Set(p.X-y, p.Y-x, c)
-		y++
-		if d < 0 {
-			d += 2*y + 1
-		} else {
-			x--
-			d += 2*(y-x) + 1
-		}
-	}
-}
-
 func (img *Image) Fill(c color.Color) {
 	rgba := color.NRGBAModel.Convert(c).(color.NRGBA)
 	pixel := [4]byte{rgba.R, rgba.G, rgba.B, rgba.A}
