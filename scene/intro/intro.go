@@ -20,12 +20,14 @@ func New() *Intro {
 		StaticImage: engine.NewStaticImage(
 			engine.MustLoadImage(assets, "assets/layout.png"),
 		),
+		cursorImage: engine.MustLoadImage(assets, "assets/cursor.png"),
 	}
 }
 
 type Intro struct {
 	engine.AbsolutePosition
 	engine.StaticImage
+	cursorImage *engine.Image
 }
 
 func (m *Intro) Init() tea.Cmd {
@@ -53,4 +55,9 @@ func (m *Intro) Draw(scene *engine.Image) {
 	scene.DrawImage(image.Pt(
 		64, 168,
 	), engine.NewText8x8("GAME C   CLAY SHOOTING", textColor).Image())
+
+	// Cursor
+	scene.DrawImage(image.Pt(
+		48, 136,
+	), m.cursorImage)
 }
