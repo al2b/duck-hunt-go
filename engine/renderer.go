@@ -8,7 +8,6 @@ import (
 	"github.com/charmbracelet/x/ansi"
 	"github.com/mattn/go-ciede2000"
 	"image/color"
-	"math"
 	"strings"
 )
 
