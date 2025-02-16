@@ -24,7 +24,7 @@ func New(space *space.Space) *Gun {
 type Gun struct {
 	space *space.Space
 	*engine.Path
-	*engine.StaticImage
+	engine.StaticImage
 }
 
 func (m *Gun) Init() tea.Cmd {

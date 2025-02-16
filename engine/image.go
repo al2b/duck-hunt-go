@@ -161,14 +161,19 @@ type Imager interface {
 	Image() *Image
 }
 
-func NewStaticImage(image *Image) *StaticImage {
-	return &StaticImage{image: image}
+func NewStaticImage(image *Image) StaticImage {
+	if image == nil {
+		return StaticImage{}
+	}
+	return StaticImage(*image)
 }
 
-type StaticImage struct {
-	image *Image
+type StaticImage Image
+
+func (img *StaticImage) Image() *Image {
+	return (*Image)(img)
 }
 
-func (image *StaticImage) Image() *Image {
-	return image.image
+func (img *StaticImage) SetImage(image *Image) {
+	*img = StaticImage(*image)
 }

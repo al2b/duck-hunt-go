@@ -18,7 +18,7 @@ func NewTree(space *space.Space) *Tree {
 type Tree struct {
 	space *space.Space
 	engine.AbsolutePosition
-	*engine.StaticImage
+	engine.StaticImage
 }
 
 func (m *Tree) Init() tea.Cmd {

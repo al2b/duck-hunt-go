@@ -26,7 +26,7 @@ func New(space *space.Space) *Layout {
 type Layout struct {
 	space *space.Space
 	engine.AbsolutePosition
-	*engine.StaticImage
+	engine.StaticImage
 }
 
 func (m *Layout) Init() tea.Cmd {

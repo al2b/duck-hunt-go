@@ -18,7 +18,7 @@ func NewShrub(space *space.Space) *Shrub {
 type Shrub struct {
 	space *space.Space
 	engine.AbsolutePosition
-	*engine.StaticImage
+	engine.StaticImage
 }
 
 func (m *Shrub) Init() tea.Cmd {

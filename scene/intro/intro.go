@@ -24,7 +24,7 @@ func New() *Intro {
 
 type Intro struct {
 	engine.AbsolutePosition
-	*engine.StaticImage
+	engine.StaticImage
 }
 
 func (m *Intro) Init() tea.Cmd {

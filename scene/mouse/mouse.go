@@ -19,7 +19,7 @@ func New() *Mouse {
 
 type Mouse struct {
 	engine.AbsolutePosition
-	*engine.StaticImage
+	engine.StaticImage
 }
 
 func (m *Mouse) Init() tea.Cmd {
