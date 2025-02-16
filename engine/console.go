@@ -4,6 +4,7 @@ import (
 	"duck-hunt-go/engine/log"
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea/v2"
+	"image"
 	"slices"
 	"strings"
 	"time"
@@ -59,10 +60,14 @@ func (c *Console) Image() *Image {
 	return NewText5x5(text.String(), ColorWhite).Image()
 }
 
-func (c *Console) Draw(image *Image) {
+func (c *Console) Draw(img *Image) {
 	src := c.Image()
 	if src != nil {
-		image.DrawImage(c.Position(), src)
+		position := c.Position()
+		img.DrawImage(image.Pt(
+			int(position.X),
+			int(position.Y),
+		), src)
 	}
 }
 

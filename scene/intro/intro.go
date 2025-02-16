@@ -4,6 +4,7 @@ import (
 	"duck-hunt-go/engine"
 	"embed"
 	tea "github.com/charmbracelet/bubbletea/v2"
+	"image"
 	"image/color"
 )
 
@@ -36,16 +37,20 @@ func (m *Intro) Update(_ tea.Msg) tea.Cmd {
 }
 
 func (m *Intro) Draw(scene *engine.Image) {
-	scene.DrawImage(m.Position(), m.Image())
+	position := m.Position()
+	scene.DrawImage(image.Pt(
+		int(position.X),
+		int(position.Y),
+	), m.Image())
 
 	// Menu
-	scene.DrawImage(m.Position().Add(engine.Vec(
+	scene.DrawImage(image.Pt(
 		64, 136,
-	)), engine.NewText8x8("GAME A   1 DUCK", textColor).Image())
-	scene.DrawImage(m.Position().Add(engine.Vec(
+	), engine.NewText8x8("GAME A   1 DUCK", textColor).Image())
+	scene.DrawImage(image.Pt(
 		64, 152,
-	)), engine.NewText8x8("GAME B   2 DUCKS", textColor).Image())
-	scene.DrawImage(m.Position().Add(engine.Vec(
+	), engine.NewText8x8("GAME B   2 DUCKS", textColor).Image())
+	scene.DrawImage(image.Pt(
 		64, 168,
-	)), engine.NewText8x8("GAME C   CLAY SHOOTING", textColor).Image())
+	), engine.NewText8x8("GAME C   CLAY SHOOTING", textColor).Image())
 }

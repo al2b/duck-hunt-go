@@ -5,6 +5,7 @@ import (
 	"duck-hunt-go/engine/space"
 	"embed"
 	tea "github.com/charmbracelet/bubbletea/v2"
+	"image"
 )
 
 const (
@@ -52,5 +53,9 @@ func (m *Layout) Update(_ tea.Msg) tea.Cmd {
 }
 
 func (m *Layout) Draw(scene *engine.Image) {
-	scene.DrawImage(m.Position(), m.Image())
+	position := m.Position()
+	scene.DrawImage(image.Pt(
+		int(position.X),
+		int(position.Y),
+	), m.Image())
 }

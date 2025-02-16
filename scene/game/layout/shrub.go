@@ -4,6 +4,7 @@ import (
 	"duck-hunt-go/engine"
 	"duck-hunt-go/engine/space"
 	tea "github.com/charmbracelet/bubbletea/v2"
+	"image"
 )
 
 func NewShrub(space *space.Space) *Shrub {
@@ -52,5 +53,9 @@ func (m *Shrub) Update(_ tea.Msg) tea.Cmd {
 }
 
 func (m *Shrub) Draw(scene *engine.Image) {
-	scene.DrawImage(m.Position(), m.Image())
+	position := m.Position()
+	scene.DrawImage(image.Pt(
+		int(position.X),
+		int(position.Y),
+	), m.Image())
 }

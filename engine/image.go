@@ -39,18 +39,15 @@ func (img *Image) Draw(drawers ...Drawer) {
 	}
 }
 
-func (img *Image) DrawImage(position Vector, src *Image) {
-	draw.Draw(img, src.Bounds().Add(image.Pt(
-		int(position.X),
-		int(position.Y),
-	)), src, image.Point{}, draw.Over)
+func (img *Image) DrawImage(position image.Point, src *Image) {
+	draw.Draw(img, src.Bounds().Add(position), src, image.Point{}, draw.Over)
 }
 
-func (img *Image) DrawCenteredImage(position Vector, src *Image) {
+func (img *Image) DrawCenteredImage(position image.Point, src *Image) {
 	img.DrawImage(position.Add(
-		Vec(
-			-float64(src.Bounds().Dx()/2),
-			-float64(src.Bounds().Dy()/2),
+		image.Pt(
+			-src.Bounds().Dx()/2,
+			-src.Bounds().Dy()/2,
 		)), src)
 }
 

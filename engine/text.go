@@ -80,9 +80,9 @@ func textImage(text string, imageFont *Image, charWidth, charHeight int, c color
 				charY+charHeight,
 			))
 			img.DrawImage(
-				Vec(
-					float64(c*charWidth),
-					float64(l*charHeight),
+				image.Pt(
+					c*charWidth,
+					l*charHeight,
 				),
 				charImg,
 			)
