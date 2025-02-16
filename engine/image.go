@@ -158,7 +158,7 @@ func MustLoadImage(fs fs.ReadFileFS, path string) (img *Image) {
 }
 
 type Imager interface {
-	Image() image.Image
+	Image() *Image
 }
 
 func NewStaticImage(image *Image) *StaticImage {
