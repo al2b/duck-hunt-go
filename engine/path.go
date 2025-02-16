@@ -10,8 +10,8 @@ func NewPath() *Path {
 }
 
 type Path struct {
-	position   Position
-	start, end Position
+	position   Vector
+	start, end Vector
 	time       time.Duration
 	duration   time.Duration
 	easing     Easing
@@ -22,7 +22,7 @@ func (path *Path) Move(x, y float64) {
 	path.time, path.duration = 0, 0
 }
 
-func (path *Path) Position() Position {
+func (path *Path) Position() Vector {
 	return path.position
 }
 
@@ -40,7 +40,7 @@ func (path *Path) Step(delta time.Duration) {
 	path.position.Y = path.start.Y + (path.end.Y-path.start.Y)*py
 }
 
-func (path *Path) To(to Position, easing Easing, duration time.Duration) {
+func (path *Path) To(to Vector, easing Easing, duration time.Duration) {
 	path.start, path.end = path.position, to
 	path.easing = easing
 	path.duration = duration

@@ -13,7 +13,7 @@ func (s Shape) SetElasticity(elasticity float64) Shape {
 	return s
 }
 
-func (s Shape) SetFriction(mu float64) Shape {
-	s.cpShape.SetFriction(mu)
+func (s Shape) SetFriction(friction float64) Shape {
+	s.cpShape.SetFriction(friction)
 	return s
 }

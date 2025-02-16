@@ -33,7 +33,7 @@ func (m *Gun) Init() tea.Cmd {
 
 	// Init space body
 	m.space.AddNewPositionableBody(m).
-		AddNewPolygon(engine.Positions{
+		AddNewPolygon(engine.Vectors{
 			{-5.5, -18.5},
 			{4.5, -18.5},
 			{17.5, -5.5},
@@ -53,10 +53,9 @@ func (m *Gun) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.MouseMotionMsg:
 		// Update path
-		m.To(engine.Position{
-			X: float64(msg.X),
-			Y: float64(msg.Y),
-		}, engine.ElasticEasing(1, 0.25), time.Second*1)
+		m.To(engine.Vec(
+			float64(msg.X), float64(msg.Y),
+		), engine.ElasticEasing(1, 0.25), time.Second*1)
 	case engine.TickMsg:
 		// Step path
 		m.Step(msg.Duration)

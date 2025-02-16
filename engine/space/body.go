@@ -10,25 +10,22 @@ type Body struct {
 	cpSpace *cp.Space
 }
 
-func (b Body) Position() engine.Position {
+func (b Body) Position() engine.Vector {
 	position := b.cpBody.Position()
 
-	return engine.Position{
-		X: position.X,
-		Y: position.Y,
-	}
+	return engine.Vec(position.X, position.Y)
 }
 
 func (b Body) Velocity() engine.Vector {
 	velocity := b.cpBody.Velocity()
 
-	return engine.Vector{
-		X: velocity.X,
-		Y: velocity.Y,
-	}
+	return engine.Vec(
+		velocity.X,
+		velocity.Y,
+	)
 }
 
-func (b Body) SetPosition(position engine.Position) Body {
+func (b Body) SetPosition(position engine.Vector) Body {
 	b.cpBody.SetPosition(cp.Vector{X: position.X, Y: position.Y})
 	return b
 }
@@ -38,7 +35,7 @@ func (b Body) SetVelocity(vector engine.Vector) Body {
 	return b
 }
 
-func (b Body) AddNewPolygon(vertices engine.Positions, radius float64) Shape {
+func (b Body) AddNewPolygon(vertices engine.Vectors, radius float64) Shape {
 	cpVertices := make([]cp.Vector, len(vertices))
 	for i, vertex := range vertices {
 		cpVertices[i] = cp.Vector{

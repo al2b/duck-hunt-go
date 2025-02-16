@@ -25,7 +25,7 @@ type Shrub struct {
 func (m *Shrub) Init() tea.Cmd {
 	// Init space body
 	m.space.AddNewPositionableBody(m).
-		AddNewPolygon(engine.Positions{
+		AddNewPolygon(engine.Vectors{
 			{0, 61},
 			{0, 29},
 			{1, 22},

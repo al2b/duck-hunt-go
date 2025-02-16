@@ -40,16 +40,13 @@ func (m *Intro) Draw(scene *engine.Image) {
 	scene.DrawImage(m.Position(), m.Image())
 
 	// Menu
-	scene.DrawImage(m.Position().Add(engine.Position{
-		X: 64,
-		Y: 136,
-	}), engine.NewText8x8("GAME A   1 DUCK", textColor).Image())
-	scene.DrawImage(m.Position().Add(engine.Position{
-		X: 64,
-		Y: 152,
-	}), engine.NewText8x8("GAME B   2 DUCKS", textColor).Image())
-	scene.DrawImage(m.Position().Add(engine.Position{
-		X: 64,
-		Y: 168,
-	}), engine.NewText8x8("GAME C   CLAY SHOOTING", textColor).Image())
+	scene.DrawImage(m.Position().Add(engine.Vec(
+		64, 136,
+	)), engine.NewText8x8("GAME A   1 DUCK", textColor).Image())
+	scene.DrawImage(m.Position().Add(engine.Vec(
+		64, 152,
+	)), engine.NewText8x8("GAME B   2 DUCKS", textColor).Image())
+	scene.DrawImage(m.Position().Add(engine.Vec(
+		64, 168,
+	)), engine.NewText8x8("GAME C   CLAY SHOOTING", textColor).Image())
 }

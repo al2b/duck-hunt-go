@@ -9,6 +9,7 @@ import (
 func Dot(point image.Point, color color.Color) DotDrawer {
 	return DotDrawer{
 		point: point,
+		color: color,
 	}
 }
 

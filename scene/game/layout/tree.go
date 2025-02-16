@@ -26,7 +26,7 @@ func (m *Tree) Init() tea.Cmd {
 	// Init space body
 	body := m.space.AddNewPositionableBody(m)
 
-	body.AddNewPolygon(engine.Positions{
+	body.AddNewPolygon(engine.Vectors{
 		{22, 0},
 		{26, 0},
 		{33, 6},
@@ -44,7 +44,7 @@ func (m *Tree) Init() tea.Cmd {
 		SetElasticity(1).
 		SetFriction(0)
 
-	body.AddNewPolygon(engine.Positions{
+	body.AddNewPolygon(engine.Vectors{
 		{42, 24},
 		{51, 25},
 		{57, 30},
@@ -63,7 +63,7 @@ func (m *Tree) Init() tea.Cmd {
 		SetElasticity(1).
 		SetFriction(0)
 
-	body.AddNewPolygon(engine.Positions{
+	body.AddNewPolygon(engine.Vectors{
 		{31, 42},
 		{35, 42},
 		{38, 43},
@@ -78,7 +78,7 @@ func (m *Tree) Init() tea.Cmd {
 		SetElasticity(1).
 		SetFriction(0)
 
-	body.AddNewPolygon(engine.Positions{
+	body.AddNewPolygon(engine.Vectors{
 		{8, 48},
 		{14, 48},
 		{18, 49},
@@ -96,7 +96,7 @@ func (m *Tree) Init() tea.Cmd {
 		SetElasticity(1).
 		SetFriction(0)
 
-	body.AddNewPolygon(engine.Positions{
+	body.AddNewPolygon(engine.Vectors{
 		{54, 56},
 		{58, 56},
 		{64, 61},

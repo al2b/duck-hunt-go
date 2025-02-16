@@ -1,30 +1,20 @@
 package engine
 
-type Position struct {
-	X, Y float64
-}
-
-func (p Position) Add(q Position) Position {
-	return Position{p.X + q.X, p.Y + q.Y}
-}
-
-type Positions []Position
-
 type Positioner interface {
-	Position() Position
+	Position() Vector
 }
 
 func NewAbsolutePosition(x, y float64) *AbsolutePosition {
 	return &AbsolutePosition{
-		position: Position{X: x, Y: y},
+		position: Vec(x, y),
 	}
 }
 
 type AbsolutePosition struct {
-	position Position
+	position Vector
 }
 
-func (position *AbsolutePosition) Position() Position {
+func (position *AbsolutePosition) Position() Vector {
 	return position.position
 }
 

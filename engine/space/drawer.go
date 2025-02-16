@@ -28,7 +28,7 @@ type Drawer struct {
 }
 
 func (d Drawer) cpVectorToPoint(v cp.Vector) image.Point {
-	return image.Point{X: int(v.X), Y: int(v.Y)}
+	return image.Pt(int(v.X), int(v.Y))
 }
 
 func (d Drawer) cpFColorToColor(fc cp.FColor) color.Color {

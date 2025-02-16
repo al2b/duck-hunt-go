@@ -13,7 +13,7 @@ import (
 func New() *Game {
 	// Space
 	space := space.NewSpace().
-		SetGravity(engine.Vector{0, 9.8})
+		SetGravity(engine.Vec(0, 9.8))
 
 	return &Game{
 		debug:       false,
@@ -70,7 +70,7 @@ func (m *Game) Update(msg tea.Msg) tea.Cmd {
 		)
 
 		// Update space
-		m.space.Step(msg.Seconds())
+		m.space.Step(msg.Duration)
 
 		return cmd
 	}

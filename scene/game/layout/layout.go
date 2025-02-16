@@ -32,16 +32,16 @@ type Layout struct {
 
 func (m *Layout) Init() tea.Cmd {
 	// Init space segments
-	m.space.AddNewSegment(engine.Position{0, 0}, engine.Position{255, 0}, 0).
+	m.space.AddNewSegment(engine.Vec(0, 0), engine.Vec(255, 0), 0).
 		SetElasticity(1).
 		SetFriction(0)
-	m.space.AddNewSegment(engine.Position{255, 0}, engine.Position{255, Ground}, 0).
+	m.space.AddNewSegment(engine.Vec(255, 0), engine.Vec(255, Ground), 0).
 		SetElasticity(1).
 		SetFriction(0)
-	m.space.AddNewSegment(engine.Position{255, Ground}, engine.Position{0, Ground}, 0).
+	m.space.AddNewSegment(engine.Vec(255, Ground), engine.Vec(0, Ground), 0).
 		SetElasticity(1).
 		SetFriction(0)
-	m.space.AddNewSegment(engine.Position{0, Ground}, engine.Position{0, 0}, 0).
+	m.space.AddNewSegment(engine.Vec(0, Ground), engine.Vec(0, 0), 0).
 		SetElasticity(1).
 		SetFriction(0)
 

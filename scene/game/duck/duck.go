@@ -25,10 +25,10 @@ type Duck struct {
 func (m *Duck) Init() tea.Cmd {
 	// Init space body
 	m.Body = m.space.AddNewBody(1.0).
-		SetPosition(engine.Position{
-			X: 128,
-			Y: 1,
-		}).
+		SetPosition(engine.Vec(
+			128,
+			1,
+		)).
 		SetVelocity(engine.Vector{}.
 			FromAngle(270).
 			Scale(1),
@@ -48,10 +48,9 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.MouseClickMsg:
 		// Follow mouse position
-		m.SetPosition(engine.Position{
-			X: float64(msg.X),
-			Y: float64(msg.Y),
-		})
+		m.SetPosition(engine.Vec(
+			float64(msg.X), float64(msg.Y),
+		))
 		return engine.ConsoleLog("Go!")
 	case tea.KeyPressMsg:
 		switch key := msg.Key(); key.Code {
