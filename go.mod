@@ -7,7 +7,6 @@ require (
 	github.com/charmbracelet/bubbletea/v2 v2.0.0-alpha.2
 	github.com/charmbracelet/colorprofile v0.1.6
 	github.com/charmbracelet/x/ansi v0.4.3
-	github.com/disintegration/imaging v1.6.2
 	github.com/jakecoffman/cp/v2 v2.1.0
 	github.com/mattn/go-ciede2000 v0.0.0-20170301095244-782e8c62fec3
 	golang.org/x/image v0.24.0

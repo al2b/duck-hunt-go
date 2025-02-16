@@ -1,10 +1,8 @@
 package engine
 
 import (
-	"github.com/disintegration/imaging"
 	"image"
 	"image/color"
-	"image/draw"
 	"strings"
 	"sync"
 )
@@ -54,7 +52,7 @@ func (t Text8x8) Image() *Image {
 	return textImage(t.text, imageFont8x8, 8, 8, t.color)
 }
 
-func textImage(text string, imageFont image.Image, charWidth, charHeight int, c color.Color) *Image {
+func textImage(text string, imageFont *Image, charWidth, charHeight int, c color.Color) *Image {
 	lines := strings.Split(text, "\n")
 
 	// Compute size
@@ -75,16 +73,19 @@ func textImage(text string, imageFont image.Image, charWidth, charHeight int, c 
 			charIndex := int(char)
 			charX := (charIndex % 16) * charWidth
 			charY := (charIndex / 16) * charHeight
-			charImg := imaging.Crop(imageFont, image.Rect(
+			charImg := imageFont.Crop(image.Rect(
 				charX,
 				charY,
 				charX+charWidth,
 				charY+charHeight,
 			))
-			draw.Draw(img, img.Bounds(), charImg, image.Point{
-				X: -c * charWidth,
-				Y: -l * charHeight,
-			}, draw.Over)
+			img.DrawImage(
+				Position{
+					X: float64(c * charWidth),
+					Y: float64(l * charHeight),
+				},
+				charImg,
+			)
 		}
 	}
 

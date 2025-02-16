@@ -152,7 +152,7 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		e.scene.Draw(scene)
 
 		// Console
-		scene.DrawImage(e.console.Position(), e.console.Image())
+		scene.Draw(e.console)
 
 		e.view = e.renderers.Current().Render(
 			scene.Resize(screenSize),

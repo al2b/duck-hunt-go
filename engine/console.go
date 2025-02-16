@@ -61,6 +61,13 @@ func (c *Console) Image() *Image {
 	return NewText5x5(text.String(), ColorWhite).Image()
 }
 
+func (c *Console) Draw(image *Image) {
+	src := c.Image()
+	if src != nil {
+		image.DrawImage(c.Position(), src)
+	}
+}
+
 type ConsoleEntry struct {
 	Text       string
 	Expiration time.Time

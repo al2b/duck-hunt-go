@@ -48,16 +48,16 @@ func (s *AnimationFrameImage) Image() *Image {
 	img := s.animation.image.Crop(image.Rect(
 		s.frame.X,
 		s.frame.Y,
-		s.frame.X+(s.frame.Width-1),
-		s.frame.Y+(s.frame.Height-1),
+		s.frame.X+s.frame.Width,
+		s.frame.Y+s.frame.Height,
 	))
 
 	if s.frame.FlipH {
-		img = s.animation.image.FlipHorizontal()
+		img = img.FlipHorizontal()
 	}
 
 	if s.frame.FlipV {
-		img = s.animation.image.FlipVertical()
+		img = img.FlipVertical()
 	}
 
 	return img

@@ -12,7 +12,12 @@ import (
 
 func NewImage(size Size) *Image {
 	return &Image{
-		NRGBA: image.NewNRGBA(image.Rect(0, 0, size.Width, size.Height)),
+		NRGBA: image.NewNRGBA(image.Rect(
+			0,
+			0,
+			size.Width,
+			size.Height,
+		)),
 	}
 }
 
@@ -21,9 +26,10 @@ type Image struct {
 }
 
 func (img *Image) Size() Size {
+	size := img.Bounds().Size()
 	return Size{
-		Width:  img.Bounds().Dx(),
-		Height: img.Bounds().Dy(),
+		Width:  size.X,
+		Height: size.Y,
 	}
 }
 
@@ -70,23 +76,26 @@ func (img *Image) Crop(rectangle image.Rectangle) *Image {
 		Height: rectangle.Dy(),
 	})
 
-	draw.Draw(dst, rectangle, img, dst.Bounds().Min, draw.Over)
+	draw.Draw(
+		dst,
+		dst.Bounds(),
+		img,
+		rectangle.Min,
+		draw.Over,
+	)
 
 	return dst
 }
 
 func (img *Image) FlipHorizontal() *Image {
-	dst := NewImage(img.Size())
+	size := img.Size()
+	dst := NewImage(size)
 
-	bounds := img.Bounds()
-	width := bounds.Dx()
-	height := bounds.Dy()
-	for y := 0; y < height; y++ {
-		for x := 0; x < width/2; x++ {
-			leftIndex := (y*width + x) * 4
-			rightIndex := (y*width + (width - x - 1)) * 4
-			copy(dst.Pix[leftIndex:leftIndex+4], img.Pix[rightIndex:rightIndex+4])
-			copy(dst.Pix[rightIndex:rightIndex+4], img.Pix[leftIndex:leftIndex+4])
+	for y := 0; y < size.Height; y++ {
+		for x := 0; x < size.Width; x++ {
+			srcIdx := y*img.Stride + (size.Width-x-1)*4
+			dstIdx := y*img.Stride + x*4
+			copy(dst.Pix[dstIdx:dstIdx+4], img.Pix[srcIdx:srcIdx+4])
 		}
 	}
 
@@ -94,16 +103,15 @@ func (img *Image) FlipHorizontal() *Image {
 }
 
 func (img *Image) FlipVertical() *Image {
-	dst := NewImage(img.Size())
+	size := img.Size()
+	dst := NewImage(size)
 
-	bounds := img.Bounds()
-	width := bounds.Dx()
-	height := bounds.Dy()
-	for y := 0; y < height/2; y++ {
-		srcLineOffset := y * width * 4
-		dstLineOffset := (height - y - 1) * width * 4
-		copy(dst.Pix[dstLineOffset:dstLineOffset+width*4], img.Pix[srcLineOffset:srcLineOffset+width*4])
-		copy(img.Pix[srcLineOffset:srcLineOffset+width*4], dst.Pix[dstLineOffset:dstLineOffset+width*4])
+	for y := 0; y < size.Height; y++ {
+		srcY := size.Height - y - 1
+		copy(
+			dst.Pix[y*img.Stride:(y+1)*img.Stride],
+			img.Pix[srcY*img.Stride:(srcY+1)*img.Stride],
+		)
 	}
 
 	return dst
