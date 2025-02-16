@@ -39,8 +39,9 @@ func (img *Image) Draw(drawers ...Drawer) {
 	}
 }
 
-func (img *Image) DrawImage(position image.Point, src *Image) {
+func (img *Image) DrawImage(position image.Point, src *Image) *Image {
 	draw.Draw(img, src.Bounds().Add(position), src, image.Point{}, draw.Over)
+	return img
 }
 
 func (img *Image) DrawCenteredImage(position image.Point, src *Image) {
