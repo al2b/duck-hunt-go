@@ -45,10 +45,10 @@ func (img *Image) DrawImage(position image.Point, src *Image) *Image {
 }
 
 func (img *Image) DrawCenteredImage(position image.Point, src *Image) {
-	img.DrawImage(position.Add(
+	img.DrawImage(position.Sub(
 		image.Pt(
-			-src.Bounds().Dx()/2,
-			-src.Bounds().Dy()/2,
+			(src.Bounds().Dx()-1)/2,
+			(src.Bounds().Dy()-1)/2,
 		)), src)
 }
 
