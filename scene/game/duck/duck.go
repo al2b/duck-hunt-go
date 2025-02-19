@@ -12,15 +12,15 @@ import (
 var assets embed.FS
 
 func New(space *space.Space) *Duck {
-	return &Duck{
-		space: space,
-	}
+	m := &Duck{space: space}
+	m.Animator = NewAnimator(m)
+	return m
 }
 
 type Duck struct {
 	space *space.Space
 	space.Body
-	Animation
+	Animator
 }
 
 func (m *Duck) Init() tea.Cmd {
@@ -38,9 +38,6 @@ func (m *Duck) Init() tea.Cmd {
 	m.Body.AddNewCircle(16).
 		SetElasticity(1).
 		SetFriction(0)
-
-	// Init animation
-	m.Animation.Step(m.Velocity().Angle())
 
 	return nil
 }
@@ -62,7 +59,7 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 		}
 	case engine.TickMsg:
 		// Step animation
-		m.Animation.Step(m.Velocity().Angle())
+		m.Animation().Step(msg.Duration)
 	}
 
 	return nil
@@ -73,5 +70,5 @@ func (m *Duck) Draw(scene *engine.Image) {
 	scene.DrawCenteredImage(image.Pt(
 		int(position.X),
 		int(position.Y),
-	), m.Image())
+	), m.Animation().Image())
 }
