@@ -11,7 +11,7 @@ func NewShrub(space *space.Space) *Shrub {
 	return &Shrub{
 		space: space,
 		StaticImage: engine.NewStaticImage(
-			engine.MustLoadImage(assets, "assets/shrub.png"),
+			engine.MustLoadImage(engine.ImagePngFile(assets, "assets/shrub.png")),
 		),
 	}
 }

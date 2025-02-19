@@ -11,7 +11,7 @@ func NewTree(space *space.Space) *Tree {
 	return &Tree{
 		space: space,
 		StaticImage: engine.NewStaticImage(
-			engine.MustLoadImage(assets, "assets/tree.png"),
+			engine.MustLoadImage(engine.ImagePngFile(assets, "assets/tree.png")),
 		),
 	}
 }

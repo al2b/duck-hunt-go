@@ -124,35 +124,55 @@ func (img *Image) Fill(c color.Color) {
 	}
 }
 
-func LoadImage(fs fs.ReadFileFS, path string) (*Image, error) {
+type ImageLoader interface {
+	Load() (*Image, error)
+}
+
+func LoadImage(loader ImageLoader) (*Image, error) {
+	return loader.Load()
+}
+
+func MustLoadImage(loader ImageLoader) (image *Image) {
+	var err error
+	if image, err = LoadImage(loader); err != nil {
+		panic(err)
+	}
+	return
+}
+
+func ImagePngFile(fs fs.ReadFileFS, path string) ImagePngFileLoader {
+	return ImagePngFileLoader{
+		fs:   fs,
+		path: path,
+	}
+}
+
+type ImagePngFileLoader struct {
+	fs   fs.ReadFileFS
+	path string
+}
+
+func (loader ImagePngFileLoader) Load() (*Image, error) {
 	var (
-		data []byte
-		img  image.Image
-		err  error
+		file   []byte
+		imgPng image.Image
+		err    error
 	)
 
-	if data, err = fs.ReadFile(path); err != nil {
+	if file, err = loader.fs.ReadFile(loader.path); err != nil {
 		return nil, err
 	}
 
-	if img, err = png.Decode(bytes.NewReader(data)); err != nil {
+	if imgPng, err = png.Decode(bytes.NewReader(file)); err != nil {
 		return nil, err
 	}
 
-	switch img := img.(type) {
+	switch img := imgPng.(type) {
 	case *image.NRGBA:
 		return &Image{NRGBA: img}, nil
 	default:
 		return nil, errors.New("unsupported image type")
 	}
-}
-
-func MustLoadImage(fs fs.ReadFileFS, path string) (img *Image) {
-	var err error
-	if img, err = LoadImage(fs, path); err != nil {
-		panic(err)
-	}
-	return
 }
 
 type Imager interface {

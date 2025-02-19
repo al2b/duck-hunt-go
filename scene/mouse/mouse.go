@@ -13,7 +13,7 @@ var assets embed.FS
 func New() *Mouse {
 	return &Mouse{
 		StaticImage: engine.NewStaticImage(
-			engine.MustLoadImage(assets, "assets/mouse.png"),
+			engine.MustLoadImage(engine.ImagePngFile(assets, "assets/mouse.png")),
 		),
 	}
 }

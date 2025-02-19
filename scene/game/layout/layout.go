@@ -19,7 +19,7 @@ func New(space *space.Space) *Layout {
 	return &Layout{
 		space: space,
 		StaticImage: engine.NewStaticImage(
-			engine.MustLoadImage(assets, "assets/layout.png"),
+			engine.MustLoadImage(engine.ImagePngFile(assets, "assets/layout.png")),
 		),
 	}
 }

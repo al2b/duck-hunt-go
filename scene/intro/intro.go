@@ -17,8 +17,8 @@ var (
 
 func New() *Intro {
 	return &Intro{
-		layoutImage: engine.MustLoadImage(assets, "assets/layout.png"),
-		cursorImage: engine.MustLoadImage(assets, "assets/cursor.png"),
+		layoutImage: engine.MustLoadImage(engine.ImagePngFile(assets, "assets/layout.png")),
+		cursorImage: engine.MustLoadImage(engine.ImagePngFile(assets, "assets/cursor.png")),
 	}
 }
 

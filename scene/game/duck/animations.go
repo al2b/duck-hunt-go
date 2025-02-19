@@ -10,7 +10,7 @@ const (
 )
 
 var (
-	imageDuck = engine.MustLoadImage(assets, "assets/duck.png")
+	imageDuck = engine.MustLoadImage(engine.ImagePngFile(assets, "assets/duck.png"))
 )
 
 type animationType int

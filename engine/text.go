@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	imageFont5x5 = MustLoadImage(assets, "assets/font.5x5.png")
-	imageFont8x8 = MustLoadImage(assets, "assets/font.8x8.png")
+	imageFont5x5 = MustLoadImage(ImagePngFile(assets, "assets/font.5x5.png"))
+	imageFont8x8 = MustLoadImage(ImagePngFile(assets, "assets/font.8x8.png"))
 )
 
 /* *** */
