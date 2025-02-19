@@ -3,10 +3,11 @@ package duck
 import (
 	"duck-hunt-go/engine"
 	"duck-hunt-go/engine/animation"
+	"time"
 )
 
-func NewAnimator(velociter engine.Velociter) Animator {
-	return Animator{
+func NewAnimation(velociter engine.Velociter) Animation {
+	return Animation{
 		velociter:       velociter,
 		horizontalLeft:  animation.MustLoad(animation.ApngFile(assets, "assets/duck.horizontal.left.apng")),
 		horizontalRight: animation.MustLoad(animation.ApngFile(assets, "assets/duck.horizontal.right.apng")),
@@ -15,7 +16,7 @@ func NewAnimator(velociter engine.Velociter) Animator {
 	}
 }
 
-type Animator struct {
+type Animation struct {
 	velociter       engine.Velociter
 	horizontalLeft  *animation.Animation
 	horizontalRight *animation.Animation
@@ -23,20 +24,28 @@ type Animator struct {
 	angledRight     *animation.Animation
 }
 
-func (animator Animator) Animation() *animation.Animation {
-	angle := animator.velociter.Velocity().Angle()
+func (animation Animation) Animation() *animation.Animation {
+	angle := animation.velociter.Velocity().Angle()
 	switch true {
 	case 30 <= angle && angle < 90:
-		return animator.angledRight
+		return animation.angledRight
 	case 90 <= angle && angle < 150:
-		return animator.angledLeft
+		return animation.angledLeft
 	case 150 <= angle && angle < 210:
-		return animator.horizontalLeft
+		return animation.horizontalLeft
 	case 210 <= angle && angle < 270:
-		return animator.angledLeft
+		return animation.angledLeft
 	case 270 <= angle && angle < 330:
-		return animator.angledRight
+		return animation.angledRight
 	default:
-		return animator.horizontalRight
+		return animation.horizontalRight
 	}
+}
+
+func (animation Animation) Step(delta time.Duration) {
+	animation.Animation().Step(delta)
+}
+
+func (animation Animation) Image() *engine.Image {
+	return animation.Animation().Image()
 }
