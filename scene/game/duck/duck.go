@@ -35,7 +35,7 @@ func (m *Duck) Init() tea.Cmd {
 			Scale(1),
 		)
 
-	m.Body.AddNewCircle(16).
+	m.Body.AddNewCircle(18).
 		SetElasticity(1).
 		SetFriction(0)
 
