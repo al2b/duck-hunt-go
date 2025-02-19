@@ -7,5 +7,10 @@ type Model interface {
 	Update(msg tea.Msg) tea.Cmd
 }
 
+type DrawModel interface {
+	Model
+	Drawer
+}
+
 type ModelUpdatedMsg struct{}
 type ModelIntersectedMsg struct{}
