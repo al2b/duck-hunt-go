@@ -18,10 +18,11 @@ var (
 
 func New(scene Scene, options ...Option) Engine {
 	engine := Engine{
-		scene:      scene,
-		console:    NewConsole(),
-		renderers:  NewRenderers(),
-		logHandler: slog.DiscardHandler,
+		scene:          scene,
+		console:        NewConsole(),
+		consoleEnabled: false,
+		renderers:      NewRenderers(),
+		logHandler:     slog.DiscardHandler,
 	}
 
 	// Options
@@ -35,7 +36,8 @@ func New(scene Scene, options ...Option) Engine {
 type Engine struct {
 	scene Scene
 	// Console
-	console *Console
+	console        *Console
+	consoleEnabled bool
 	// Window
 	windowSize Size
 	// Messages
@@ -81,6 +83,10 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return e, ConsoleLog("Window size: %s", e.windowSize)
 	case tea.KeyPressMsg:
+		switch key := msg.Key(); key.Code {
+		case tea.KeyF1:
+			e.consoleEnabled = !e.consoleEnabled
+		}
 		switch msg.String() {
 		// Quit
 		case "enter", "q", "ctrl+c", "esc":
@@ -152,7 +158,9 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		e.scene.Draw(scene)
 
 		// Console
-		scene.Draw(e.console)
+		if e.consoleEnabled {
+			scene.Draw(e.console)
+		}
 
 		e.view = e.renderers.Current().Render(
 			scene.Resize(screenSize),
