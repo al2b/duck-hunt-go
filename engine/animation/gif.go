@@ -41,7 +41,7 @@ func (loader GifFileLoader) Load() (animation *Animation, err error) {
 	}
 
 	animation = &Animation{
-		Size: size,
+		size: size,
 	}
 
 	for i, img := range imgGif.Image {
@@ -51,10 +51,10 @@ func (loader GifFileLoader) Load() (animation *Animation, err error) {
 		}
 
 		bounds := img.Bounds()
-		draw.Draw(imgFrame.Image, bounds, img, bounds.Min, draw.Src)
+		draw.Draw(imgFrame.Image.NRGBA, bounds, img, bounds.Min, draw.Src)
 
-		animation.Frames = append(animation.Frames, imgFrame)
-		animation.Duration += imgFrame.Duration
+		animation.frames = append(animation.frames, imgFrame)
+		animation.duration += imgFrame.Duration
 	}
 
 	return

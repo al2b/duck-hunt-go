@@ -36,7 +36,7 @@ func (loader ApngFileLoader) Load() (animation *Animation, err error) {
 	}
 
 	animation = &Animation{
-		Size: engine.Size{
+		size: engine.Size{
 			Width:  imgPng.Frames[0].Image.Bounds().Dx(),
 			Height: imgPng.Frames[0].Image.Bounds().Dy(),
 		},
@@ -53,8 +53,8 @@ func (loader ApngFileLoader) Load() (animation *Animation, err error) {
 			Duration: (time.Duration(imgPngFrame.DelayNumerator) * time.Second) / time.Duration(delayDenominator),
 		}
 
-		animation.Frames = append(animation.Frames, imgFrame)
-		animation.Duration += imgFrame.Duration
+		animation.frames = append(animation.frames, imgFrame)
+		animation.duration += imgFrame.Duration
 	}
 
 	return
