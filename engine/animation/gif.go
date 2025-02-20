@@ -3,7 +3,7 @@ package animation
 import (
 	"bytes"
 	"duck-hunt-go/engine"
-	"golang.org/x/image/draw"
+	"image/draw"
 	"image/gif"
 	"io/fs"
 	"time"
