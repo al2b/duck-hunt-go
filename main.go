@@ -2,7 +2,6 @@ package main
 
 import (
 	"duck-hunt-go/engine"
-	"duck-hunt-go/engine/log"
 	"duck-hunt-go/scene"
 	"github.com/alecthomas/kong"
 	tea "github.com/charmbracelet/bubbletea/v2"
@@ -24,7 +23,7 @@ func main() {
 	// Log
 	if cli.Log != "" {
 		options = append(options, engine.WithLogHandler(
-			log.MustNewFileHandler(cli.Log),
+			engine.MustNewLogFileHandler(cli.Log),
 		))
 	}
 

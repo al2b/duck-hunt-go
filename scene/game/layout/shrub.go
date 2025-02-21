@@ -4,22 +4,19 @@ import (
 	"duck-hunt-go/engine"
 	"duck-hunt-go/engine/space"
 	tea "github.com/charmbracelet/bubbletea/v2"
-	"image"
 )
 
 func NewShrub(space *space.Space) *Shrub {
 	return &Shrub{
+		image: engine.MustLoadImage(engine.ImagePngFile(assets, "assets/shrub.png")),
 		space: space,
-		StaticImage: engine.NewStaticImage(
-			engine.MustLoadImage(engine.ImagePngFile(assets, "assets/shrub.png")),
-		),
 	}
 }
 
 type Shrub struct {
-	space *space.Space
 	engine.AbsolutePosition
-	engine.StaticImage
+	image *engine.Image
+	space *space.Space
 }
 
 func (m *Shrub) Init() tea.Cmd {
@@ -53,9 +50,7 @@ func (m *Shrub) Update(_ tea.Msg) tea.Cmd {
 }
 
 func (m *Shrub) Draw(scene *engine.Image) {
-	position := m.Position()
-	scene.DrawImage(image.Pt(
-		int(position.X),
-		int(position.Y),
-	), m.Image())
+	scene.Draw(
+		engine.DrawImage(m.Position().Point(), m.image),
+	)
 }

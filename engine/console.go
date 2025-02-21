@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"duck-hunt-go/engine/log"
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"image"
@@ -17,12 +16,11 @@ func NewConsole() *Console {
 }
 
 type Console struct {
-	AbsolutePosition
 	entries []ConsoleEntry
 }
 
 func (c *Console) Init() tea.Cmd {
-	return log.Info("Console initialized")
+	return LogInfo("Console initialized")
 }
 
 func (c *Console) Update(msg tea.Msg) tea.Cmd {
@@ -34,7 +32,7 @@ func (c *Console) Update(msg tea.Msg) tea.Cmd {
 			Expiration: time.Now().Add(consoleDuration),
 		})
 	case TickMsg:
-		// Purge old entries
+		// Purge expired entries
 		c.entries = slices.DeleteFunc(c.entries, func(entry ConsoleEntry) bool {
 			return entry.Expiration.Before(time.Now())
 		})
@@ -60,14 +58,12 @@ func (c *Console) Image() *Image {
 	return NewText5x5(text.String(), ColorWhite).Image()
 }
 
-func (c *Console) Draw(img *Image) {
-	src := c.Image()
-	if src != nil {
-		position := c.Position()
-		img.DrawImage(image.Pt(
-			int(position.X),
-			int(position.Y),
-		), src)
+func (c *Console) Draw(scene *Image) {
+	img := c.Image()
+	if img != nil {
+		scene.Draw(
+			DrawImage(image.Pt(0, 0), img),
+		)
 	}
 }
 

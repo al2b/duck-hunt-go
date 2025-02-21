@@ -2,7 +2,6 @@ package space
 
 import (
 	"duck-hunt-go/engine"
-	"duck-hunt-go/engine/draw"
 	"github.com/jakecoffman/cp/v2"
 	"image"
 	"image/color"
@@ -37,12 +36,12 @@ func (d Drawer) cpFColorToColor(fc cp.FColor) color.Color {
 
 func (d Drawer) DrawCircle(pos cp.Vector, angle, radius float64, outline, fill cp.FColor, data interface{}) {
 	d.img.Draw(
-		draw.Circle(
+		engine.DrawCircle(
 			d.cpVectorToPoint(pos),
 			int(radius),
 			d.cpFColorToColor(outline),
 		),
-		draw.Segment(
+		engine.DrawSegment(
 			d.cpVectorToPoint(pos),
 			d.cpVectorToPoint(pos.Add(cp.ForAngle(angle).Mult(radius))),
 			d.cpFColorToColor(outline),
@@ -52,7 +51,7 @@ func (d Drawer) DrawCircle(pos cp.Vector, angle, radius float64, outline, fill c
 
 func (d Drawer) DrawSegment(a, b cp.Vector, fill cp.FColor, data interface{}) {
 	d.img.Draw(
-		draw.Segment(
+		engine.DrawSegment(
 			d.cpVectorToPoint(a),
 			d.cpVectorToPoint(b),
 			d.cpFColorToColor(fill),
@@ -62,7 +61,7 @@ func (d Drawer) DrawSegment(a, b cp.Vector, fill cp.FColor, data interface{}) {
 
 func (d Drawer) DrawFatSegment(a, b cp.Vector, radius float64, outline, fill cp.FColor, data interface{}) {
 	d.img.Draw(
-		draw.Segment(
+		engine.DrawSegment(
 			d.cpVectorToPoint(a),
 			d.cpVectorToPoint(b),
 			d.cpFColorToColor(outline),
@@ -73,7 +72,7 @@ func (d Drawer) DrawFatSegment(a, b cp.Vector, radius float64, outline, fill cp.
 func (d Drawer) DrawPolygon(count int, verts []cp.Vector, radius float64, outline, fill cp.FColor, data interface{}) {
 	for i := 0; i < len(verts); i++ {
 		d.img.Draw(
-			draw.Segment(
+			engine.DrawSegment(
 				d.cpVectorToPoint(verts[i]),
 				d.cpVectorToPoint(verts[(i+1)%len(verts)]),
 				d.cpFColorToColor(outline),
@@ -84,7 +83,7 @@ func (d Drawer) DrawPolygon(count int, verts []cp.Vector, radius float64, outlin
 
 func (d Drawer) DrawDot(size float64, pos cp.Vector, fill cp.FColor, data interface{}) {
 	d.img.Draw(
-		draw.Dot(
+		engine.DrawDot(
 			d.cpVectorToPoint(pos),
 			d.cpFColorToColor(fill),
 		),

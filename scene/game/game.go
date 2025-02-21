@@ -86,18 +86,19 @@ func (m *Game) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (m *Game) Draw(scene *engine.Image) {
-	// Sky
-	scene.Fill(color.NRGBA{R: 143, G: 192, B: 255, A: 255})
-
-	scene.Draw(
-		m.layoutTree,
-		m.layoutShrub,
-		m.duck,
-		// Layout
-		m.layout,
-		// Gun
-		m.gun,
-	)
+	scene.
+		// Sky
+		Fill(color.NRGBA{R: 143, G: 192, B: 255, A: 255}).
+		Draw(
+			m.layoutTree,
+			m.layoutShrub,
+			m.duck,
+			m.kirby,
+			// Layout
+			m.layout,
+			// Gun
+			m.gun,
+		)
 
 	// Debug
 	if m.debug {

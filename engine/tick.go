@@ -10,7 +10,7 @@ type TickMsg struct {
 	time.Duration
 }
 
-func tick(fps int) tea.Cmd {
+func Tick(fps int) tea.Cmd {
 	duration := time.Second / time.Duration(fps)
 	return tea.Tick(
 		duration,

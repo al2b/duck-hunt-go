@@ -5,7 +5,6 @@ import (
 	"duck-hunt-go/engine/space"
 	"embed"
 	tea "github.com/charmbracelet/bubbletea/v2"
-	"image"
 )
 
 //go:embed assets/*
@@ -66,9 +65,7 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (m *Duck) Draw(scene *engine.Image) {
-	position := m.Position()
-	scene.DrawCenteredImage(image.Pt(
-		int(position.X),
-		int(position.Y),
-	), m.Image())
+	scene.Draw(
+		engine.DrawCenteredImage(m.Position().Point(), m.Image()),
+	)
 }

@@ -47,16 +47,14 @@ func (m *Intro) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (m *Intro) Draw(scene *engine.Image) {
-	scene.
+	scene.Draw(
 		// Layout
-		DrawImage(image.Pt(0, 0), m.layoutImage).
+		engine.DrawImage(image.Pt(0, 0), m.layoutImage),
 		// Menu
-		DrawImage(image.Pt(64, 136),
-			engine.NewText8x8("GAME A   1 DUCK", textColor).Image()).
-		DrawImage(image.Pt(64, 152),
-			engine.NewText8x8("GAME B   2 DUCKS", textColor).Image()).
-		DrawImage(image.Pt(64, 168),
-			engine.NewText8x8("GAME C   CLAY SHOOTING", textColor).Image()).
+		engine.DrawImage(image.Pt(64, 136), engine.NewText8x8("GAME A   1 DUCK", textColor).Image()),
+		engine.DrawImage(image.Pt(64, 152), engine.NewText8x8("GAME B   2 DUCKS", textColor).Image()),
+		engine.DrawImage(image.Pt(64, 168), engine.NewText8x8("GAME C   CLAY SHOOTING", textColor).Image()),
 		// Cursor
-		DrawImage(image.Pt(48, 136+(m.cursorPosition*16)), m.cursorImage)
+		engine.DrawImage(image.Pt(48, 136+(m.cursorPosition*16)), m.cursorImage),
+	)
 }

@@ -33,23 +33,11 @@ func (img *Image) Size() Size {
 	}
 }
 
-func (img *Image) Draw(drawers ...Drawer) {
+func (img *Image) Draw(drawers ...Drawer) *Image {
 	for _, drawer := range drawers {
 		drawer.Draw(img)
 	}
-}
-
-func (img *Image) DrawImage(position image.Point, src *Image) *Image {
-	draw.Draw(img, src.Bounds().Add(position), src, image.Point{}, draw.Over)
 	return img
-}
-
-func (img *Image) DrawCenteredImage(position image.Point, src *Image) {
-	img.DrawImage(position.Sub(
-		image.Pt(
-			(src.Bounds().Dx()-1)/2,
-			(src.Bounds().Dy()-1)/2,
-		)), src)
 }
 
 func (img *Image) Resize(size Size) *Image {
@@ -115,14 +103,20 @@ func (img *Image) FlipVertical() *Image {
 	return dst
 }
 
-func (img *Image) Fill(c color.Color) {
+func (img *Image) Fill(c color.Color) *Image {
 	rgba := color.NRGBAModel.Convert(c).(color.NRGBA)
 	pixel := [4]byte{rgba.R, rgba.G, rgba.B, rgba.A}
 
 	for i := 0; i < len(img.Pix); i += 4 {
 		copy(img.Pix[i:i+4], pixel[:])
 	}
+
+	return img
 }
+
+/**********/
+/* Loader */
+/**********/
 
 type ImageLoader interface {
 	Load() (*Image, error)
@@ -140,19 +134,23 @@ func MustLoadImage(loader ImageLoader) (image *Image) {
 	return
 }
 
-func ImagePngFile(fs fs.ReadFileFS, path string) ImagePngFileLoader {
-	return ImagePngFileLoader{
+/*******/
+/* Png */
+/*******/
+
+func ImagePngFile(fs fs.ReadFileFS, path string) ImagePngFileHandler {
+	return ImagePngFileHandler{
 		fs:   fs,
 		path: path,
 	}
 }
 
-type ImagePngFileLoader struct {
+type ImagePngFileHandler struct {
 	fs   fs.ReadFileFS
 	path string
 }
 
-func (loader ImagePngFileLoader) Load() (*Image, error) {
+func (loader ImagePngFileHandler) Load() (*Image, error) {
 	var (
 		file   []byte
 		imgPng image.Image

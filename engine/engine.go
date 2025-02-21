@@ -2,7 +2,6 @@ package engine
 
 import (
 	"context"
-	"duck-hunt-go/engine/log"
 	"embed"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"log/slog"
@@ -51,7 +50,7 @@ type Engine struct {
 
 func (e Engine) Init() (tea.Model, tea.Cmd) {
 	return e, tea.Batch(
-		log.Info("Initialize engine..."),
+		LogInfo("Initialize engine..."),
 		// Force requesting window size again for certain terminal who
 		// don't respond in time to the first automatic bubble tea request
 		tea.RequestWindowSize(),
@@ -61,7 +60,7 @@ func (e Engine) Init() (tea.Model, tea.Cmd) {
 		ConsoleLog("Renderer: %s", e.renderers.Current()),
 		e.console.Init(),
 		e.scene.Init(),
-		tick(e.scene.FPS()),
+		Tick(e.scene.FPS()),
 	)
 }
 
@@ -102,8 +101,8 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return e, nil
 		}
 	case TickMsg:
-		cmds = append(cmds, tick(e.scene.FPS()))
-	case log.Msg:
+		cmds = append(cmds, Tick(e.scene.FPS()))
+	case LogMsg:
 		_ = e.logHandler.Handle(context.Background(), msg.Record)
 	}
 

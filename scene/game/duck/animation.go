@@ -2,29 +2,28 @@ package duck
 
 import (
 	"duck-hunt-go/engine"
-	"duck-hunt-go/engine/animation"
 	"time"
 )
 
 func NewAnimation(velociter engine.Velociter) Animation {
 	return Animation{
 		velociter:       velociter,
-		horizontalLeft:  animation.MustLoad(animation.ApngFile(assets, "assets/duck.horizontal.left.apng")),
-		horizontalRight: animation.MustLoad(animation.ApngFile(assets, "assets/duck.horizontal.right.apng")),
-		angledLeft:      animation.MustLoad(animation.ApngFile(assets, "assets/duck.angled.left.apng")),
-		angledRight:     animation.MustLoad(animation.ApngFile(assets, "assets/duck.angled.right.apng")),
+		horizontalLeft:  engine.MustLoadAnimation(engine.AnimationPngFile(assets, "assets/duck.horizontal.left.apng")),
+		horizontalRight: engine.MustLoadAnimation(engine.AnimationPngFile(assets, "assets/duck.horizontal.right.apng")),
+		angledLeft:      engine.MustLoadAnimation(engine.AnimationPngFile(assets, "assets/duck.angled.left.apng")),
+		angledRight:     engine.MustLoadAnimation(engine.AnimationPngFile(assets, "assets/duck.angled.right.apng")),
 	}
 }
 
 type Animation struct {
 	velociter       engine.Velociter
-	horizontalLeft  *animation.Animation
-	horizontalRight *animation.Animation
-	angledLeft      *animation.Animation
-	angledRight     *animation.Animation
+	horizontalLeft  *engine.Animation
+	horizontalRight *engine.Animation
+	angledLeft      *engine.Animation
+	angledRight     *engine.Animation
 }
 
-func (animation Animation) Animation() *animation.Animation {
+func (animation Animation) Animation() *engine.Animation {
 	angle := animation.velociter.Velocity().Angle()
 	switch true {
 	case 30 <= angle && angle < 90:

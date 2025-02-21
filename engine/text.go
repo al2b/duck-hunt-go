@@ -79,12 +79,13 @@ func textImage(text string, imageFont *Image, charWidth, charHeight int, c color
 				charX+charWidth,
 				charY+charHeight,
 			))
-			img.DrawImage(
-				image.Pt(
-					c*charWidth,
-					l*charHeight,
-				),
-				charImg,
+			img.Draw(
+				DrawImage(
+					image.Pt(
+						c*charWidth,
+						l*charHeight,
+					),
+					charImg),
 			)
 		}
 	}

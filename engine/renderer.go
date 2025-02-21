@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"duck-hunt-go/engine/log"
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/colorprofile"
@@ -54,7 +53,7 @@ type Renderers struct {
 
 func (r *Renderers) Init() tea.Cmd {
 	return tea.Batch(
-		log.Info("Initialize renderers..."),
+		LogInfo("Initialize renderers..."),
 		tea.RequestForegroundColor,
 		tea.RequestBackgroundColor,
 	)
@@ -76,19 +75,19 @@ func (r *Renderers) updateProfile(profile colorprofile.Profile) tea.Cmd {
 	var cmds []tea.Cmd
 
 	cmds = append(cmds,
-		log.Info("Update color profile", "profile", profile),
+		LogInfo("Update color profile", "profile", profile),
 	)
 
 	// Enable supported renderers
 	for _, renderer := range r.available {
 		if renderer.Support(profile) {
 			cmds = append(cmds,
-				log.Info("Enable renderer", "renderer", renderer),
+				LogInfo("Enable renderer", "renderer", renderer),
 			)
 			r.enabled = append(r.enabled, renderer)
 		} else {
 			cmds = append(cmds,
-				log.Info("Disable renderer", "renderer", renderer),
+				LogInfo("Disable renderer", "renderer", renderer),
 			)
 		}
 	}

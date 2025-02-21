@@ -18,16 +18,13 @@ var assets embed.FS
 func New(space *space.Space) *Layout {
 	return &Layout{
 		space: space,
-		StaticImage: engine.NewStaticImage(
-			engine.MustLoadImage(engine.ImagePngFile(assets, "assets/layout.png")),
-		),
+		image: engine.MustLoadImage(engine.ImagePngFile(assets, "assets/layout.png")),
 	}
 }
 
 type Layout struct {
 	space *space.Space
-	engine.AbsolutePosition
-	engine.StaticImage
+	image *engine.Image
 }
 
 func (m *Layout) Init() tea.Cmd {
@@ -53,9 +50,7 @@ func (m *Layout) Update(_ tea.Msg) tea.Cmd {
 }
 
 func (m *Layout) Draw(scene *engine.Image) {
-	position := m.Position()
-	scene.DrawImage(image.Pt(
-		int(position.X),
-		int(position.Y),
-	), m.Image())
+	scene.Draw(
+		engine.DrawImage(image.Pt(0, 0), m.image),
+	)
 }

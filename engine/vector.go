@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"image"
 	"math"
 )
 
@@ -88,6 +89,10 @@ func (vec Vector) Angle() float64 {
 		a += 2 * math.Pi
 	}
 	return Degrees(a)
+}
+
+func (vec Vector) Point() image.Point {
+	return image.Pt(int(vec.X), int(vec.Y))
 }
 
 // Vec is shorthand for [Vector]{X, Y}.
