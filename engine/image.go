@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"bytes"
 	"golang.org/x/image/draw"
 	"image"
 	"image/color"
@@ -150,16 +149,17 @@ type ImageFileHandler struct {
 
 func (handler ImageFileHandler) Load() (*Image, error) {
 	var (
-		file []byte
+		file fs.File
 		img  image.Image
 		err  error
 	)
 
-	if file, err = handler.fs.ReadFile(handler.path); err != nil {
+	if file, err = handler.fs.Open(handler.path); err != nil {
 		return nil, err
 	}
+	defer file.Close()
 
-	if img, _, err = image.Decode(bytes.NewReader(file)); err != nil {
+	if img, _, err = image.Decode(file); err != nil {
 		return nil, err
 	}
 

@@ -1,12 +1,13 @@
 package engine
 
 import (
-	"bytes"
+	"fmt"
 	"github.com/kettek/apng"
 	"image"
 	"image/draw"
 	"image/gif"
 	"io/fs"
+	"path/filepath"
 	"time"
 )
 
@@ -69,112 +70,87 @@ func MustLoadAnimation(loader AnimationLoader) (animation *Animation) {
 	return
 }
 
-/************/
-/* Gif File */
-/************/
+/********/
+/* File */
+/********/
 
-func AnimationGifFile(fs fs.ReadFileFS, path string) AnimationGifFileHandler {
-	return AnimationGifFileHandler{
+func AnimationFile(fs fs.ReadFileFS, path string) AnimationFileHandler {
+	return AnimationFileHandler{
 		fs:   fs,
 		path: path,
 	}
 }
 
-type AnimationGifFileHandler struct {
+type AnimationFileHandler struct {
 	fs   fs.ReadFileFS
 	path string
 }
 
-func (handler AnimationGifFileHandler) Load() (animation *Animation, err error) {
-	var (
-		file   []byte
-		imgGif *gif.GIF
-	)
+func (handler AnimationFileHandler) Load() (animation *Animation, err error) {
+	var file fs.File
 
-	if file, err = handler.fs.ReadFile(handler.path); err != nil {
+	if file, err = handler.fs.Open(handler.path); err != nil {
 		return nil, err
 	}
 
-	if imgGif, err = gif.DecodeAll(bytes.NewReader(file)); err != nil {
-		return nil, err
-	}
-
-	size := Size{
-		Width:  imgGif.Config.Width,
-		Height: imgGif.Config.Height,
-	}
-
-	animation = &Animation{
-		size: size,
-	}
-
-	for i, img := range imgGif.Image {
-		imgFrame := AnimationFrame{
-			Image:    NewImage(size),
-			Duration: time.Duration(imgGif.Delay[i]) * 10 * time.Millisecond,
+	switch filepath.Ext(handler.path) {
+	case ".png", ".apng":
+		var src apng.APNG
+		if src, err = apng.DecodeAll(file); err != nil {
+			return nil, err
 		}
-
-		bounds := img.Bounds()
-		draw.Draw(imgFrame.Image.NRGBA, bounds, img, bounds.Min, draw.Src)
-
-		animation.frames = append(animation.frames, imgFrame)
-		animation.duration += imgFrame.Duration
-	}
-
-	return
-}
-
-/************/
-/* Png File */
-/************/
-
-func AnimationPngFile(fs fs.ReadFileFS, path string) AnimationPngFileHandler {
-	return AnimationPngFileHandler{
-		fs:   fs,
-		path: path,
-	}
-}
-
-type AnimationPngFileHandler struct {
-	fs   fs.ReadFileFS
-	path string
-}
-
-func (handler AnimationPngFileHandler) Load() (animation *Animation, err error) {
-	var (
-		file   []byte
-		imgPng apng.APNG
-	)
-
-	if file, err = handler.fs.ReadFile(handler.path); err != nil {
-		return nil, err
-	}
-
-	if imgPng, err = apng.DecodeAll(bytes.NewReader(file)); err != nil {
-		return nil, err
-	}
-
-	animation = &Animation{
-		size: Size{
-			Width:  imgPng.Frames[0].Image.Bounds().Dx(),
-			Height: imgPng.Frames[0].Image.Bounds().Dy(),
-		},
-	}
-
-	for _, imgPngFrame := range imgPng.Frames {
-		delayDenominator := imgPngFrame.DelayDenominator
-		if delayDenominator == 0 {
-			delayDenominator = 100 // Par défaut, APNG considère 100 si den == 0
+		animation = &Animation{
+			size: Size{
+				Width:  src.Frames[0].Image.Bounds().Dx(),
+				Height: src.Frames[0].Image.Bounds().Dy(),
+			},
 		}
-
-		imgFrame := AnimationFrame{
-			Image:    &Image{NRGBA: imgPngFrame.Image.(*image.NRGBA)},
-			Duration: (time.Duration(imgPngFrame.DelayNumerator) * time.Second) / time.Duration(delayDenominator),
+		for _, srcFrame := range src.Frames {
+			delayDenominator := srcFrame.DelayDenominator
+			if delayDenominator == 0 {
+				delayDenominator = 100
+			}
+			var nrgba *image.NRGBA
+			switch srcFrameImage := srcFrame.Image.(type) {
+			case *image.NRGBA:
+				nrgba = srcFrameImage
+			default:
+				bounds := srcFrameImage.Bounds()
+				nrgba = image.NewNRGBA(bounds)
+				draw.Draw(nrgba, bounds, srcFrameImage, bounds.Min, draw.Src)
+			}
+			imgFrame := AnimationFrame{
+				Image:    &Image{NRGBA: nrgba},
+				Duration: (time.Duration(srcFrame.DelayNumerator) * time.Second) / time.Duration(delayDenominator),
+			}
+			animation.frames = append(animation.frames, imgFrame)
+			animation.duration += imgFrame.Duration
 		}
-
-		animation.frames = append(animation.frames, imgFrame)
-		animation.duration += imgFrame.Duration
+		return
+	case ".gif":
+		var src *gif.GIF
+		if src, err = gif.DecodeAll(file); err != nil {
+			return nil, err
+		}
+		animation = &Animation{
+			size: Size{
+				Width:  src.Config.Width,
+				Height: src.Config.Height,
+			},
+		}
+		for i, srcFrameImage := range src.Image {
+			bounds := srcFrameImage.Bounds()
+			nrgba := image.NewNRGBA(bounds)
+			draw.Draw(nrgba, bounds, srcFrameImage, bounds.Min, draw.Src)
+			imgFrame := AnimationFrame{
+				Image:    &Image{NRGBA: nrgba},
+				Duration: time.Duration(src.Delay[i]) * 10 * time.Millisecond,
+			}
+			animation.frames = append(animation.frames, imgFrame)
+			animation.duration += imgFrame.Duration
+		}
+		return
+	default:
+		return nil, fmt.Errorf("unsupported animation file type")
 	}
-
-	return
 }

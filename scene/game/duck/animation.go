@@ -8,10 +8,10 @@ import (
 func NewAnimation(velociter engine.Velociter) Animation {
 	return Animation{
 		velociter:       velociter,
-		horizontalLeft:  engine.MustLoadAnimation(engine.AnimationPngFile(assets, "assets/duck.horizontal.left.apng")),
-		horizontalRight: engine.MustLoadAnimation(engine.AnimationPngFile(assets, "assets/duck.horizontal.right.apng")),
-		angledLeft:      engine.MustLoadAnimation(engine.AnimationPngFile(assets, "assets/duck.angled.left.apng")),
-		angledRight:     engine.MustLoadAnimation(engine.AnimationPngFile(assets, "assets/duck.angled.right.apng")),
+		horizontalLeft:  engine.MustLoadAnimation(engine.AnimationFile(assets, "assets/duck.horizontal.left.apng")),
+		horizontalRight: engine.MustLoadAnimation(engine.AnimationFile(assets, "assets/duck.horizontal.right.apng")),
+		angledLeft:      engine.MustLoadAnimation(engine.AnimationFile(assets, "assets/duck.angled.left.apng")),
+		angledRight:     engine.MustLoadAnimation(engine.AnimationFile(assets, "assets/duck.angled.right.apng")),
 	}
 }
 
