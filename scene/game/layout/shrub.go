@@ -8,7 +8,7 @@ import (
 
 func NewShrub(space *space.Space) *Shrub {
 	return &Shrub{
-		image: engine.MustLoadImage(engine.ImagePngFile(assets, "assets/shrub.png")),
+		image: engine.MustLoadImage(engine.ImageFile(assets, "assets/shrub.png")),
 		space: space,
 	}
 }

@@ -18,7 +18,7 @@ var assets embed.FS
 func New(space *space.Space) *Layout {
 	return &Layout{
 		space: space,
-		image: engine.MustLoadImage(engine.ImagePngFile(assets, "assets/layout.png")),
+		image: engine.MustLoadImage(engine.ImageFile(assets, "assets/layout.png")),
 	}
 }
 

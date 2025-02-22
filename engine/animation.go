@@ -69,9 +69,9 @@ func MustLoadAnimation(loader AnimationLoader) (animation *Animation) {
 	return
 }
 
-/*******/
-/* Gif */
-/*******/
+/************/
+/* Gif File */
+/************/
 
 func AnimationGifFile(fs fs.ReadFileFS, path string) AnimationGifFileHandler {
 	return AnimationGifFileHandler{
@@ -85,13 +85,13 @@ type AnimationGifFileHandler struct {
 	path string
 }
 
-func (loader AnimationGifFileHandler) Load() (animation *Animation, err error) {
+func (handler AnimationGifFileHandler) Load() (animation *Animation, err error) {
 	var (
 		file   []byte
 		imgGif *gif.GIF
 	)
 
-	if file, err = loader.fs.ReadFile(loader.path); err != nil {
+	if file, err = handler.fs.ReadFile(handler.path); err != nil {
 		return nil, err
 	}
 
@@ -124,9 +124,9 @@ func (loader AnimationGifFileHandler) Load() (animation *Animation, err error) {
 	return
 }
 
-/*******/
-/* Png */
-/*******/
+/************/
+/* Png File */
+/************/
 
 func AnimationPngFile(fs fs.ReadFileFS, path string) AnimationPngFileHandler {
 	return AnimationPngFileHandler{
@@ -140,13 +140,13 @@ type AnimationPngFileHandler struct {
 	path string
 }
 
-func (loader AnimationPngFileHandler) Load() (animation *Animation, err error) {
+func (handler AnimationPngFileHandler) Load() (animation *Animation, err error) {
 	var (
 		file   []byte
 		imgPng apng.APNG
 	)
 
-	if file, err = loader.fs.ReadFile(loader.path); err != nil {
+	if file, err = handler.fs.ReadFile(handler.path); err != nil {
 		return nil, err
 	}
 

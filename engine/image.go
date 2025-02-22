@@ -2,11 +2,9 @@ package engine
 
 import (
 	"bytes"
-	"errors"
 	"golang.org/x/image/draw"
 	"image"
 	"image/color"
-	"image/png"
 	"io/fs"
 )
 
@@ -134,42 +132,45 @@ func MustLoadImage(loader ImageLoader) (image *Image) {
 	return
 }
 
-/*******/
-/* Png */
-/*******/
+/********/
+/* File */
+/********/
 
-func ImagePngFile(fs fs.ReadFileFS, path string) ImagePngFileHandler {
-	return ImagePngFileHandler{
+func ImageFile(fs fs.ReadFileFS, path string) ImageFileHandler {
+	return ImageFileHandler{
 		fs:   fs,
 		path: path,
 	}
 }
 
-type ImagePngFileHandler struct {
+type ImageFileHandler struct {
 	fs   fs.ReadFileFS
 	path string
 }
 
-func (loader ImagePngFileHandler) Load() (*Image, error) {
+func (handler ImageFileHandler) Load() (*Image, error) {
 	var (
-		file   []byte
-		imgPng image.Image
-		err    error
+		file []byte
+		img  image.Image
+		err  error
 	)
 
-	if file, err = loader.fs.ReadFile(loader.path); err != nil {
+	if file, err = handler.fs.ReadFile(handler.path); err != nil {
 		return nil, err
 	}
 
-	if imgPng, err = png.Decode(bytes.NewReader(file)); err != nil {
+	if img, _, err = image.Decode(bytes.NewReader(file)); err != nil {
 		return nil, err
 	}
 
-	switch img := imgPng.(type) {
+	switch img := img.(type) {
 	case *image.NRGBA:
 		return &Image{NRGBA: img}, nil
 	default:
-		return nil, errors.New("unsupported image type")
+		bounds := img.Bounds()
+		nrgba := image.NewNRGBA(bounds)
+		draw.Draw(nrgba, bounds, img, bounds.Min, draw.Src)
+		return &Image{NRGBA: nrgba}, nil
 	}
 }
 
