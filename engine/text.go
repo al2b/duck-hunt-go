@@ -22,7 +22,7 @@ func (font Font) Size() Size {
 func (font Font) DrawChar(img *Image, point image.Point, char int, c color.Color) {
 	imgMin := img.Bounds().Min.Add(point)
 	draw.DrawMask(
-		img,
+		img.NRGBA,
 		image.Rectangle{
 			Min: imgMin,
 			Max: imgMin.Add(image.Pt(font.size.Width, font.size.Height)),
