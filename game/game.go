@@ -5,6 +5,7 @@ import (
 	"duck-hunt-go/game/intro"
 	"duck-hunt-go/game/mouse"
 	"duck-hunt-go/game/round"
+	"duck-hunt-go/game/state"
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
 
@@ -20,7 +21,7 @@ type Game struct {
 	mouse *mouse.Mouse
 	intro *intro.Intro
 	game  *round.Game
-	state State
+	state state.State
 }
 
 func (g *Game) Size(_ engine.Size) engine.Size {
@@ -35,12 +36,12 @@ func (g *Game) FPS() int {
 }
 
 func (g *Game) Init() (cmd tea.Cmd) {
-	g.state = StateGame
+	g.state = state.StateGame
 
 	switch g.state {
-	case StateIntro:
+	case state.StateIntro:
 		cmd = g.intro.Init()
-	case StateGame:
+	case state.StateGame:
 		cmd = g.game.Init()
 	}
 
@@ -58,28 +59,28 @@ func (g *Game) Update(msg tea.Msg) (cmd tea.Cmd) {
 		// Switch state
 		case "s":
 			switch g.state {
-			case StateIntro:
-				g.state = StateGame
+			case state.StateIntro:
+				g.state = state.StateGame
 				return g.game.Init()
-			case StateGame:
-				g.state = StateIntro
+			case state.StateGame:
+				g.state = state.StateIntro
 				return g.intro.Init()
 			}
 		// Init current state
 		case "i":
 			switch g.state {
-			case StateIntro:
+			case state.StateIntro:
 				return g.intro.Init()
-			case StateGame:
+			case state.StateGame:
 				return g.game.Init()
 			}
 		}
 	}
 
 	switch g.state {
-	case StateIntro:
+	case state.StateIntro:
 		cmd = g.intro.Update(msg)
-	case StateGame:
+	case state.StateGame:
 		cmd = g.game.Update(msg)
 	}
 
@@ -91,9 +92,9 @@ func (g *Game) Update(msg tea.Msg) (cmd tea.Cmd) {
 
 func (g *Game) Draw(scene *engine.Image) {
 	switch g.state {
-	case StateIntro:
+	case state.StateIntro:
 		scene.Draw(g.intro)
-	case StateGame:
+	case state.StateGame:
 		scene.Draw(g.game)
 	}
 	scene.Draw(g.mouse)

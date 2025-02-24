@@ -2,6 +2,7 @@ package intro
 
 import (
 	"duck-hunt-go/engine"
+	"duck-hunt-go/game/font"
 	"embed"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"image"
