@@ -9,7 +9,6 @@ import (
 )
 
 var Font5x5 = MustLoadFont(FontImageFile(assets, "assets/font.5x5.png"))
-var Font8x8 = MustLoadFont(FontImageFile(assets, "assets/font.8x8.png"))
 
 type Font struct {
 	size Size

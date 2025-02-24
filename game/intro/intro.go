@@ -51,9 +51,9 @@ func (m *Intro) Draw(scene *engine.Image) {
 		// Layout
 		engine.DrawImage(image.Pt(0, 0), m.layoutImage),
 		// Menu
-		engine.DrawText(image.Pt(64, 136), "GAME A   1 DUCK", engine.Font8x8, textColor),
-		engine.DrawText(image.Pt(64, 152), "GAME B   2 DUCKS", engine.Font8x8, textColor),
-		engine.DrawText(image.Pt(64, 168), "GAME C   CLAY SHOOTING", engine.Font8x8, textColor),
+		engine.DrawText(image.Pt(64, 136), "GAME A   1 DUCK", font.Font, textColor),
+		engine.DrawText(image.Pt(64, 152), "GAME B   2 DUCKS", font.Font, textColor),
+		engine.DrawText(image.Pt(64, 168), "GAME C   CLAY SHOOTING", font.Font, textColor),
 		// Cursor
 		engine.DrawImage(image.Pt(48, 136+(m.cursorPosition*16)), m.cursorImage),
 	)
