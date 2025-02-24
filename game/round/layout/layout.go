@@ -12,7 +12,7 @@ const (
 	Ground = 183
 )
 
-//go:embed assets/*
+//go:embed assets/*.png
 var assets embed.FS
 
 func New(space *space.Space) *Layout {

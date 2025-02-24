@@ -8,7 +8,7 @@ import (
 	"slices"
 )
 
-//go:embed assets/*
+//go:embed assets/*.png
 var assets embed.FS
 
 var (

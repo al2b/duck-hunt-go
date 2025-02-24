@@ -6,33 +6,33 @@ import (
 	"image"
 )
 
-func New() *Scene {
-	return &Scene{}
+func New() *Primitives {
+	return &Primitives{}
 }
 
-type Scene struct{}
+type Primitives struct{}
 
-func (s *Scene) String() string {
+func (p *Primitives) String() string {
 	return "Primitives"
 }
 
-func (s *Scene) Size(_ engine.Size) engine.Size {
+func (p *Primitives) Size(_ engine.Size) engine.Size {
 	return engine.Size{Width: 80, Height: 50}
 }
 
-func (s *Scene) FPS() int {
+func (p *Primitives) FPS() int {
 	return 10
 }
 
-func (s *Scene) Init() (cmd tea.Cmd) {
+func (p *Primitives) Init() (cmd tea.Cmd) {
 	return nil
 }
 
-func (s *Scene) Update(_ tea.Msg) (cmd tea.Cmd) {
+func (p *Primitives) Update(_ tea.Msg) (cmd tea.Cmd) {
 	return nil
 }
 
-func (s *Scene) Draw(scene *engine.Image) {
+func (p *Primitives) Draw(scene *engine.Image) {
 	scene.Draw(
 		// Dots
 		engine.DrawDot(image.Pt(5, 10), engine.ColorRed),

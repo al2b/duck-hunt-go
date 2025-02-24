@@ -7,7 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
 
-//go:embed assets/*
+//go:embed assets/*.apng
 var assets embed.FS
 
 func New(space *space.Space) *Duck {

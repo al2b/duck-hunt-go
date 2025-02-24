@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-//go:embed assets/*
+//go:embed assets/*.png
 var assets embed.FS
 
 func New(space *space.Space) *Gun {

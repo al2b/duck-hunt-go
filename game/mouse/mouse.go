@@ -7,7 +7,7 @@ import (
 	"image"
 )
 
-//go:embed assets/*
+//go:embed assets/*.png
 var assets embed.FS
 
 func New() *Mouse {

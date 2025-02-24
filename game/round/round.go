@@ -1,11 +1,11 @@
-package game
+package round
 
 import (
 	"duck-hunt-go/engine"
 	"duck-hunt-go/engine/space"
-	"duck-hunt-go/scene/game/duck"
-	"duck-hunt-go/scene/game/gun"
-	"duck-hunt-go/scene/game/layout"
+	"duck-hunt-go/game/round/duck"
+	"duck-hunt-go/game/round/gun"
+	"duck-hunt-go/game/round/layout"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"image/color"
 )
@@ -93,7 +93,6 @@ func (m *Game) Draw(scene *engine.Image) {
 			m.layoutTree,
 			m.layoutShrub,
 			m.duck,
-			m.kirby,
 			// Layout
 			m.layout,
 			// Gun
