@@ -3,10 +3,14 @@ package round
 import (
 	"duck-hunt-go/engine"
 	"duck-hunt-go/engine/space"
+	"duck-hunt-go/game/font"
 	"duck-hunt-go/game/round/duck"
 	"duck-hunt-go/game/round/gun"
 	"duck-hunt-go/game/round/layout"
+	"duck-hunt-go/game/state"
+	"fmt"
 	tea "github.com/charmbracelet/bubbletea/v2"
+	"image"
 	"image/color"
 )
 
@@ -88,13 +92,17 @@ func (m *Game) Update(msg tea.Msg) tea.Cmd {
 func (m *Game) Draw(scene *engine.Image) {
 	scene.
 		// Sky
-		Fill(color.NRGBA{R: 143, G: 192, B: 255, A: 255}).
+		Fill(color.NRGBA{R: 63, G: 191, B: 255, A: 255}).
 		Draw(
 			m.layoutTree,
 			m.layoutShrub,
 			m.duck,
 			// Layout
 			m.layout,
+			engine.DrawText(image.Pt(24, 192), fmt.Sprintf("R=%d", state.Round), font.Font, color.RGBA{R: 131, G: 211, B: 19, A: 255}),
+			engine.DrawText(image.Pt(64, 208), "HIT", font.Font, color.RGBA{R: 131, G: 211, B: 19, A: 255}),
+			engine.DrawText(image.Pt(192, 208), fmt.Sprintf("%06d", state.Score), font.Font, engine.ColorWhite),
+			engine.DrawText(image.Pt(200, 216), "SCORE", font.Font, engine.ColorWhite),
 			// Gun
 			m.gun,
 		)
