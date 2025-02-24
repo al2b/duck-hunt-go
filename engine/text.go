@@ -3,114 +3,149 @@ package engine
 import (
 	"image"
 	"image/color"
+	"image/draw"
+	"io/fs"
 	"strings"
-	"sync"
 )
 
-var (
-	imageFont5x5 = MustLoadImage(ImageFile(assets, "assets/font.5x5.png"))
-	imageFont8x8 = MustLoadImage(ImageFile(assets, "assets/font.8x8.png"))
-)
+var Font5x5 = MustLoadFont(FontImageFile(assets, "assets/font.5x5.png"))
+var Font8x8 = MustLoadFont(FontImageFile(assets, "assets/font.8x8.png"))
 
-/* *** */
-/* 5x5 */
-/* *** */
+type Font struct {
+	size Size
+	mask *image.Alpha
+}
 
-func NewText5x5(text string, color color.Color) Text5x5 {
-	return Text5x5{
-		text:  text,
-		color: color,
+func (font Font) Size() Size {
+	return font.size
+}
+
+func (font Font) DrawChar(img *Image, point image.Point, char int, c color.Color) {
+	imgMin := img.Bounds().Min.Add(point)
+	draw.DrawMask(
+		img,
+		image.Rectangle{
+			Min: imgMin,
+			Max: imgMin.Add(image.Pt(font.size.Width, font.size.Height)),
+		},
+		&image.Uniform{c},
+		image.Point{},
+		font.mask,
+		image.Pt(
+			(char%16)*font.size.Width,
+			(char/16)*font.size.Height,
+		),
+		draw.Over,
+	)
+}
+
+/**********/
+/* Loader */
+/**********/
+
+type FontLoader interface {
+	Load() (*Font, error)
+}
+
+func LoadFont(loader FontLoader) (*Font, error) {
+	return loader.Load()
+}
+
+func MustLoadFont(loader FontLoader) (font *Font) {
+	var err error
+	if font, err = LoadFont(loader); err != nil {
+		panic(err)
+	}
+	return
+}
+
+/**************/
+/* Image File */
+/**************/
+
+func FontImageFile(fs fs.ReadFileFS, path string) FontImageFileHandler {
+	return FontImageFileHandler{
+		fs:   fs,
+		path: path,
 	}
 }
 
-type Text5x5 struct {
-	text  string
-	color color.Color
+type FontImageFileHandler struct {
+	fs   fs.ReadFileFS
+	path string
 }
 
-func (t Text5x5) Image() *Image {
-	return textImage(t.text, imageFont5x5, 5, 5, t.color)
-}
+func (handler FontImageFileHandler) Load() (*Font, error) {
+	var (
+		file fs.File
+		img  image.Image
+		err  error
+	)
 
-/* *** */
-/* 8x8 */
-/* *** */
-
-func NewText8x8(text string, color color.Color) Text8x8 {
-	return Text8x8{
-		text:  text,
-		color: color,
+	if file, err = handler.fs.Open(handler.path); err != nil {
+		return nil, err
 	}
-}
+	defer file.Close()
 
-type Text8x8 struct {
-	text  string
-	color color.Color
-}
+	if img, _, err = image.Decode(file); err != nil {
+		return nil, err
+	}
 
-func (t Text8x8) Image() *Image {
-	return textImage(t.text, imageFont8x8, 8, 8, t.color)
-}
-
-func textImage(text string, imageFont *Image, charWidth, charHeight int, c color.Color) *Image {
-	lines := strings.Split(text, "\n")
-
-	// Compute size
-	var size Size
-	for _, line := range lines {
-		width := len(line)
-		if width > size.Width {
-			size.Width = width
+	var mask *image.Alpha
+	switch img := img.(type) {
+	case *image.Gray:
+		mask = &image.Alpha{
+			Pix:    img.Pix,
+			Stride: img.Stride,
+			Rect:   img.Rect,
 		}
+	default:
+		panic("Unsupported font image type")
 	}
-	size.Width *= charWidth
-	size.Height = len(lines) * charHeight
 
-	img := NewImage(size)
+	size := img.Bounds().Size()
 
-	for l, line := range lines {
-		for c, char := range line {
-			charIndex := int(char)
-			charX := (charIndex % 16) * charWidth
-			charY := (charIndex / 16) * charHeight
-			charImg := imageFont.Crop(image.Rect(
-				charX,
-				charY,
-				charX+charWidth,
-				charY+charHeight,
-			))
-			img.Draw(
-				DrawImage(
-					image.Pt(
-						c*charWidth,
-						l*charHeight,
-					),
-					charImg),
+	return &Font{
+		size: Size{
+			size.X / 16,
+			size.Y / 16,
+		},
+		mask: mask,
+	}, nil
+}
+
+/**********/
+/* Drawer */
+/**********/
+
+func DrawText(point image.Point, text string, font *Font, color color.Color) TextDrawer {
+	return TextDrawer{
+		point: point,
+		text:  text,
+		font:  font,
+		color: color,
+	}
+}
+
+type TextDrawer struct {
+	point image.Point
+	text  string
+	font  *Font
+	color color.Color
+}
+
+func (drawer TextDrawer) Draw(img *Image) {
+	size := drawer.font.Size()
+	for y, line := range strings.Split(drawer.text, "\n") {
+		for x, char := range line {
+			drawer.font.DrawChar(
+				img,
+				drawer.point.Add(
+					image.Pt(x*size.Width, y*size.Height),
+				),
+				int(char),
+				drawer.color,
 			)
 		}
 	}
-
-	// Color
-	if c != nil {
-		r, g, b, _ := c.RGBA()
-		r8, g8, b8 := uint8(r>>8), uint8(g>>8), uint8(b>>8)
-		var wg sync.WaitGroup
-		for y := 0; y < size.Height; y++ {
-			wg.Add(1)
-			go func(y int) {
-				defer wg.Done()
-				for x := 0; x < size.Width; x++ {
-					offset := img.PixOffset(x, y)
-					if img.Pix[offset] == 255 && img.Pix[offset] == img.Pix[offset+1] && img.Pix[offset] == img.Pix[offset+2] {
-						img.Pix[offset] = r8
-						img.Pix[offset+1] = g8
-						img.Pix[offset+2] = b8
-					}
-				}
-			}(y)
-		}
-		wg.Wait()
-	}
-
-	return img
 }

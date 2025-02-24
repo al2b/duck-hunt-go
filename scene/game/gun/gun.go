@@ -15,16 +15,14 @@ func New(space *space.Space) *Gun {
 	return &Gun{
 		space: space,
 		Path:  engine.NewPath(),
-		StaticImage: engine.NewStaticImage(
-			engine.MustLoadImage(engine.ImageFile(assets, "assets/gun.png")),
-		),
+		image: engine.MustLoadImage(engine.ImageFile(assets, "assets/gun.png")),
 	}
 }
 
 type Gun struct {
 	space *space.Space
 	*engine.Path
-	engine.StaticImage
+	image *engine.Image
 }
 
 func (m *Gun) Init() tea.Cmd {
@@ -66,6 +64,6 @@ func (m *Gun) Update(msg tea.Msg) tea.Cmd {
 
 func (m *Gun) Draw(scene *engine.Image) {
 	scene.Draw(
-		engine.DrawCenteredImage(m.Position().Point(), m.Image()),
+		engine.DrawCenteredImage(m.Position().Point(), m.image),
 	)
 }

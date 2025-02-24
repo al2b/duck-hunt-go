@@ -1,6 +1,8 @@
 package engine
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Size struct {
 	Width, Height int
@@ -10,12 +12,16 @@ func (s Size) String() string {
 	return fmt.Sprintf("%dx%d", s.Width, s.Height)
 }
 
-type Sized interface {
-	Size() Size
+func (s Size) Add(size Size) Size {
+	return Size{
+		s.Width + size.Width,
+		s.Height + size.Height,
+	}
 }
 
-type AbsoluteSize Size
-
-func (s AbsoluteSize) Size() Size {
-	return Size(s)
+func (s Size) Sub(size Size) Size {
+	return Size{
+		s.Width - size.Width,
+		s.Height - size.Height,
+	}
 }

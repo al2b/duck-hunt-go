@@ -3,49 +3,7 @@ package engine
 import (
 	"image"
 	"image/color"
-	"image/draw"
 )
-
-type Drawer interface {
-	Draw(*Image)
-}
-
-/*********/
-/* Image */
-/*********/
-
-func DrawImage(point image.Point, img *Image) ImageDrawer {
-	return ImageDrawer{
-		point: point,
-		image: img,
-	}
-}
-
-func DrawCenteredImage(point image.Point, img *Image) ImageDrawer {
-	size := img.Size()
-	return DrawImage(
-		point.Sub(image.Pt(
-			(size.Width-1)/2,
-			(size.Height-1)/2,
-		)),
-		img,
-	)
-}
-
-type ImageDrawer struct {
-	point image.Point
-	image *Image
-}
-
-func (drawer ImageDrawer) Draw(img *Image) {
-	draw.Draw(
-		img.NRGBA,
-		drawer.image.Bounds().Add(drawer.point),
-		drawer.image.NRGBA,
-		image.Point{},
-		draw.Over,
-	)
-}
 
 /*******/
 /* Dot */

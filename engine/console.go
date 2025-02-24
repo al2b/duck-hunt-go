@@ -40,10 +40,10 @@ func (c *Console) Update(msg tea.Msg) tea.Cmd {
 	return nil
 }
 
-func (c *Console) Image() *Image {
+func (c *Console) Draw(scene *Image) {
 	// No entries
 	if len(c.entries) == 0 {
-		return nil
+		return
 	}
 
 	// Compute text
@@ -55,16 +55,9 @@ func (c *Console) Image() *Image {
 		text.WriteString(entry.Text)
 	}
 
-	return NewText5x5(text.String(), ColorWhite).Image()
-}
-
-func (c *Console) Draw(scene *Image) {
-	img := c.Image()
-	if img != nil {
-		scene.Draw(
-			DrawImage(image.Pt(0, 0), img),
-		)
-	}
+	scene.Draw(
+		DrawText(image.Pt(0, 0), text.String(), Font5x5, ColorWhite),
+	)
 }
 
 type ConsoleEntry struct {

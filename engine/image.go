@@ -37,6 +37,15 @@ func (img *Image) Draw(drawers ...Drawer) *Image {
 	return img
 }
 
+func (img *Image) SubImage(point image.Point, size Size) *Image {
+	return &Image{
+		img.NRGBA.SubImage(image.Rect(
+			point.X, point.Y,
+			point.X+size.Width, point.Y+size.Height,
+		)).(*image.NRGBA),
+	}
+}
+
 func (img *Image) Resize(size Size) *Image {
 	if img.Bounds().Dx() == size.Width && img.Bounds().Dy() == size.Height {
 		return img
@@ -174,23 +183,50 @@ func (handler ImageFileHandler) Load() (*Image, error) {
 	}
 }
 
-type Imager interface {
-	Image() *Image
+/**********/
+/* Drawer */
+/**********/
+
+type Drawer interface {
+	Draw(*Image)
 }
 
-func NewStaticImage(image *Image) StaticImage {
-	if image == nil {
-		return StaticImage{}
+func DrawImage(point image.Point, img *Image) ImageDrawer {
+	return ImageDrawer{
+		point: point,
+		image: img,
 	}
-	return StaticImage(*image)
 }
 
-type StaticImage Image
-
-func (img *StaticImage) Image() *Image {
-	return (*Image)(img)
+func DrawCenteredImage(point image.Point, img *Image) ImageDrawer {
+	size := img.Size()
+	return DrawImage(
+		point.Sub(image.Pt(
+			(size.Width-1)/2,
+			(size.Height-1)/2,
+		)),
+		img,
+	)
 }
 
-func (img *StaticImage) SetImage(image *Image) {
-	*img = StaticImage(*image)
+type ImageDrawer struct {
+	point image.Point
+	image *Image
+}
+
+func (drawer ImageDrawer) Draw(img *Image) {
+	bounds := drawer.image.Bounds()
+	imgMin := img.Bounds().Min.Add(
+		image.Pt(drawer.point.X, drawer.point.Y),
+	)
+	draw.Draw(
+		img.NRGBA,
+		image.Rectangle{
+			Min: imgMin,
+			Max: imgMin.Add(drawer.image.Bounds().Size()),
+		},
+		drawer.image.NRGBA,
+		bounds.Min,
+		draw.Over,
+	)
 }
