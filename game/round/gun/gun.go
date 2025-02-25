@@ -15,7 +15,7 @@ func New(space *space.Space) *Gun {
 	return &Gun{
 		space: space,
 		Path:  engine.NewPath(),
-		image: engine.MustLoadImage(engine.ImageFile(assets, "assets/gun.png")),
+		image: engine.Must(engine.LoadImage(assets, "assets/gun.png")),
 	}
 }
 

@@ -12,7 +12,7 @@ var assets embed.FS
 
 func New() *Mouse {
 	return &Mouse{
-		image: engine.MustLoadImage(engine.ImageFile(assets, "assets/mouse.png")),
+		image: engine.Must(engine.LoadImage(assets, "assets/mouse.png")),
 	}
 }
 

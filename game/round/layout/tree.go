@@ -8,7 +8,7 @@ import (
 
 func NewTree(space *space.Space) *Tree {
 	return &Tree{
-		image: engine.MustLoadImage(engine.ImageFile(assets, "assets/tree.png")),
+		image: engine.Must(engine.LoadImage(assets, "assets/tree.png")),
 		space: space,
 	}
 }

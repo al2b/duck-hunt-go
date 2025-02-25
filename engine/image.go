@@ -120,50 +120,18 @@ func (img *Image) Fill(c color.Color) *Image {
 	return img
 }
 
-/**********/
-/* Loader */
-/**********/
-
-type ImageLoader interface {
-	Load() (*Image, error)
-}
-
-func LoadImage(loader ImageLoader) (*Image, error) {
-	return loader.Load()
-}
-
-func MustLoadImage(loader ImageLoader) (image *Image) {
-	var err error
-	if image, err = LoadImage(loader); err != nil {
-		panic(err)
-	}
-	return
-}
-
 /********/
-/* File */
+/* Load */
 /********/
 
-func ImageFile(fs fs.ReadFileFS, path string) ImageFileHandler {
-	return ImageFileHandler{
-		fs:   fs,
-		path: path,
-	}
-}
-
-type ImageFileHandler struct {
-	fs   fs.ReadFileFS
-	path string
-}
-
-func (handler ImageFileHandler) Load() (*Image, error) {
+func LoadImage(fS fs.ReadFileFS, path string) (*Image, error) {
 	var (
 		file fs.File
 		img  image.Image
 		err  error
 	)
 
-	if file, err = handler.fs.Open(handler.path); err != nil {
+	if file, err = fS.Open(path); err != nil {
 		return nil, err
 	}
 	defer file.Close()
