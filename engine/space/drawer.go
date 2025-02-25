@@ -12,9 +12,9 @@ func NewDrawer(img *engine.Image) Drawer {
 	return Drawer{
 		img:                 img,
 		flags:               cp.DRAW_SHAPES | cp.DRAW_CONSTRAINTS | cp.DRAW_COLLISION_POINTS,
-		outlineColor:        cp.FColor{0, 1, 0, 1},
-		constraintColor:     cp.FColor{0, 0, 1, 1},
-		collisionPointColor: cp.FColor{1, 0, 0, 1},
+		outlineColor:        cp.FColor{R: 0, G: 1, B: 0, A: 1},
+		constraintColor:     cp.FColor{R: 0, G: 0, B: 1, A: 1},
+		collisionPointColor: cp.FColor{R: 1, G: 0, B: 0, A: 1},
 		data:                nil,
 	}
 }
@@ -115,7 +115,7 @@ func (d Drawer) ShapeColor(shape *cp.Shape, data interface{}) cp.FColor {
 
 	val := shape.HashId()
 
-	// scramble the bits up using Robert Jenkins' 32 bit integer hash function
+	// scramble the bits up using Robert Jenkins' 32-bit integer hash function
 	val = (val + 0x7ed55d16) + (val << 12)
 	val = (val ^ 0xc761c23c) ^ (val >> 19)
 	val = (val + 0x165667b1) + (val << 5)
@@ -127,8 +127,8 @@ func (d Drawer) ShapeColor(shape *cp.Shape, data interface{}) cp.FColor {
 	g := float32((val >> 8) & 0xFF)
 	b := float32((val >> 16) & 0xFF)
 
-	max := float32(math.Max(math.Max(float64(r), float64(g)), float64(b)))
-	min := float32(math.Min(math.Min(float64(r), float64(g)), float64(b)))
+	rgbMax := float32(math.Max(math.Max(float64(r), float64(g)), float64(b)))
+	rgbMin := float32(math.Min(math.Min(float64(r), float64(g)), float64(b)))
 	var intensity float32
 	if body.GetType() == cp.BODY_STATIC {
 		intensity = 0.15
@@ -136,15 +136,15 @@ func (d Drawer) ShapeColor(shape *cp.Shape, data interface{}) cp.FColor {
 		intensity = 0.75
 	}
 
-	if min == max {
+	if rgbMin == rgbMax {
 		return cp.FColor{R: intensity, A: 1}
 	}
 
-	coef := intensity / (max - min)
+	coef := intensity / (rgbMax - rgbMin)
 	return cp.FColor{
-		R: (r - min) * coef,
-		G: (g - min) * coef,
-		B: (b - min) * coef,
+		R: (r - rgbMin) * coef,
+		G: (g - rgbMin) * coef,
+		B: (b - rgbMin) * coef,
 		A: 1,
 	}
 }
