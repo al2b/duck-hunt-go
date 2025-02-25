@@ -12,14 +12,14 @@ var assets embed.FS
 
 func New(space *space.Space) *Duck {
 	m := &Duck{space: space}
-	m.Animation = NewAnimation(m)
+	m.animation = NewAnimationPlayer(m)
 	return m
 }
 
 type Duck struct {
 	space *space.Space
 	space.Body
-	Animation
+	animation AnimationPlayer
 }
 
 func (m *Duck) Init() tea.Cmd {
@@ -58,7 +58,7 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 		}
 	case engine.TickMsg:
 		// Step animation
-		m.Step(msg.Duration)
+		m.animation.Step(msg.Duration)
 	}
 
 	return nil
@@ -66,6 +66,6 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 
 func (m *Duck) Draw(scene *engine.Image) {
 	scene.Draw(
-		engine.DrawCenteredImage(m.Position().Point(), m.Image()),
+		engine.DrawCenteredImage(m.Position().Point(), m.animation.Image()),
 	)
 }

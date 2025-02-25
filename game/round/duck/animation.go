@@ -5,25 +5,33 @@ import (
 	"time"
 )
 
-func NewAnimation(velociter engine.Velociter) Animation {
-	return Animation{
-		velociter:       velociter,
-		horizontalLeft:  engine.MustLoadAnimation(engine.AnimationFile(assets, "assets/duck.horizontal.left.apng")),
-		horizontalRight: engine.MustLoadAnimation(engine.AnimationFile(assets, "assets/duck.horizontal.right.apng")),
-		angledLeft:      engine.MustLoadAnimation(engine.AnimationFile(assets, "assets/duck.angled.left.apng")),
-		angledRight:     engine.MustLoadAnimation(engine.AnimationFile(assets, "assets/duck.angled.right.apng")),
+func NewAnimationPlayer(velociter engine.Velociter) AnimationPlayer {
+	return AnimationPlayer{
+		velociter: velociter,
+		horizontalLeft: engine.NewAnimationPlayer(
+			engine.Must(engine.LoadAnimation(assets, "assets/duck.horizontal.left.apng")),
+		),
+		horizontalRight: engine.NewAnimationPlayer(
+			engine.Must(engine.LoadAnimation(assets, "assets/duck.horizontal.right.apng")),
+		),
+		angledLeft: engine.NewAnimationPlayer(
+			engine.Must(engine.LoadAnimation(assets, "assets/duck.angled.left.apng")),
+		),
+		angledRight: engine.NewAnimationPlayer(
+			engine.Must(engine.LoadAnimation(assets, "assets/duck.angled.right.apng")),
+		),
 	}
 }
 
-type Animation struct {
+type AnimationPlayer struct {
 	velociter       engine.Velociter
-	horizontalLeft  *engine.Animation
-	horizontalRight *engine.Animation
-	angledLeft      *engine.Animation
-	angledRight     *engine.Animation
+	horizontalLeft  *engine.AnimationPlayer
+	horizontalRight *engine.AnimationPlayer
+	angledLeft      *engine.AnimationPlayer
+	angledRight     *engine.AnimationPlayer
 }
 
-func (animation Animation) Animation() *engine.Animation {
+func (animation AnimationPlayer) player() *engine.AnimationPlayer {
 	angle := animation.velociter.Velocity().Angle()
 	switch true {
 	case 30 <= angle && angle < 90:
@@ -41,10 +49,10 @@ func (animation Animation) Animation() *engine.Animation {
 	}
 }
 
-func (animation Animation) Step(delta time.Duration) {
-	animation.Animation().Step(delta)
+func (animation AnimationPlayer) Step(delta time.Duration) {
+	animation.player().Step(delta)
 }
 
-func (animation Animation) Image() *engine.Image {
-	return animation.Animation().Image()
+func (animation AnimationPlayer) Image() *engine.Image {
+	return animation.player().Image()
 }
