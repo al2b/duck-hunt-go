@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/x/ansi"
 	"github.com/mattn/go-ciede2000"
 	"image/color"
+	"math"
 	"strings"
 )
 
@@ -38,6 +39,7 @@ func NewRenderers() *Renderers {
 			NewRendererHalfBlockANSI(false, ColorBindingANSIGrayscale{}),
 			NewRendererHalfBlockANSI(true, ColorBindingANSIBlackAndWhite{}),
 			NewRendererHalfBlockANSI(false, ColorBindingANSIBlackAndWhite{}),
+			NewRendererAscii(".,:-=i|%O#@$X"),
 			mixed,
 		},
 	}
@@ -377,6 +379,174 @@ func (r *RendererMixedBlockAscii) Render(img *Image, padding Size) string {
 			}
 		}
 		str.WriteString(ansi.ResetStyle + "\n")
+	}
+
+	return str.String()
+}
+
+/* ***** */
+/* Ascii */
+/* ***** */
+
+func NewRendererAscii(density string) *RendererAscii {
+	return &RendererAscii{
+		density: density,
+	}
+}
+
+type RendererAscii struct {
+	density string
+}
+
+func (r *RendererAscii) String() string {
+	return "Ascii"
+}
+
+func (r *RendererAscii) Support(profile colorprofile.Profile) bool {
+	return profile <= colorprofile.Ascii
+}
+
+func (r *RendererAscii) Ratio() Size { return Size{Width: 1, Height: 1} }
+
+func (r *RendererAscii) character(c color.NRGBA) string {
+
+	//avgF := float64(int(r)+int(g)+int(b)) / 3.0
+	//avg := uint8(math.Round(avgF))
+
+	avg := uint8(math.Round(float64(c.R+c.G+c.B) / 3))
+
+	//len := len(cd)
+
+	l := len(r.density)
+
+	//i := int(mapValue(avg, 0, 255, 0, uint8(len)))
+
+	finalValue := avg
+	if avg > 255 {
+		finalValue = 255
+	} else if avg < 0 {
+		finalValue = 0
+	}
+
+	aa := float64(255-finalValue) / float64(255-0)
+	bb := aa * float64(l-0)
+	cc := math.Round(bb)
+
+	if cc < 0 {
+		cc = 0
+	} else if cc > 255 {
+		cc = 255
+	}
+
+	i := l - int(cc)
+
+	// ---
+	/*
+			func mapValue(
+				value uint8,
+				minIn uint8,
+				maxIn uint8,
+				minOut uint8,
+				maxOut uint8,
+		) uint8 {
+				finalValue := value
+
+				if value > maxIn {
+				finalValue = maxIn
+			} else if value < minIn {
+				finalValue = minIn
+			}
+
+				a := float64(maxIn-finalValue) / float64(maxIn-minIn)
+
+				b := a * float64(maxOut-minOut)
+
+				c := math.Round(b)
+
+				if c < 0 {
+				c = 0
+			} else if c > 255 {
+				c = 255
+			}
+
+				return maxOut - uint8(c)
+			}
+	*/
+	// ---
+
+	/*
+		if i >= len {
+			i = len - 1
+		}
+	*/
+
+	if i >= l {
+		i = l - 1
+	}
+
+	//return string(cd[int(i)])
+	return string(r.density[i])
+}
+
+func (r *RendererAscii) Render(img *Image, padding Size) string {
+	// Padding
+	ratio := r.Ratio()
+	paddingWidthStr := strings.Repeat(" ", padding.Width/ratio.Width)
+	paddingHeightStr := strings.Repeat("\n", padding.Height/ratio.Height)
+
+	// Image bounds
+	bounds := img.Bounds()
+
+	// String
+	str := strings.Builder{}
+	str.WriteString(paddingHeightStr)
+
+	for y := 0; y < bounds.Max.Y; y++ {
+		str.WriteString(paddingWidthStr)
+		for x := 0; x < bounds.Max.X; x++ {
+
+			/*
+				co := img.At(x, y)
+				rr, gg, bb, _ := co.RGBA()
+				r := uint8(rr)
+				g := uint8(gg)
+				b := uint8(bb)
+				hex := rgbToHex(r, g, b)
+			*/
+
+			c := img.NRGBAAt(x, y)
+
+			//c := characterFromRgb(r, g, b, config.CharacterDensity)
+
+			char := r.character(c)
+
+			/*
+				if hex == "#000000" {
+					s := style.
+						Foreground(lipgloss.Color("#FFFFFF"))
+					if config.SetRandomBlank {
+						res += s.Render(getRandomToken(config.CharacterDensity))
+					} else {
+						res += s.Render(string(config.CharacterDensity[0]))
+					}
+				} else {
+					complementaryHex := rgbToHex(255-r, 255-g, 255-b)
+					s := style.
+						Background(lipgloss.Color(hex)).
+						Foreground(lipgloss.Color(complementaryHex))
+					res += s.Render(c)
+				}
+			*/
+
+			var t ansi.Style
+			t = t.BackgroundColor(c)
+			t = t.ForegroundColor(color.NRGBA{R: 255 - c.R, G: 255 - c.G, B: 255 - c.B})
+
+			str.WriteString(t.String() + char + ansi.ResetStyle)
+
+		}
+		//str.WriteString(ansi.ResetStyle + "\n")
+		str.WriteString("\n")
 	}
 
 	return str.String()
