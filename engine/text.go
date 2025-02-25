@@ -8,7 +8,12 @@ import (
 	"strings"
 )
 
-var Font5x5 = MustLoadFont(FontImageFile(assets, "assets/font.5x5.png"))
+var Font5x5 = Must(LoadFont(assets, "assets/font.5x5.png"))
+
+type FontInterface interface {
+	Size() Size
+	CharMask(int) *image.Alpha
+}
 
 type Font struct {
 	size Size
@@ -19,69 +24,26 @@ func (font Font) Size() Size {
 	return font.size
 }
 
-func (font Font) DrawChar(img *Image, point image.Point, char int, c color.Color) {
-	imgMin := img.Bounds().Min.Add(point)
-	draw.DrawMask(
-		img.NRGBA,
-		image.Rectangle{
-			Min: imgMin,
-			Max: imgMin.Add(image.Pt(font.size.Width, font.size.Height)),
-		},
-		&image.Uniform{c},
-		image.Point{},
-		font.mask,
-		image.Pt(
-			(char%16)*font.size.Width,
-			(char/16)*font.size.Height,
-		),
-		draw.Over,
-	)
+func (font Font) CharMask(char int) *image.Alpha {
+	imgMin := image.Pt((char%16)*font.size.Width, (char/16)*font.size.Height)
+	return font.mask.SubImage(image.Rectangle{
+		Min: imgMin,
+		Max: imgMin.Add(image.Pt(font.size.Width, font.size.Height)),
+	}).(*image.Alpha)
 }
 
-/**********/
-/* Loader */
-/**********/
+/********/
+/* Load */
+/********/
 
-type FontLoader interface {
-	Load() (*Font, error)
-}
-
-func LoadFont(loader FontLoader) (*Font, error) {
-	return loader.Load()
-}
-
-func MustLoadFont(loader FontLoader) (font *Font) {
-	var err error
-	if font, err = LoadFont(loader); err != nil {
-		panic(err)
-	}
-	return
-}
-
-/**************/
-/* Image File */
-/**************/
-
-func FontImageFile(fs fs.ReadFileFS, path string) FontImageFileHandler {
-	return FontImageFileHandler{
-		fs:   fs,
-		path: path,
-	}
-}
-
-type FontImageFileHandler struct {
-	fs   fs.ReadFileFS
-	path string
-}
-
-func (handler FontImageFileHandler) Load() (*Font, error) {
+func LoadFont(fS fs.ReadFileFS, path string) (*Font, error) {
 	var (
 		file fs.File
 		img  image.Image
 		err  error
 	)
 
-	if file, err = handler.fs.Open(handler.path); err != nil {
+	if file, err = fS.Open(path); err != nil {
 		return nil, err
 	}
 	defer file.Close()
@@ -117,7 +79,7 @@ func (handler FontImageFileHandler) Load() (*Font, error) {
 /* Drawer */
 /**********/
 
-func DrawText(point image.Point, text string, font *Font, color color.Color) TextDrawer {
+func DrawText(point image.Point, text string, font FontInterface, color color.Color) TextDrawer {
 	return TextDrawer{
 		point: point,
 		text:  text,
@@ -129,21 +91,29 @@ func DrawText(point image.Point, text string, font *Font, color color.Color) Tex
 type TextDrawer struct {
 	point image.Point
 	text  string
-	font  *Font
+	font  FontInterface
 	color color.Color
 }
 
 func (drawer TextDrawer) Draw(img *Image) {
-	size := drawer.font.Size()
+	fontSize := drawer.font.Size()
 	for y, line := range strings.Split(drawer.text, "\n") {
 		for x, char := range line {
-			drawer.font.DrawChar(
-				img,
-				drawer.point.Add(
-					image.Pt(x*size.Width, y*size.Height),
-				),
-				int(char),
-				drawer.color,
+			imgMin := img.Bounds().Min.
+				Add(drawer.point).
+				Add(image.Pt(x*fontSize.Width, y*fontSize.Height))
+			mask := drawer.font.CharMask(int(char))
+			draw.DrawMask(
+				img.NRGBA,
+				image.Rectangle{
+					Min: imgMin,
+					Max: imgMin.Add(image.Pt(fontSize.Width, fontSize.Height)),
+				},
+				&image.Uniform{C: drawer.color},
+				image.Point{},
+				mask,
+				mask.Bounds().Min,
+				draw.Over,
 			)
 		}
 	}

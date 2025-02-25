@@ -8,4 +8,4 @@ import (
 //go:embed assets/*.png
 var assets embed.FS
 
-var Font = engine.MustLoadFont(engine.FontImageFile(assets, "assets/font.png"))
+var Font = engine.Must(engine.LoadFont(assets, "assets/font.png"))
