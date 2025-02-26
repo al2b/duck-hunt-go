@@ -12,27 +12,27 @@ func New() *Primitives {
 
 type Primitives struct{}
 
-func (p *Primitives) String() string {
+func (s *Primitives) String() string {
 	return "Primitives"
 }
 
-func (p *Primitives) Size(_ engine.Size) engine.Size {
+func (s *Primitives) Size(_ engine.Size) engine.Size {
 	return engine.Size{Width: 80, Height: 50}
 }
 
-func (p *Primitives) FPS() int {
+func (s *Primitives) FPS() int {
 	return 10
 }
 
-func (p *Primitives) Init() (cmd tea.Cmd) {
+func (s *Primitives) Init() (cmd tea.Cmd) {
 	return nil
 }
 
-func (p *Primitives) Update(_ tea.Msg) (cmd tea.Cmd) {
+func (s *Primitives) Update(_ tea.Msg) (cmd tea.Cmd) {
 	return nil
 }
 
-func (p *Primitives) Draw(scene *engine.Image) {
+func (s *Primitives) Draw(scene *engine.Image) {
 	scene.Draw(
 		// Dots
 		engine.DrawDot(image.Pt(5, 10), engine.ColorRed),

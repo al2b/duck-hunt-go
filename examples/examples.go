@@ -30,45 +30,45 @@ type Examples struct {
 	examples []Example
 }
 
-func (e *Examples) Size(windowSize engine.Size) engine.Size {
-	return e.examples[e.current].
+func (s *Examples) Size(windowSize engine.Size) engine.Size {
+	return s.examples[s.current].
 		Size(windowSize).
 		Add(engine.Size{Width: 0, Height: 5})
 }
 
-func (e *Examples) FPS() int {
-	return e.examples[e.current].FPS()
+func (s *Examples) FPS() int {
+	return s.examples[s.current].FPS()
 }
 
-func (e *Examples) Init() (cmd tea.Cmd) {
-	return e.examples[e.current].Init()
+func (s *Examples) Init() (cmd tea.Cmd) {
+	return s.examples[s.current].Init()
 }
 
-func (e *Examples) Update(msg tea.Msg) (cmd tea.Cmd) {
+func (s *Examples) Update(msg tea.Msg) (cmd tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch key := msg.Key(); key.Code {
 		case tea.KeyRight:
-			e.current = (e.current + 1) % len(e.examples)
-			return e.examples[e.current].Init()
+			s.current = (s.current + 1) % len(s.examples)
+			return s.examples[s.current].Init()
 		case tea.KeyLeft:
-			e.current = (e.current - 1 + len(e.examples)) % len(e.examples)
-			return e.examples[e.current].Init()
+			s.current = (s.current - 1 + len(s.examples)) % len(s.examples)
+			return s.examples[s.current].Init()
 		}
 	}
-	return e.examples[e.current].Update(msg)
+	return s.examples[s.current].Update(msg)
 }
 
-func (e *Examples) Draw(scene *engine.Image) {
+func (s *Examples) Draw(scene *engine.Image) {
 	// Title
 	scene.Draw(
-		engine.DrawText(image.Pt(0, 0), e.examples[e.current].String(), engine.Font5x5, engine.ColorWhite),
+		engine.DrawText(image.Pt(0, 0), s.examples[s.current].String(), engine.Font5x5, engine.ColorWhite),
 	)
 	// Scene
 	scene.SubImage(
 		image.Pt(0, 5),
 		scene.Size().Sub(engine.Size{Width: 0, Height: 5}),
 	).Draw(
-		e.examples[e.current],
+		s.examples[s.current],
 	)
 }

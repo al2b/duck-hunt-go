@@ -37,36 +37,36 @@ type Animations struct {
 	animationKirby *engine.AnimationPlayer
 }
 
-func (a *Animations) String() string {
+func (s *Animations) String() string {
 	return "Animations"
 }
 
-func (a *Animations) Size(_ engine.Size) engine.Size {
+func (s *Animations) Size(_ engine.Size) engine.Size {
 	return engine.Size{Width: 70, Height: 44}
 }
 
-func (a *Animations) FPS() int {
+func (s *Animations) FPS() int {
 	return 60
 }
 
-func (a *Animations) Init() (cmd tea.Cmd) {
+func (s *Animations) Init() (cmd tea.Cmd) {
 	return nil
 }
 
-func (a *Animations) Update(msg tea.Msg) (cmd tea.Cmd) {
+func (s *Animations) Update(msg tea.Msg) (cmd tea.Cmd) {
 	switch msg := msg.(type) {
 	case engine.TickMsg:
-		a.animationPng.Step(msg.Duration)
-		a.animationGif.Step(msg.Duration)
-		a.animationKirby.Step(msg.Duration)
+		s.animationPng.Step(msg.Duration)
+		s.animationGif.Step(msg.Duration)
+		s.animationKirby.Step(msg.Duration)
 	}
 	return nil
 }
 
-func (a *Animations) Draw(scene *engine.Image) {
+func (s *Animations) Draw(scene *engine.Image) {
 	scene.Draw(
-		engine.DrawImage(image.Pt(0, 0), a.animationPng.Image()),
-		engine.DrawImage(image.Pt(35, 0), a.animationGif.Image()),
-		engine.DrawImage(image.Pt(0, 25), a.animationKirby.Image()),
+		engine.DrawImage(image.Pt(0, 0), s.animationPng.Image()),
+		engine.DrawImage(image.Pt(35, 0), s.animationGif.Image()),
+		engine.DrawImage(image.Pt(0, 25), s.animationKirby.Image()),
 	)
 }
