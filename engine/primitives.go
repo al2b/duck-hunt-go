@@ -22,7 +22,7 @@ type DotDrawer struct {
 }
 
 func (drawer DotDrawer) Draw(img *Image) {
-	img.Set(drawer.point.X, drawer.point.Y, drawer.color)
+	img.Set(drawer.point, drawer.color)
 }
 
 /***********/
@@ -54,7 +54,7 @@ func (drawer SegmentDrawer) Draw(img *Image) {
 	}
 	err := dx - dy
 	for {
-		img.Set(drawer.point0.X, drawer.point0.Y, drawer.color)
+		img.Set(drawer.point0, drawer.color)
 		if drawer.point0.X == drawer.point1.X && drawer.point0.Y == drawer.point1.Y {
 			return
 		}
@@ -93,14 +93,14 @@ func (drawer CircleDrawer) Draw(img *Image) {
 	d := 1 - drawer.radius
 
 	for x >= y {
-		img.Set(drawer.point.X+x, drawer.point.Y+y, drawer.color)
-		img.Set(drawer.point.X-x, drawer.point.Y+y, drawer.color)
-		img.Set(drawer.point.X+x, drawer.point.Y-y, drawer.color)
-		img.Set(drawer.point.X-x, drawer.point.Y-y, drawer.color)
-		img.Set(drawer.point.X+y, drawer.point.Y+x, drawer.color)
-		img.Set(drawer.point.X-y, drawer.point.Y+x, drawer.color)
-		img.Set(drawer.point.X+y, drawer.point.Y-x, drawer.color)
-		img.Set(drawer.point.X-y, drawer.point.Y-x, drawer.color)
+		img.Set(drawer.point.Add(image.Pt(x, y)), drawer.color)
+		img.Set(drawer.point.Add(image.Pt(-x, y)), drawer.color)
+		img.Set(drawer.point.Add(image.Pt(x, -y)), drawer.color)
+		img.Set(drawer.point.Add(image.Pt(-x, -y)), drawer.color)
+		img.Set(drawer.point.Add(image.Pt(y, x)), drawer.color)
+		img.Set(drawer.point.Add(image.Pt(-y, x)), drawer.color)
+		img.Set(drawer.point.Add(image.Pt(y, -x)), drawer.color)
+		img.Set(drawer.point.Add(image.Pt(-y, -x)), drawer.color)
 		y++
 		if d < 0 {
 			d += 2*y + 1

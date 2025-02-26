@@ -30,6 +30,15 @@ func (img *Image) Size() Size {
 	}
 }
 
+func (img *Image) Set(point image.Point, c color.Color) {
+	imgMin := img.Bounds().Min
+	img.NRGBA.Set(
+		imgMin.X+point.X,
+		imgMin.Y+point.Y,
+		c,
+	)
+}
+
 func (img *Image) Draw(drawers ...Drawer) *Image {
 	for _, drawer := range drawers {
 		drawer.Draw(img)
@@ -53,7 +62,7 @@ func (img *Image) Resize(size Size) *Image {
 
 	dst := NewImage(size)
 
-	draw.NearestNeighbor.Scale(dst, dst.Bounds(), img, img.Bounds(), draw.Over, nil)
+	draw.NearestNeighbor.Scale(dst.NRGBA, dst.Bounds(), img, img.Bounds(), draw.Over, nil)
 
 	return dst
 }
@@ -69,7 +78,7 @@ func (img *Image) Crop(rectangle image.Rectangle) *Image {
 	})
 
 	draw.Draw(
-		dst,
+		dst.NRGBA,
 		dst.Bounds(),
 		img,
 		rectangle.Min,
