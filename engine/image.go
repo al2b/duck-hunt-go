@@ -47,10 +47,11 @@ func (img *Image) Draw(drawers ...Drawer) *Image {
 }
 
 func (img *Image) SubImage(point image.Point, size Size) *Image {
+	imgMin := img.Bounds().Min
 	return &Image{
 		img.NRGBA.SubImage(image.Rect(
-			point.X, point.Y,
-			point.X+size.Width, point.Y+size.Height,
+			imgMin.X+point.X, imgMin.Y+point.Y,
+			imgMin.X+point.X+size.Width, imgMin.Y+point.Y+size.Height,
 		)).(*image.NRGBA),
 	}
 }
