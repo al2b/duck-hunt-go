@@ -6,6 +6,7 @@ import (
 	"duck-hunt-go/examples/images"
 	"duck-hunt-go/examples/primitives"
 	"duck-hunt-go/examples/space"
+	"duck-hunt-go/examples/subimages"
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"image"
@@ -20,6 +21,7 @@ func New() *Examples {
 	return &Examples{
 		examples: []Example{
 			primitives.New(),
+			subimages.New(),
 			images.New(),
 			animations.New(),
 			space.New(),
