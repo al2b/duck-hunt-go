@@ -70,6 +70,33 @@ func (drawer SegmentDrawer) Draw(img *Image) {
 	}
 }
 
+/*************/
+/* Rectangle */
+/*************/
+
+func DrawRectangle(point image.Point, size Size, color color.Color) RectangleDrawer {
+	return RectangleDrawer{
+		point: point,
+		size:  size,
+		color: color,
+	}
+}
+
+type RectangleDrawer struct {
+	point image.Point
+	size  Size
+	color color.Color
+}
+
+func (drawer RectangleDrawer) Draw(img *Image) {
+	img.Draw(
+		DrawSegment(drawer.point, drawer.point.Add(image.Pt(drawer.size.Width-1, 0)), drawer.color),
+		DrawSegment(drawer.point.Add(image.Pt(drawer.size.Width-1, 0)), drawer.point.Add(image.Pt(drawer.size.Width-1, drawer.size.Height-1)), drawer.color),
+		DrawSegment(drawer.point.Add(image.Pt(drawer.size.Width-1, drawer.size.Height-1)), drawer.point.Add(image.Pt(0, drawer.size.Height-1)), drawer.color),
+		DrawSegment(drawer.point.Add(image.Pt(0, drawer.size.Height-1)), drawer.point, drawer.color),
+	)
+}
+
 /**********/
 /* Circle */
 /**********/
