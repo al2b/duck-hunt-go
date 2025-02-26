@@ -4,6 +4,7 @@ import (
 	"duck-hunt-go/engine"
 	"duck-hunt-go/engine/space"
 	"duck-hunt-go/game/font"
+	"duck-hunt-go/game/round/dog"
 	"duck-hunt-go/game/round/duck"
 	"duck-hunt-go/game/round/gun"
 	"duck-hunt-go/game/round/layout"
@@ -25,6 +26,7 @@ func New() *Game {
 		layout:      layout.New(space),
 		layoutTree:  layout.NewTree(space),
 		layoutShrub: layout.NewShrub(space),
+		dog:         dog.New(),
 		duck:        duck.New(space),
 		gun:         gun.New(space),
 	}
@@ -36,6 +38,7 @@ type Game struct {
 	layout      *layout.Layout
 	layoutTree  *layout.Tree
 	layoutShrub *layout.Shrub
+	dog         *dog.Dog
 	duck        *duck.Duck
 	gun         *gun.Gun
 }
@@ -49,6 +52,7 @@ func (m *Game) Init() tea.Cmd {
 		m.layout.Init(),
 		m.layoutTree.Init(),
 		m.layoutShrub.Init(),
+		m.dog.Init(),
 		m.duck.Init(),
 		m.gun.Init(),
 	)
@@ -69,6 +73,7 @@ func (m *Game) Update(msg tea.Msg) tea.Cmd {
 			m.layout.Update(msg),
 			m.layoutTree.Update(msg),
 			m.layoutShrub.Update(msg),
+			m.dog.Update(msg),
 			m.duck.Update(msg),
 			m.gun.Update(msg),
 		)
@@ -84,6 +89,7 @@ func (m *Game) Update(msg tea.Msg) tea.Cmd {
 		m.layout.Update(msg),
 		m.layoutTree.Update(msg),
 		m.layoutShrub.Update(msg),
+		m.dog.Update(msg),
 		m.duck.Update(msg),
 		m.gun.Update(msg),
 	)
@@ -103,6 +109,8 @@ func (m *Game) Draw(scene *engine.Image) {
 			engine.DrawText(image.Pt(64, 208), "HIT", font.Font, color.RGBA{R: 131, G: 211, B: 19, A: 255}),
 			engine.DrawText(image.Pt(192, 208), fmt.Sprintf("%06d", state.Score), font.Font, engine.ColorWhite),
 			engine.DrawText(image.Pt(200, 216), "SCORE", font.Font, engine.ColorWhite),
+			// Dog
+			m.dog,
 			// Gun
 			m.gun,
 		)
