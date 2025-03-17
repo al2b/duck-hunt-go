@@ -2,36 +2,39 @@ package duck
 
 import (
 	"duck-hunt-go/engine"
+	"embed"
 	"time"
 )
 
-func NewAnimationPlayer(velociter engine.Velociter) AnimationPlayer {
-	return AnimationPlayer{
-		velociter: velociter,
-		horizontalLeft: engine.NewAnimationPlayer(
-			engine.Must(engine.LoadAnimation(assets, "assets/duck.horizontal.left.apng")),
-		),
-		horizontalRight: engine.NewAnimationPlayer(
-			engine.Must(engine.LoadAnimation(assets, "assets/duck.horizontal.right.apng")),
-		),
-		angledLeft: engine.NewAnimationPlayer(
-			engine.Must(engine.LoadAnimation(assets, "assets/duck.angled.left.apng")),
-		),
-		angledRight: engine.NewAnimationPlayer(
-			engine.Must(engine.LoadAnimation(assets, "assets/duck.angled.right.apng")),
-		),
+//go:embed assets/*.apng
+var assets embed.FS
+
+var (
+	animationHorizontalLeft  = engine.Must(engine.LoadAnimation(assets, "assets/duck.horizontal.left.apng"))
+	animationHorizontalRight = engine.Must(engine.LoadAnimation(assets, "assets/duck.horizontal.right.apng"))
+	animationAngledLeft      = engine.Must(engine.LoadAnimation(assets, "assets/duck.angled.left.apng"))
+	animationAngledRight     = engine.Must(engine.LoadAnimation(assets, "assets/duck.angled.right.apng"))
+)
+
+func NewAnimation(velociter engine.Velociter) Animation {
+	return Animation{
+		velociter:       velociter,
+		horizontalLeft:  animationHorizontalLeft,
+		horizontalRight: animationHorizontalRight,
+		angledLeft:      animationAngledLeft,
+		angledRight:     animationAngledRight,
 	}
 }
 
-type AnimationPlayer struct {
+type Animation struct {
 	velociter       engine.Velociter
-	horizontalLeft  *engine.AnimationPlayer
-	horizontalRight *engine.AnimationPlayer
-	angledLeft      *engine.AnimationPlayer
-	angledRight     *engine.AnimationPlayer
+	horizontalLeft  engine.AnimationInterface
+	horizontalRight engine.AnimationInterface
+	angledLeft      engine.AnimationInterface
+	angledRight     engine.AnimationInterface
 }
 
-func (animation AnimationPlayer) player() *engine.AnimationPlayer {
+func (animation Animation) animation() engine.AnimationInterface {
 	angle := animation.velociter.Velocity().Angle()
 	switch true {
 	case 30 <= angle && angle < 90:
@@ -49,10 +52,10 @@ func (animation AnimationPlayer) player() *engine.AnimationPlayer {
 	}
 }
 
-func (animation AnimationPlayer) Step(delta time.Duration) {
-	animation.player().Step(delta)
+func (animation Animation) Duration() time.Duration {
+	return animation.animation().Duration()
 }
 
-func (animation AnimationPlayer) Image() *engine.Image {
-	return animation.player().Image()
+func (animation Animation) At(at time.Duration) *engine.Image {
+	return animation.animation().At(at)
 }

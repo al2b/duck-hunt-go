@@ -3,23 +3,19 @@ package duck
 import (
 	"duck-hunt-go/engine"
 	"duck-hunt-go/engine/space"
-	"embed"
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
 
-//go:embed assets/*.apng
-var assets embed.FS
-
 func New(space *space.Space) *Duck {
 	m := &Duck{space: space}
-	m.animation = NewAnimationPlayer(m)
+	m.animation = engine.AnimationPlayer{Animation: NewAnimation(m)}
 	return m
 }
 
 type Duck struct {
 	space *space.Space
 	space.Body
-	animation AnimationPlayer
+	animation engine.AnimationPlayer
 }
 
 func (m *Duck) Init() tea.Cmd {

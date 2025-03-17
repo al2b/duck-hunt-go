@@ -16,25 +16,25 @@ var (
 	animationKirbyWalk = engine.Must(engine.LoadAnimation(assets, "assets/kirby.walk.apng"))
 	animationKirbyRun  = engine.Must(engine.LoadAnimation(assets, "assets/kirby.run.apng"))
 	animationKirbyLand = engine.Must(engine.LoadAnimation(assets, "assets/kirby.land.apng"))
-	animationKirby     = engine.NewAnimationSequence(
+	animationKirby     = engine.AnimationSequence{
 		animationKirbyWalk, animationKirbyWalk,
 		animationKirbyRun, animationKirbyRun, animationKirbyRun,
 		animationKirbyLand, animationKirbyLand,
-	)
+	}
 )
 
 func New() *Animations {
 	return &Animations{
-		animationPng:   engine.NewAnimationPlayer(animationPng),
-		animationGif:   engine.NewAnimationPlayer(animationGif),
-		animationKirby: engine.NewAnimationPlayer(animationKirby),
+		animationPng:   engine.AnimationPlayer{Animation: animationPng},
+		animationGif:   engine.AnimationPlayer{Animation: animationGif},
+		animationKirby: engine.AnimationPlayer{Animation: animationKirby},
 	}
 }
 
 type Animations struct {
-	animationPng   *engine.AnimationPlayer
-	animationGif   *engine.AnimationPlayer
-	animationKirby *engine.AnimationPlayer
+	animationPng   engine.AnimationPlayer
+	animationGif   engine.AnimationPlayer
+	animationKirby engine.AnimationPlayer
 }
 
 func (s *Animations) String() string {

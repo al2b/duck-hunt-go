@@ -14,23 +14,22 @@ var assets embed.FS
 func New(space *space.Space) *Gun {
 	return &Gun{
 		space: space,
-		Path:  engine.NewPath(),
 		image: engine.Must(engine.LoadImage(assets, "assets/gun.png")),
 	}
 }
 
 type Gun struct {
 	space *space.Space
-	*engine.Path
+	path  engine.PathPlayer
 	image *engine.Image
 }
 
 func (m *Gun) Init() tea.Cmd {
-	// Init path
-	m.Move(0, 0)
+	// Path
+	m.path.Path = engine.FixedPath{engine.Vec(0, 0)}
 
 	// Init space body
-	m.space.AddNewPositionableBody(m).
+	m.space.AddNewPositionableBody(&m.path).
 		AddNewPolygon(engine.Vectors{
 			{-5.5, -18.5},
 			{4.5, -18.5},
@@ -50,13 +49,16 @@ func (m *Gun) Init() tea.Cmd {
 func (m *Gun) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.MouseMotionMsg:
-		// Update path
-		m.To(engine.Vec(
-			float64(msg.X), float64(msg.Y),
-		), engine.ElasticEasing(1, 0.25), time.Second*1)
+		// Path
+		m.path.Path = engine.ElasticPath{
+			m.path.Position(),
+			engine.Vec(float64(msg.X), float64(msg.Y)),
+			time.Second * 1,
+			1, 0.25,
+		}
 	case engine.TickMsg:
-		// Step path
-		m.Step(msg.Duration)
+		// Path
+		m.path.Step(msg.Duration)
 	}
 
 	return nil
@@ -64,6 +66,6 @@ func (m *Gun) Update(msg tea.Msg) tea.Cmd {
 
 func (m *Gun) Draw(scene *engine.Image) {
 	scene.Draw(
-		engine.DrawCenteredImage(m.Position().Point(), m.image),
+		engine.DrawCenteredImage(m.path.Position().Point(), m.image),
 	)
 }

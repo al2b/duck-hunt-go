@@ -13,7 +13,7 @@ import (
 
 type AnimationInterface interface {
 	Duration() time.Duration
-	ImageAt(time.Duration) *Image
+	At(time.Duration) *Image
 }
 
 type AnimationFrame struct {
@@ -30,7 +30,7 @@ func (animation Animation) Duration() (duration time.Duration) {
 	return
 }
 
-func (animation Animation) ImageAt(at time.Duration) *Image {
+func (animation Animation) At(at time.Duration) *Image {
 	var duration time.Duration
 	for _, frame := range animation {
 		duration += frame.Duration
@@ -105,10 +105,6 @@ func LoadAnimation(fS fs.ReadFileFS, path string) (animation Animation, err erro
 /* Sequence */
 /************/
 
-func NewAnimationSequence(animations ...AnimationInterface) AnimationSequence {
-	return animations
-}
-
 type AnimationSequence []AnimationInterface
 
 func (sequence AnimationSequence) Duration() (duration time.Duration) {
@@ -118,7 +114,7 @@ func (sequence AnimationSequence) Duration() (duration time.Duration) {
 	return
 }
 
-func (sequence AnimationSequence) ImageAt(at time.Duration) *Image {
+func (sequence AnimationSequence) At(at time.Duration) *Image {
 	var duration time.Duration
 	for _, animation := range sequence {
 		animationDuration := animation.Duration()
@@ -126,7 +122,7 @@ func (sequence AnimationSequence) ImageAt(at time.Duration) *Image {
 		if duration < at {
 			continue
 		}
-		return animation.ImageAt(animationDuration - (duration - at))
+		return animation.At(animationDuration - (duration - at))
 	}
 	return nil
 }
@@ -135,25 +131,19 @@ func (sequence AnimationSequence) ImageAt(at time.Duration) *Image {
 /* Player */
 /**********/
 
-func NewAnimationPlayer(animation AnimationInterface) *AnimationPlayer {
-	return &AnimationPlayer{
-		animation: animation,
-	}
-}
-
 type AnimationPlayer struct {
-	animation AnimationInterface
+	Animation AnimationInterface
 	time      time.Duration
 }
 
 func (player *AnimationPlayer) Step(delta time.Duration) {
 	player.time += delta
-	duration := player.animation.Duration()
+	duration := player.Animation.Duration()
 	if player.time >= duration {
 		player.time -= duration
 	}
 }
 
-func (player *AnimationPlayer) Image() *Image {
-	return player.animation.ImageAt(player.time)
+func (player AnimationPlayer) Image() *Image {
+	return player.Animation.At(player.time)
 }

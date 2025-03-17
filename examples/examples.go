@@ -4,6 +4,7 @@ import (
 	"duck-hunt-go/engine"
 	"duck-hunt-go/examples/animations"
 	"duck-hunt-go/examples/images"
+	"duck-hunt-go/examples/path"
 	"duck-hunt-go/examples/primitives"
 	"duck-hunt-go/examples/space"
 	"duck-hunt-go/examples/subimages"
@@ -24,6 +25,7 @@ func New() *Examples {
 			subimages.New(),
 			images.New(),
 			animations.New(),
+			path.New(),
 			space.New(),
 		},
 	}

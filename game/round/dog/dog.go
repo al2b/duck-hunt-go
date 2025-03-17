@@ -16,12 +16,12 @@ var (
 
 func New() *Dog {
 	return &Dog{
-		animation: engine.NewAnimationPlayer(animation),
+		animation: engine.AnimationPlayer{Animation: animation},
 	}
 }
 
 type Dog struct {
-	animation *engine.AnimationPlayer
+	animation engine.AnimationPlayer
 }
 
 func (m *Dog) Init() tea.Cmd {
