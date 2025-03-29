@@ -10,11 +10,13 @@ import (
 //go:embed assets/*.png assets/*.gif
 var assets embed.FS
 
+var (
+	imagePng = engine.Must(engine.LoadImage(assets, "assets/kirby.png"))
+	imageGif = engine.Must(engine.LoadImage(assets, "assets/kirby.gif"))
+)
+
 func New() *Images {
-	return &Images{
-		imagePng: engine.Must(engine.LoadImage(assets, "assets/kirby.png")),
-		imageGif: engine.Must(engine.LoadImage(assets, "assets/kirby.gif")),
-	}
+	return &Images{}
 }
 
 type Images struct {
@@ -35,6 +37,8 @@ func (s *Images) FPS() int {
 }
 
 func (s *Images) Init() (cmd tea.Cmd) {
+	s.imagePng = imagePng
+	s.imageGif = imageGif
 	return nil
 }
 

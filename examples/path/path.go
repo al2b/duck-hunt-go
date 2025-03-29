@@ -13,15 +13,7 @@ var assets embed.FS
 var animationKirbyBlow = engine.Must(engine.LoadAnimation(assets, "assets/kirby.blow.apng"))
 
 func New() *Path {
-	return &Path{
-		animationKirbyBlow: engine.AnimationPlayer{Animation: animationKirbyBlow},
-		pathLinear: engine.PathPlayer{
-			Path: engine.LinearPath{engine.Vec(0, 0), engine.Vec(60, 28), time.Second * 3},
-		},
-		pathElastic: engine.PathPlayer{
-			Path: engine.ElasticPath{engine.Vec(60, 0), engine.Vec(0, 28), time.Second * 3, 1, 0.25},
-		},
-	}
+	return &Path{}
 }
 
 type Path struct {
@@ -43,6 +35,17 @@ func (s *Path) FPS() int {
 }
 
 func (s *Path) Init() (cmd tea.Cmd) {
+	s.animationKirbyBlow = engine.AnimationPlayer{
+		Animation: animationKirbyBlow,
+		Loop:      true,
+	}
+	s.pathLinear = engine.PathPlayer{
+		Path: engine.LinearPath{engine.Vec(0, 0), engine.Vec(59, 27), time.Second * 3},
+	}
+	s.pathElastic = engine.PathPlayer{
+		Path: engine.ElasticPath{engine.Vec(60, 0), engine.Vec(0, 28), time.Second * 3, 1, 0.25},
+		Loop: true,
+	}
 	return nil
 }
 

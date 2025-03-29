@@ -16,7 +16,7 @@ var (
 	animationKirbyWalk = engine.Must(engine.LoadAnimation(assets, "assets/kirby.walk.apng"))
 	animationKirbyRun  = engine.Must(engine.LoadAnimation(assets, "assets/kirby.run.apng"))
 	animationKirbyLand = engine.Must(engine.LoadAnimation(assets, "assets/kirby.land.apng"))
-	animationKirby     = engine.AnimationSequence{
+	animationKirby     = engine.SequenceAnimation{
 		animationKirbyWalk, animationKirbyWalk,
 		animationKirbyRun, animationKirbyRun, animationKirbyRun,
 		animationKirbyLand, animationKirbyLand,
@@ -24,11 +24,7 @@ var (
 )
 
 func New() *Animations {
-	return &Animations{
-		animationPng:   engine.AnimationPlayer{Animation: animationPng},
-		animationGif:   engine.AnimationPlayer{Animation: animationGif},
-		animationKirby: engine.AnimationPlayer{Animation: animationKirby},
-	}
+	return &Animations{}
 }
 
 type Animations struct {
@@ -50,6 +46,9 @@ func (s *Animations) FPS() int {
 }
 
 func (s *Animations) Init() (cmd tea.Cmd) {
+	s.animationPng = engine.AnimationPlayer{Animation: animationPng, Loop: true}
+	s.animationGif = engine.AnimationPlayer{Animation: animationGif}
+	s.animationKirby = engine.AnimationPlayer{Animation: animationKirby, Loop: true}
 	return nil
 }
 

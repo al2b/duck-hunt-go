@@ -101,20 +101,39 @@ func LoadAnimation(fS fs.ReadFileFS, path string) (animation Animation, err erro
 	}
 }
 
+/**********/
+/* Repeat */
+/**********/
+
+type RepeatAnimation struct {
+	Animation AnimationInterface
+	Count     int
+}
+
+func (animation RepeatAnimation) Duration() time.Duration {
+	return animation.Animation.Duration() * time.Duration(animation.Count)
+}
+
+func (animation RepeatAnimation) At(at time.Duration) *Image {
+	return animation.Animation.At(
+		at % animation.Animation.Duration(),
+	)
+}
+
 /************/
 /* Sequence */
 /************/
 
-type AnimationSequence []AnimationInterface
+type SequenceAnimation []AnimationInterface
 
-func (sequence AnimationSequence) Duration() (duration time.Duration) {
+func (sequence SequenceAnimation) Duration() (duration time.Duration) {
 	for _, animation := range sequence {
 		duration += animation.Duration()
 	}
 	return
 }
 
-func (sequence AnimationSequence) At(at time.Duration) *Image {
+func (sequence SequenceAnimation) At(at time.Duration) *Image {
 	var duration time.Duration
 	for _, animation := range sequence {
 		animationDuration := animation.Duration()
@@ -133,14 +152,20 @@ func (sequence AnimationSequence) At(at time.Duration) *Image {
 
 type AnimationPlayer struct {
 	Animation AnimationInterface
+	Loop      bool
 	time      time.Duration
 }
 
 func (player *AnimationPlayer) Step(delta time.Duration) {
 	player.time += delta
 	duration := player.Animation.Duration()
-	if player.time >= duration {
-		player.time -= duration
+	if player.time > duration {
+		switch player.Loop {
+		case true:
+			player.time -= duration
+		case false:
+			player.time = duration
+		}
 	}
 }
 

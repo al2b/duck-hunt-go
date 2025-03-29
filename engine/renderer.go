@@ -252,7 +252,7 @@ func (r *RendererHalfBlockANSI256) String() string {
 }
 
 func (r *RendererHalfBlockANSI256) Support(profile colorprofile.Profile) bool {
-	return profile <= colorprofile.ANSI256
+	return profile >= colorprofile.ANSI256
 }
 
 /* ***************** */
@@ -278,7 +278,7 @@ func (r *RendererHalfBlockANSI) String() string {
 }
 
 func (r *RendererHalfBlockANSI) Support(profile colorprofile.Profile) bool {
-	return profile <= colorprofile.ANSI
+	return profile >= colorprofile.ANSI
 }
 
 /* ******************* */
@@ -304,7 +304,7 @@ func (r *RendererMixedBlockAscii) String() string {
 }
 
 func (r *RendererMixedBlockAscii) Support(profile colorprofile.Profile) bool {
-	return profile <= colorprofile.Ascii
+	return profile >= colorprofile.Ascii
 }
 
 func (r *RendererMixedBlockAscii) Ratio() Size { return Size{Width: 1, Height: 2} }

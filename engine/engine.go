@@ -48,12 +48,12 @@ type Engine struct {
 	logHandler slog.Handler
 }
 
-func (e Engine) Init() (tea.Model, tea.Cmd) {
-	return e, tea.Batch(
+func (e Engine) Init() tea.Cmd {
+	return tea.Batch(
 		LogInfo("Initialize engine..."),
 		// Force requesting window size again for certain terminal who
 		// don't respond in time to the first automatic bubble tea request
-		tea.RequestWindowSize(),
+		tea.RequestWindowSize,
 		tea.EnterAltScreen,
 		tea.EnableMouseAllMotion,
 		e.renderers.Init(),

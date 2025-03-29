@@ -26,7 +26,7 @@ type Gun struct {
 
 func (m *Gun) Init() tea.Cmd {
 	// Path
-	m.path.Path = engine.FixedPath{engine.Vec(0, 0)}
+	m.path.Path = engine.FixedPath{Position: engine.Vec(0, 0)}
 
 	// Init space body
 	m.space.AddNewPositionableBody(&m.path).
@@ -56,6 +56,7 @@ func (m *Gun) Update(msg tea.Msg) tea.Cmd {
 			time.Second * 1,
 			1, 0.25,
 		}
+		m.path.Reset()
 	case engine.TickMsg:
 		// Path
 		m.path.Step(msg.Duration)

@@ -10,21 +10,25 @@ import (
 //go:embed assets/*.png
 var assets embed.FS
 
+var (
+	imageKirby = engine.Must(engine.LoadImage(assets, "assets/kirby.png"))
+)
+
 func New() *Space {
 	// Space
 	space := space.NewSpace().
 		SetGravity(engine.Vec(0, 9.8))
 
 	return &Space{
-		space: space,
-		image: engine.Must(engine.LoadImage(assets, "assets/kirby.png")),
+		space:      space,
+		imageKirby: imageKirby,
 	}
 }
 
 type Space struct {
-	space *space.Space
-	body  space.Body
-	image *engine.Image
+	space      *space.Space
+	body       space.Body
+	imageKirby *engine.Image
 }
 
 func (s *Space) String() string {
@@ -78,7 +82,7 @@ func (s *Space) Update(msg tea.Msg) (cmd tea.Cmd) {
 
 func (s *Space) Draw(scene *engine.Image) {
 	scene.Draw(
-		engine.DrawCenteredImage(s.body.Position().Point(), s.image),
+		engine.DrawCenteredImage(s.body.Position().Point(), s.imageKirby),
 		s.space,
 	)
 }

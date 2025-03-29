@@ -3,12 +3,15 @@ package duck
 import (
 	"duck-hunt-go/engine"
 	"duck-hunt-go/engine/space"
+	"duck-hunt-go/game/round/layout"
 	tea "github.com/charmbracelet/bubbletea/v2"
+	"math"
+	"math/rand/v2"
 )
 
 func New(space *space.Space) *Duck {
 	m := &Duck{space: space}
-	m.animation = engine.AnimationPlayer{Animation: NewAnimation(m)}
+	m.animation = engine.AnimationPlayer{Animation: NewAnimation(m), Loop: true}
 	return m
 }
 
@@ -22,11 +25,11 @@ func (m *Duck) Init() tea.Cmd {
 	// Init space body
 	m.Body = m.space.AddNewBody(1.0).
 		SetPosition(engine.Vec(
-			128,
-			1,
+			85+math.Round(rand.Float64()*85),
+			layout.Ground-120,
 		)).
 		SetVelocity(engine.Vector{}.
-			FromAngle(270).
+			FromAngle(235 + (rand.Float64() * 90)).
 			Scale(1),
 		)
 
