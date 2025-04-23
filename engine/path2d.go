@@ -5,25 +5,25 @@ import (
 	"time"
 )
 
-type PathInterface interface {
+type Path2DInterface interface {
 	Duration() time.Duration
-	At(time.Duration) Vector
+	At(time.Duration) Vector2D
 }
 
-/*********/
-/* Fixed */
-/*********/
+/**********/
+/* Static */
+/**********/
 
-type FixedPath struct {
-	Position Vector
+type StaticPath2d struct {
+	Position Vector2D
 	Span     time.Duration
 }
 
-func (path FixedPath) Duration() time.Duration {
+func (path StaticPath2d) Duration() time.Duration {
 	return path.Span
 }
 
-func (path FixedPath) At(_ time.Duration) Vector {
+func (path StaticPath2d) At(_ time.Duration) Vector2D {
 	return path.Position
 }
 
@@ -31,18 +31,18 @@ func (path FixedPath) At(_ time.Duration) Vector {
 /* Linear */
 /**********/
 
-type LinearPath struct {
-	Start, End Vector
+type LinearPath2D struct {
+	Start, End Vector2D
 	Span       time.Duration
 }
 
-func (path LinearPath) Duration() time.Duration {
+func (path LinearPath2D) Duration() time.Duration {
 	return path.Span
 }
 
-func (path LinearPath) At(at time.Duration) Vector {
+func (path LinearPath2D) At(at time.Duration) Vector2D {
 	product := float64(at) / float64(path.Span)
-	return Vector{
+	return Vector2D{
 		X: path.Start.X + ((path.End.X - path.Start.X) * product),
 		Y: path.Start.Y + ((path.End.Y - path.Start.Y) * product),
 	}
@@ -52,18 +52,18 @@ func (path LinearPath) At(at time.Duration) Vector {
 /* Step */
 /********/
 
-type StepPath struct {
-	Start Vector
-	Delta Vector
+type StepPath2D struct {
+	Start Vector2D
+	Delta Vector2D
 	Span  time.Duration
 	Count int
 }
 
-func (path StepPath) Duration() time.Duration {
+func (path StepPath2D) Duration() time.Duration {
 	return path.Span * time.Duration(path.Count)
 }
 
-func (path StepPath) At(at time.Duration) Vector {
+func (path StepPath2D) At(at time.Duration) Vector2D {
 	n := min(path.Count, int(at/path.Span))
 	return path.Start.Add(
 		path.Delta.Scale(float64(n)),
@@ -74,20 +74,20 @@ func (path StepPath) At(at time.Duration) Vector {
 /* Elastic */
 /***********/
 
-type ElasticPath struct {
-	Start, End        Vector
+type ElasticPath2D struct {
+	Start, End        Vector2D
 	Span              time.Duration
 	Amplitude, Period float64
 }
 
-func (path ElasticPath) Duration() time.Duration {
+func (path ElasticPath2D) Duration() time.Duration {
 	return path.Span
 }
 
-func (path ElasticPath) At(at time.Duration) Vector {
+func (path ElasticPath2D) At(at time.Duration) Vector2D {
 	product := float64(at) / float64(path.Span)
 	factor := math.Pow(2, -10*product)*math.Sin((product-path.Period/4)*(2*math.Pi)/path.Period)*path.Amplitude + 1
-	return Vector{
+	return Vector2D{
 		X: path.Start.X + ((path.End.X - path.Start.X) * factor),
 		Y: path.Start.Y + ((path.End.Y - path.Start.Y) * factor),
 	}
@@ -97,19 +97,19 @@ func (path ElasticPath) At(at time.Duration) Vector {
 /* Chain */
 /*********/
 
-type ChainPath []PathInterface
+type ChainPath2D []Path2DInterface
 
-func (chain ChainPath) Duration() (duration time.Duration) {
+func (chain ChainPath2D) Duration() (duration time.Duration) {
 	for _, path := range chain {
 		duration += path.Duration()
 	}
 	return
 }
 
-func (chain ChainPath) At(at time.Duration) Vector {
+func (chain ChainPath2D) At(at time.Duration) Vector2D {
 	var (
 		duration time.Duration
-		position Vector
+		position Vector2D
 	)
 	for _, path := range chain {
 		pathDuration := path.Duration()
@@ -124,36 +124,27 @@ func (chain ChainPath) At(at time.Duration) Vector {
 			path.At(pathDuration - (duration - at)),
 		)
 	}
-	return Vector{}
+	return Vector2D{}
 }
 
 /**********/
 /* Player */
 /**********/
 
-type PathPlayer struct {
-	Path PathInterface
-	Loop bool
-	time time.Duration
+type Path2DPlayer struct {
+	Path  Path2DInterface
+	OnEnd PlayerOnEnd
+	Player
 }
 
-func (player *PathPlayer) Step(delta time.Duration) {
-	player.time += delta
-	duration := player.Path.Duration()
-	if player.time > duration {
-		switch player.Loop {
-		case true:
-			player.time -= duration
-		case false:
-			player.time = duration
-		}
+func (p *Path2DPlayer) Step(delta time.Duration) {
+	p.Player.Step(delta, p.Path.Duration(), p.OnEnd)
+}
+
+func (p *Path2DPlayer) Position() Vector2D {
+	if p.Player.Stopped() {
+		return Vector2D{}
 	}
-}
 
-func (player PathPlayer) Position() Vector {
-	return player.Path.At(player.time)
-}
-
-func (player *PathPlayer) Reset() {
-	player.time = 0
+	return p.Path.At(p.time)
 }

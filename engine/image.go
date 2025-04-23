@@ -22,15 +22,16 @@ type Image struct {
 	*image.NRGBA
 }
 
-func (img *Image) Size() Size {
-	size := img.Bounds().Size()
-	return Size{
-		Width:  size.X,
-		Height: size.Y,
-	}
+func (img *Image) Image() *Image {
+	return img
 }
 
-func (img *Image) Set(point image.Point, c color.Color) {
+func (img *Image) Size() Size {
+	size := img.Bounds().Size()
+	return Size{size.X, size.Y}
+}
+
+func (img *Image) Set(point Point, c color.Color) {
 	imgMin := img.Bounds().Min
 	img.NRGBA.Set(
 		imgMin.X+point.X,
@@ -46,10 +47,10 @@ func (img *Image) Draw(drawers ...Drawer) *Image {
 	return img
 }
 
-func (img *Image) SubImage(point image.Point, size Size) *Image {
+func (img *Image) SubImage(point Point, size Size) *Image {
 	imgMin := img.Bounds().Min
 	return &Image{
-		img.NRGBA.SubImage(image.Rect(
+		NRGBA: img.NRGBA.SubImage(image.Rect(
 			imgMin.X+point.X, imgMin.Y+point.Y,
 			imgMin.X+point.X+size.Width, imgMin.Y+point.Y+size.Height,
 		)).(*image.NRGBA),
@@ -73,10 +74,7 @@ func (img *Image) Crop(rectangle image.Rectangle) *Image {
 		return img
 	}
 
-	dst := NewImage(Size{
-		Width:  rectangle.Dx(),
-		Height: rectangle.Dy(),
-	})
+	dst := NewImage(Size{rectangle.Dx(), rectangle.Dy()})
 
 	draw.Draw(
 		dst.NRGBA,
@@ -90,33 +88,45 @@ func (img *Image) Crop(rectangle image.Rectangle) *Image {
 }
 
 func (img *Image) FlipHorizontal() *Image {
-	size := img.Size()
-	dst := NewImage(size)
+	dst := &image.NRGBA{
+		Pix:    make([]uint8, len(img.NRGBA.Pix)),
+		Stride: img.NRGBA.Stride,
+		Rect:   img.NRGBA.Bounds(),
+	}
 
-	for y := 0; y < size.Height; y++ {
-		for x := 0; x < size.Width; x++ {
-			srcIdx := y*img.Stride + (size.Width-x-1)*4
+	size := img.Bounds().Size()
+	for y := 0; y < size.Y; y++ {
+		for x := 0; x < size.X; x++ {
+			srcIdx := y*img.Stride + (size.X-x-1)*4
 			dstIdx := y*img.Stride + x*4
 			copy(dst.Pix[dstIdx:dstIdx+4], img.Pix[srcIdx:srcIdx+4])
 		}
 	}
 
-	return dst
+	return &Image{
+		NRGBA: dst,
+	}
 }
 
 func (img *Image) FlipVertical() *Image {
-	size := img.Size()
-	dst := NewImage(size)
+	dst := &image.NRGBA{
+		Pix:    make([]uint8, len(img.NRGBA.Pix)),
+		Stride: img.NRGBA.Stride,
+		Rect:   img.NRGBA.Bounds(),
+	}
 
-	for y := 0; y < size.Height; y++ {
-		srcY := size.Height - y - 1
+	size := img.Bounds().Size()
+	for y := 0; y < size.Y; y++ {
+		srcY := size.Y - y - 1
 		copy(
 			dst.Pix[y*img.Stride:(y+1)*img.Stride],
 			img.Pix[srcY*img.Stride:(srcY+1)*img.Stride],
 		)
 	}
 
-	return dst
+	return &Image{
+		NRGBA: dst,
+	}
 }
 
 func (img *Image) Fill(c color.Color) *Image {
@@ -162,6 +172,14 @@ func LoadImage(fS fs.ReadFileFS, path string) (*Image, error) {
 }
 
 /**********/
+/* Imager */
+/**********/
+
+type Imager interface {
+	Image() *Image
+}
+
+/**********/
 /* Drawer */
 /**********/
 
@@ -169,41 +187,27 @@ type Drawer interface {
 	Draw(*Image)
 }
 
-func DrawImage(point image.Point, img *Image) ImageDrawer {
-	return ImageDrawer{
-		point: point,
-		image: img,
-	}
-}
-
-func DrawCenteredImage(point image.Point, img *Image) ImageDrawer {
-	size := img.Size()
-	return DrawImage(
-		point.Sub(image.Pt(
-			(size.Width-1)/2,
-			(size.Height-1)/2,
-		)),
-		img,
-	)
-}
-
 type ImageDrawer struct {
-	point image.Point
-	image *Image
+	Pointer
+	Imager
 }
 
-func (drawer ImageDrawer) Draw(img *Image) {
-	bounds := drawer.image.Bounds()
-	imgMin := img.Bounds().Min.Add(
-		image.Pt(drawer.point.X, drawer.point.Y),
-	)
+func (d ImageDrawer) Draw(dst *Image) {
+	src := d.Imager.Image()
+	if src == nil {
+		return
+	}
+
+	bounds := src.Bounds()
+	dstMin := dst.Bounds().Min.
+		Add(image.Point(d.Pointer.Point()))
 	draw.Draw(
-		img.NRGBA,
+		dst.NRGBA,
 		image.Rectangle{
-			Min: imgMin,
-			Max: imgMin.Add(drawer.image.Bounds().Size()),
+			Min: dstMin,
+			Max: dstMin.Add(bounds.Size()),
 		},
-		drawer.image.NRGBA,
+		src.NRGBA,
 		bounds.Min,
 		draw.Over,
 	)

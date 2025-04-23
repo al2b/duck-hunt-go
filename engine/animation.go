@@ -152,23 +152,18 @@ func (sequence SequenceAnimation) At(at time.Duration) *Image {
 
 type AnimationPlayer struct {
 	Animation AnimationInterface
-	Loop      bool
-	time      time.Duration
+	OnEnd     PlayerOnEnd
+	Player
 }
 
-func (player *AnimationPlayer) Step(delta time.Duration) {
-	player.time += delta
-	duration := player.Animation.Duration()
-	if player.time > duration {
-		switch player.Loop {
-		case true:
-			player.time -= duration
-		case false:
-			player.time = duration
-		}
+func (p *AnimationPlayer) Step(delta time.Duration) {
+	p.Player.Step(delta, p.Animation.Duration(), p.OnEnd)
+}
+
+func (p *AnimationPlayer) Image() *Image {
+	if p.Player.Stopped() {
+		return nil
 	}
-}
 
-func (player AnimationPlayer) Image() *Image {
-	return player.Animation.At(player.time)
+	return p.Animation.At(p.Player.Time())
 }

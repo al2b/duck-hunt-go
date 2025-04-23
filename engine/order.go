@@ -1,0 +1,45 @@
+package engine
+
+import (
+	"slices"
+)
+
+type Order int
+
+func (o Order) Order() Order {
+	return o
+}
+
+type Orderer interface {
+	Order() Order
+}
+
+type OrderDrawer interface {
+	Drawer
+	Orderer
+}
+
+type OrderDrawers []OrderDrawer
+
+func (d OrderDrawers) Draw(img *Image) {
+	slices.SortStableFunc(d, func(a, b OrderDrawer) int {
+		return int(a.Order()) - int(b.Order())
+	})
+	slices.Reverse(d)
+	for _, drawer := range d {
+		drawer.Draw(img)
+	}
+}
+
+type OrderedDrawer struct {
+	Drawer
+	Orderer
+}
+
+func (pd OrderedDrawer) Draw(img *Image) {
+	pd.Drawer.Draw(img)
+}
+
+func (pd OrderedDrawer) Order() Order {
+	return pd.Orderer.Order()
+}

@@ -3,7 +3,6 @@ package subimages
 import (
 	"duck-hunt-go/engine"
 	tea "github.com/charmbracelet/bubbletea/v2"
-	"image"
 )
 
 func New() *Subimages {
@@ -17,10 +16,10 @@ func (s *Subimages) String() string {
 }
 
 func (s *Subimages) Size(_ engine.Size) engine.Size {
-	return engine.Size{Width: 80, Height: 50}
+	return engine.Size{80, 50}
 }
 
-func (s *Subimages) FPS() int {
+func (s *Subimages) TPS() int {
 	return 10
 }
 
@@ -32,19 +31,24 @@ func (s *Subimages) Update(_ tea.Msg) (cmd tea.Cmd) {
 	return nil
 }
 
-func (s *Subimages) Draw(scene *engine.Image) {
-	scene.Draw(
-		engine.DrawRectangle(image.Pt(0, 0), engine.Size{Width: 80, Height: 50}, engine.ColorRed),
-	).SubImage(
-		image.Pt(7, 3),
-		engine.Size{Width: 50, Height: 40},
-	).Draw(
-		engine.DrawRectangle(image.Pt(0, 0), engine.Size{Width: 50, Height: 40}, engine.ColorGreen),
-	).SubImage(
-		image.Pt(3, 7),
-		engine.Size{Width: 30, Height: 30},
-	).Draw(
-		engine.DrawRectangle(image.Pt(0, 0), engine.Size{Width: 30, Height: 30}, engine.ColorBlue),
-		engine.DrawCircle(image.Pt(15, 15), 10, engine.ColorWhite),
-	)
+func (s *Subimages) Draw(dst *engine.Image) {
+	dst.
+		Draw(
+			engine.Rectangle{engine.Pt(0, 0), engine.Size{80, 50}, engine.ColorRed},
+		).
+		SubImage(
+			engine.Pt(7, 3),
+			engine.Size{50, 40},
+		).
+		Draw(
+			engine.Rectangle{engine.Pt(0, 0), engine.Size{50, 40}, engine.ColorGreen},
+		).
+		SubImage(
+			engine.Pt(3, 7),
+			engine.Size{30, 30},
+		).
+		Draw(
+			engine.Rectangle{engine.Pt(0, 0), engine.Size{30, 30}, engine.ColorBlue},
+			engine.Circle{engine.Pt(15, 15), 10, engine.ColorWhite},
+		)
 }

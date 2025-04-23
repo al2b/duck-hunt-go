@@ -7,24 +7,31 @@ import (
 )
 
 func NewShrub(space *space.Space) *Shrub {
-	return &Shrub{
-		image: engine.Must(engine.LoadImage(assets, "assets/shrub.png")),
+	m := &Shrub{
 		space: space,
 	}
+
+	m.ImageDrawer = engine.ImageDrawer{
+		engine.Position2DPointer{&m.position},
+		imageShrub,
+	}
+
+	return m
 }
 
 type Shrub struct {
-	engine.AbsolutePosition
-	image *engine.Image
-	space *space.Space
+	space    *space.Space
+	position engine.Vector2D
+	engine.ImageDrawer
 }
 
 func (m *Shrub) Init() tea.Cmd {
 	// Position
-	m.SetPosition(engine.Vec(193, 122))
+	m.position = engine.Vec2D(193, 122)
+
 	// Space
-	m.space.AddNewPositionableBody(m).
-		AddNewPolygon(engine.Vectors{
+	m.space.AddNewPositionableBody(&m.position).
+		AddNewPolygon(engine.Vectors2D{
 			{0, 61},
 			{0, 29},
 			{1, 22},
@@ -47,10 +54,4 @@ func (m *Shrub) Init() tea.Cmd {
 
 func (m *Shrub) Update(_ tea.Msg) tea.Cmd {
 	return nil
-}
-
-func (m *Shrub) Draw(scene *engine.Image) {
-	scene.Draw(
-		engine.DrawImage(m.Position().Point(), m.image),
-	)
 }

@@ -4,41 +4,37 @@ import (
 	"duck-hunt-go/engine"
 	"embed"
 	tea "github.com/charmbracelet/bubbletea/v2"
-	"image"
 )
 
-//go:embed assets/*.png assets/*.gif
-var assets embed.FS
-
 var (
-	imagePng = engine.Must(engine.LoadImage(assets, "assets/kirby.png"))
-	imageGif = engine.Must(engine.LoadImage(assets, "assets/kirby.gif"))
+	//go:embed assets/*.png assets/*.gif
+	assets embed.FS
+
+	// Images
+	imagePng  = engine.Must(engine.LoadImage(assets, "assets/kirby.png"))
+	imageGif  = engine.Must(engine.LoadImage(assets, "assets/kirby.gif"))
+	imageStar = engine.Must(engine.LoadImage(assets, "assets/star.png"))
 )
 
 func New() *Images {
 	return &Images{}
 }
 
-type Images struct {
-	imagePng *engine.Image
-	imageGif *engine.Image
-}
+type Images struct{}
 
 func (s *Images) String() string {
 	return "Images"
 }
 
 func (s *Images) Size(_ engine.Size) engine.Size {
-	return engine.Size{Width: 40, Height: 18}
+	return engine.Size{80, 50}
 }
 
-func (s *Images) FPS() int {
+func (s *Images) TPS() int {
 	return 10
 }
 
 func (s *Images) Init() (cmd tea.Cmd) {
-	s.imagePng = imagePng
-	s.imageGif = imageGif
 	return nil
 }
 
@@ -46,9 +42,30 @@ func (s *Images) Update(_ tea.Msg) (cmd tea.Cmd) {
 	return nil
 }
 
-func (s *Images) Draw(scene *engine.Image) {
-	scene.Draw(
-		engine.DrawImage(image.Pt(0, 0), s.imagePng),
-		engine.DrawImage(image.Pt(20, 0), s.imageGif),
+func (s *Images) Draw(dst *engine.Image) {
+	dst.Draw(
+		engine.ImageDrawer{engine.Pt(0, 0), imagePng},
+		engine.ImageDrawer{engine.Pt(20, 0), imageGif},
+
+		engine.ImageDrawer{engine.Pt(2, 20), imageStar},
+		engine.Dot{engine.Pt(2, 20), engine.ColorRed},
+
+		engine.ImageDrawer{
+			engine.PointAdder{
+				engine.Pt(38, 31),
+				engine.Pt(-11, -11),
+			},
+			imageStar,
+		},
+		engine.Dot{engine.Pt(38, 31), engine.ColorRed},
+
+		engine.ImageDrawer{
+			engine.PointAdder{
+				engine.Pt(68, 38),
+				engine.Pt(-16, -18),
+			},
+			imageStar,
+		},
+		engine.Dot{engine.Pt(68, 38), engine.ColorRed},
 	)
 }

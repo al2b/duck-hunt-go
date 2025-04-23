@@ -60,7 +60,7 @@ func (e Engine) Init() tea.Cmd {
 		ConsoleLog("Renderer: %s", e.renderers.Current()),
 		e.console.Init(),
 		e.scene.Init(),
-		Tick(e.scene.FPS()),
+		Tick(e.scene.TPS()),
 	)
 }
 
@@ -76,10 +76,7 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		ratio := e.renderers.Current().Ratio()
-		e.windowSize = Size{
-			Width:  msg.Width * ratio.Width,
-			Height: msg.Height * ratio.Height,
-		}
+		e.windowSize = Size{msg.Width * ratio.Width, msg.Height * ratio.Height}
 		return e, ConsoleLog("Window size: %s", e.windowSize)
 	case tea.KeyPressMsg:
 		switch key := msg.Key(); key.Code {
@@ -101,7 +98,7 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return e, nil
 		}
 	case TickMsg:
-		cmds = append(cmds, Tick(e.scene.FPS()))
+		cmds = append(cmds, Tick(e.scene.TPS()))
 	case LogMsg:
 		_ = e.logHandler.Handle(context.Background(), msg.Record)
 	}

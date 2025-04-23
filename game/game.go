@@ -2,47 +2,44 @@ package game
 
 import (
 	"duck-hunt-go/engine"
-	"duck-hunt-go/game/intro"
 	"duck-hunt-go/game/mouse"
 	"duck-hunt-go/game/round"
 	"duck-hunt-go/game/state"
+	"duck-hunt-go/game/title"
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
 
 func New() *Game {
 	return &Game{
 		mouse: mouse.New(),
-		intro: intro.New(),
-		game:  round.New(),
+		title: title.New(),
+		round: round.New(),
 	}
 }
 
 type Game struct {
 	mouse *mouse.Mouse
-	intro *intro.Intro
-	game  *round.Game
+	title *title.Title
+	round *round.Round
 	state state.State
 }
 
 func (g *Game) Size(_ engine.Size) engine.Size {
-	return engine.Size{
-		Width:  256,
-		Height: 240,
-	}
+	return engine.Size{256, 240}
 }
 
-func (g *Game) FPS() int {
+func (g *Game) TPS() int {
 	return 60
 }
 
 func (g *Game) Init() (cmd tea.Cmd) {
-	g.state = state.StateGame
+	g.state = state.Play
 
 	switch g.state {
-	case state.StateIntro:
-		cmd = g.intro.Init()
-	case state.StateGame:
-		cmd = g.game.Init()
+	case state.Title:
+		cmd = g.title.Init()
+	case state.Play:
+		cmd = g.round.Init()
 	}
 
 	return tea.Batch(
@@ -59,29 +56,29 @@ func (g *Game) Update(msg tea.Msg) (cmd tea.Cmd) {
 		// Switch state
 		case "s":
 			switch g.state {
-			case state.StateIntro:
-				g.state = state.StateGame
-				return g.game.Init()
-			case state.StateGame:
-				g.state = state.StateIntro
-				return g.intro.Init()
+			case state.Title:
+				g.state = state.Play
+				return g.round.Init()
+			case state.Play:
+				g.state = state.Title
+				return g.title.Init()
 			}
 		// Init current state
 		case "i":
 			switch g.state {
-			case state.StateIntro:
-				return g.intro.Init()
-			case state.StateGame:
-				return g.game.Init()
+			case state.Title:
+				return g.title.Init()
+			case state.Play:
+				return g.round.Init()
 			}
 		}
 	}
 
 	switch g.state {
-	case state.StateIntro:
-		cmd = g.intro.Update(msg)
-	case state.StateGame:
-		cmd = g.game.Update(msg)
+	case state.Title:
+		cmd = g.title.Update(msg)
+	case state.Play:
+		cmd = g.round.Update(msg)
 	}
 
 	return tea.Batch(
@@ -90,12 +87,14 @@ func (g *Game) Update(msg tea.Msg) (cmd tea.Cmd) {
 	)
 }
 
-func (g *Game) Draw(scene *engine.Image) {
+func (g *Game) Draw(dst *engine.Image) {
 	switch g.state {
-	case state.StateIntro:
-		scene.Draw(g.intro)
-	case state.StateGame:
-		scene.Draw(g.game)
+	case state.Title:
+		dst.Draw(g.title)
+	case state.Play:
+		dst.Draw(g.round)
 	}
-	scene.Draw(g.mouse)
+
+	// Mouse
+	dst.Draw(g.mouse)
 }

@@ -3,7 +3,6 @@ package primitives
 import (
 	"duck-hunt-go/engine"
 	tea "github.com/charmbracelet/bubbletea/v2"
-	"image"
 )
 
 func New() *Primitives {
@@ -17,10 +16,10 @@ func (s *Primitives) String() string {
 }
 
 func (s *Primitives) Size(_ engine.Size) engine.Size {
-	return engine.Size{Width: 80, Height: 50}
+	return engine.Size{80, 50}
 }
 
-func (s *Primitives) FPS() int {
+func (s *Primitives) TPS() int {
 	return 10
 }
 
@@ -32,23 +31,26 @@ func (s *Primitives) Update(_ tea.Msg) (cmd tea.Cmd) {
 	return nil
 }
 
-func (s *Primitives) Draw(scene *engine.Image) {
-	scene.Draw(
+func (s *Primitives) Draw(dst *engine.Image) {
+	dst.Draw(
 		// Dots
-		engine.DrawDot(image.Pt(5, 10), engine.ColorRed),
-		engine.DrawDot(image.Pt(10, 10), engine.ColorGreen),
-		engine.DrawDot(image.Pt(15, 10), engine.ColorBlue),
+		engine.Dot{engine.Pt(5, 10), engine.ColorRed},
+		engine.Dot{engine.Pt(10, 10), engine.ColorGreen},
+		engine.Dot{engine.Pt(15, 10), engine.ColorBlue},
+
 		// Segments
-		engine.DrawSegment(image.Pt(5, 20), image.Pt(20, 30), engine.ColorRed),
-		engine.DrawSegment(image.Pt(5, 25), image.Pt(25, 20), engine.ColorGreen),
-		engine.DrawSegment(image.Pt(5, 30), image.Pt(30, 30), engine.ColorBlue),
+		engine.Segment{engine.Pt(5, 20), engine.Pt(20, 30), engine.ColorRed},
+		engine.Segment{engine.Pt(5, 25), engine.Pt(25, 20), engine.ColorGreen},
+		engine.Segment{engine.Pt(5, 30), engine.Pt(30, 30), engine.ColorBlue},
+
 		// Rectangles
-		engine.DrawRectangle(image.Pt(40, 0), engine.Size{Width: 20, Height: 20}, engine.ColorRed),
-		engine.DrawRectangle(image.Pt(57, 7), engine.Size{Width: 10, Height: 20}, engine.ColorGreen),
-		engine.DrawRectangle(image.Pt(45, 5), engine.Size{Width: 10, Height: 5}, engine.ColorBlue),
+		engine.Rectangle{engine.Pt(40, 0), engine.Size{20, 20}, engine.ColorRed},
+		engine.Rectangle{engine.Pt(57, 7), engine.Size{10, 20}, engine.ColorGreen},
+		engine.Rectangle{engine.Pt(45, 5), engine.Size{10, 5}, engine.ColorBlue},
+
 		// Circles
-		engine.DrawCircle(image.Pt(40, 30), 5, engine.ColorRed),
-		engine.DrawCircle(image.Pt(50, 35), 10, engine.ColorGreen),
-		engine.DrawCircle(image.Pt(60, 35), 3, engine.ColorBlue),
+		engine.Circle{engine.Pt(40, 30), 5, engine.ColorRed},
+		engine.Circle{engine.Pt(50, 35), 10, engine.ColorGreen},
+		engine.Circle{engine.Pt(60, 35), 3, engine.ColorBlue},
 	)
 }

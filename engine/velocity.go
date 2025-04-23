@@ -1,5 +1,5 @@
 package engine
 
 type Velociter interface {
-	Velocity() Vector
+	Velocity() Vector2D
 }

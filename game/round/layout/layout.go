@@ -3,42 +3,41 @@ package layout
 import (
 	"duck-hunt-go/engine"
 	"duck-hunt-go/engine/space"
-	"embed"
 	tea "github.com/charmbracelet/bubbletea/v2"
-	"image"
 )
 
-const (
-	Ground = 183
-)
-
-//go:embed assets/*.png
-var assets embed.FS
+const Ground = 183
 
 func New(space *space.Space) *Layout {
 	return &Layout{
 		space: space,
-		image: engine.Must(engine.LoadImage(assets, "assets/layout.png")),
+		OrderedDrawer: engine.OrderedDrawer{
+			engine.ImageDrawer{
+				engine.Pt(0, 0),
+				imageLayout,
+			},
+			engine.Order(0),
+		},
 	}
 }
 
 type Layout struct {
 	space *space.Space
-	image *engine.Image
+	engine.OrderedDrawer
 }
 
 func (m *Layout) Init() tea.Cmd {
 	// Space
-	m.space.AddNewSegment(engine.Vec(0, 0), engine.Vec(255, 0), 0).
+	m.space.AddNewSegment(engine.Vec2D(0, 0), engine.Vec2D(255, 0), 0).
 		SetElasticity(1).
 		SetFriction(0)
-	m.space.AddNewSegment(engine.Vec(255, 0), engine.Vec(255, Ground), 0).
+	m.space.AddNewSegment(engine.Vec2D(255, 0), engine.Vec2D(255, Ground), 0).
 		SetElasticity(1).
 		SetFriction(0)
-	m.space.AddNewSegment(engine.Vec(255, Ground), engine.Vec(0, Ground), 0).
+	m.space.AddNewSegment(engine.Vec2D(255, Ground), engine.Vec2D(0, Ground), 0).
 		SetElasticity(1).
 		SetFriction(0)
-	m.space.AddNewSegment(engine.Vec(0, Ground), engine.Vec(0, 0), 0).
+	m.space.AddNewSegment(engine.Vec2D(0, Ground), engine.Vec2D(0, 0), 0).
 		SetElasticity(1).
 		SetFriction(0)
 
@@ -47,10 +46,4 @@ func (m *Layout) Init() tea.Cmd {
 
 func (m *Layout) Update(_ tea.Msg) tea.Cmd {
 	return nil
-}
-
-func (m *Layout) Draw(scene *engine.Image) {
-	scene.Draw(
-		engine.DrawImage(image.Pt(0, 0), m.image),
-	)
 }

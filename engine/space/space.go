@@ -35,11 +35,11 @@ func (s *Space) Step(delta time.Duration) {
 	s.cpSpace.Step(delta.Seconds())
 }
 
-func (s *Space) Draw(scene *engine.Image) {
-	cp.DrawSpace(s.cpSpace, NewDrawer(scene))
+func (s *Space) Draw(dst *engine.Image) {
+	cp.DrawSpace(s.cpSpace, NewDrawer(dst))
 }
 
-func (s *Space) SetGravity(gravity engine.Vector) *Space {
+func (s *Space) SetGravity(gravity engine.Vector2D) *Space {
 	s.cpSpace.SetGravity(cp.Vector{
 		X: gravity.X,
 		Y: gravity.Y,
@@ -47,7 +47,7 @@ func (s *Space) SetGravity(gravity engine.Vector) *Space {
 	return s
 }
 
-func (s *Space) AddNewSegment(position0, position1 engine.Vector, radius float64) Shape {
+func (s *Space) AddNewSegment(position0, position1 engine.Vector2D, radius float64) Shape {
 	cpShape := s.cpSpace.AddShape(
 		cp.NewSegment(
 			s.cpSpace.StaticBody,
@@ -73,7 +73,7 @@ func (s *Space) AddNewBody(mass float64) Body {
 	}
 }
 
-func (s *Space) AddNewPositionableBody(positioner engine.Positioner) Body {
+func (s *Space) AddNewPositionableBody(positioner engine.Positioner2D) Body {
 	cpBody := s.cpSpace.AddBody(
 		cp.NewKinematicBody(),
 	)

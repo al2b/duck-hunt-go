@@ -3,7 +3,6 @@ package engine
 import (
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea/v2"
-	"image"
 	"slices"
 	"strings"
 	"time"
@@ -40,7 +39,7 @@ func (c *Console) Update(msg tea.Msg) tea.Cmd {
 	return nil
 }
 
-func (c *Console) Draw(scene *Image) {
+func (c *Console) Draw(dst *Image) {
 	// No entries
 	if len(c.entries) == 0 {
 		return
@@ -55,8 +54,10 @@ func (c *Console) Draw(scene *Image) {
 		text.WriteString(entry.Text)
 	}
 
-	scene.Draw(
-		DrawText(image.Pt(0, 0), text.String(), Font5x5, ColorWhite),
+	dst.Draw(
+		TextDrawer{Pt(0, 0),
+			Text{text.String(), Font5x5, ColorWhite},
+		},
 	)
 }
 

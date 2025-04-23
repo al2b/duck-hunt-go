@@ -121,7 +121,7 @@ type RendererDiscard struct{}
 
 func (r RendererDiscard) String() string                      { return "Discard" }
 func (r RendererDiscard) Support(_ colorprofile.Profile) bool { return true }
-func (r RendererDiscard) Ratio() Size                         { return Size{Width: 1, Height: 2} }
+func (r RendererDiscard) Ratio() Size                         { return Size{1, 2} }
 func (r RendererDiscard) Render(_ *Image, _ Size) string      { return "" }
 
 /* ********** */
@@ -139,7 +139,7 @@ func (r *RendererHalfBlock) String() string {
 	)
 }
 
-func (r *RendererHalfBlock) Ratio() Size { return Size{Width: 1, Height: 2} }
+func (r *RendererHalfBlock) Ratio() Size { return Size{1, 2} }
 
 func (r *RendererHalfBlock) Render(img *Image, padding Size) string {
 	// Padding
@@ -307,7 +307,7 @@ func (r *RendererMixedBlockAscii) Support(profile colorprofile.Profile) bool {
 	return profile >= colorprofile.Ascii
 }
 
-func (r *RendererMixedBlockAscii) Ratio() Size { return Size{Width: 1, Height: 2} }
+func (r *RendererMixedBlockAscii) Ratio() Size { return Size{1, 2} }
 
 func (r *RendererMixedBlockAscii) SetForeground(c color.Color) {
 	if c != r.foreground {

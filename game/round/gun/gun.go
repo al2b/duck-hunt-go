@@ -3,34 +3,42 @@ package gun
 import (
 	"duck-hunt-go/engine"
 	"duck-hunt-go/engine/space"
-	"embed"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"time"
 )
 
-//go:embed assets/*.png
-var assets embed.FS
-
 func New(space *space.Space) *Gun {
-	return &Gun{
+	m := &Gun{
 		space: space,
-		image: engine.Must(engine.LoadImage(assets, "assets/gun.png")),
+		path: engine.Path2DPlayer{
+			OnEnd: engine.PlayerOnEndPause,
+		},
 	}
+
+	m.ImageDrawer = engine.ImageDrawer{
+		engine.PointAdder{
+			engine.Position2DPointer{&m.path},
+			engine.Pt(-18, -18),
+		},
+		imageGun,
+	}
+
+	return m
 }
 
 type Gun struct {
 	space *space.Space
-	path  engine.PathPlayer
-	image *engine.Image
+	path  engine.Path2DPlayer
+	engine.ImageDrawer
 }
 
 func (m *Gun) Init() tea.Cmd {
 	// Path
-	m.path.Path = engine.FixedPath{Position: engine.Vec(0, 0)}
+	m.path.Path = engine.StaticPath2d{Position: engine.Vec2D(0, 0)}
 
 	// Init space body
 	m.space.AddNewPositionableBody(&m.path).
-		AddNewPolygon(engine.Vectors{
+		AddNewPolygon(engine.Vectors2D{
 			{-5.5, -18.5},
 			{4.5, -18.5},
 			{17.5, -5.5},
@@ -50,23 +58,18 @@ func (m *Gun) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.MouseMotionMsg:
 		// Path
-		m.path.Path = engine.ElasticPath{
+		m.path.Path = engine.ElasticPath2D{
 			m.path.Position(),
-			engine.Vec(float64(msg.X), float64(msg.Y)),
+			engine.Vec2D(float64(msg.X), float64(msg.Y)),
 			time.Second * 1,
 			1, 0.25,
 		}
-		m.path.Reset()
+		m.path.Rewind()
+		m.path.Play()
 	case engine.TickMsg:
 		// Path
 		m.path.Step(msg.Duration)
 	}
 
 	return nil
-}
-
-func (m *Gun) Draw(scene *engine.Image) {
-	scene.Draw(
-		engine.DrawCenteredImage(m.path.Position().Point(), m.image),
-	)
 }

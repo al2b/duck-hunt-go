@@ -7,19 +7,32 @@ import (
 	"time"
 )
 
-//go:embed assets/*.apng
-var assets embed.FS
+var (
+	//go:embed assets/*.apng
+	assets embed.FS
 
-var animationKirbyBlow = engine.Must(engine.LoadAnimation(assets, "assets/kirby.blow.apng"))
+	// Animations
+	animationKirbyBlow = engine.Must(engine.LoadAnimation(assets, "assets/kirby.blow.apng"))
+)
 
 func New() *Path {
-	return &Path{}
+	return &Path{
+		animationKirbyBlow: engine.AnimationPlayer{Animation: animationKirbyBlow, OnEnd: engine.PlayerOnEndLoop},
+		pathLinear: engine.Path2DPlayer{
+			Path:  engine.LinearPath2D{engine.Vec2D(0, 0), engine.Vec2D(59, 27), time.Second * 3},
+			OnEnd: engine.PlayerOnEndPause,
+		},
+		pathElastic: engine.Path2DPlayer{
+			Path:  engine.ElasticPath2D{engine.Vec2D(60, 0), engine.Vec2D(0, 28), time.Second * 3, 1, 0.25},
+			OnEnd: engine.PlayerOnEndLoop,
+		},
+	}
 }
 
 type Path struct {
 	animationKirbyBlow engine.AnimationPlayer
-	pathLinear         engine.PathPlayer
-	pathElastic        engine.PathPlayer
+	pathLinear         engine.Path2DPlayer
+	pathElastic        engine.Path2DPlayer
 }
 
 func (s *Path) String() string {
@@ -27,25 +40,18 @@ func (s *Path) String() string {
 }
 
 func (s *Path) Size(_ engine.Size) engine.Size {
-	return engine.Size{Width: 80, Height: 50}
+	return engine.Size{80, 50}
 }
 
-func (s *Path) FPS() int {
+func (s *Path) TPS() int {
 	return 60
 }
 
 func (s *Path) Init() (cmd tea.Cmd) {
-	s.animationKirbyBlow = engine.AnimationPlayer{
-		Animation: animationKirbyBlow,
-		Loop:      true,
-	}
-	s.pathLinear = engine.PathPlayer{
-		Path: engine.LinearPath{engine.Vec(0, 0), engine.Vec(59, 27), time.Second * 3},
-	}
-	s.pathElastic = engine.PathPlayer{
-		Path: engine.ElasticPath{engine.Vec(60, 0), engine.Vec(0, 28), time.Second * 3, 1, 0.25},
-		Loop: true,
-	}
+	s.animationKirbyBlow.Play()
+	s.pathLinear.Play()
+	s.pathElastic.Play()
+
 	return nil
 }
 
@@ -56,12 +62,19 @@ func (s *Path) Update(msg tea.Msg) (cmd tea.Cmd) {
 		s.pathLinear.Step(msg.Duration)
 		s.pathElastic.Step(msg.Duration)
 	}
+
 	return nil
 }
 
-func (s *Path) Draw(scene *engine.Image) {
-	scene.Draw(
-		engine.DrawImage(s.pathLinear.Position().Point(), s.animationKirbyBlow.Image()),
-		engine.DrawImage(s.pathElastic.Position().Point(), s.animationKirbyBlow.Image()),
+func (s *Path) Draw(dst *engine.Image) {
+	dst.Draw(
+		engine.ImageDrawer{
+			engine.Position2DPointer{&s.pathLinear},
+			&s.animationKirbyBlow,
+		},
+		engine.ImageDrawer{
+			engine.Position2DPointer{&s.pathElastic},
+			&s.animationKirbyBlow,
+		},
 	)
 }

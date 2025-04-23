@@ -10,7 +10,7 @@ import (
 
 var cli struct {
 	Log      string `type:"path" short:"l" env:"LOG" help:"Log to file path." placeholder:"PATH"`
-	Examples bool   `short:"e" env:"EXAMPLES" help:"Play examples."`
+	Examples int    `type:"counter" short:"e" env:"EXAMPLES" help:"Play examples."`
 }
 
 func main() {
@@ -31,8 +31,8 @@ func main() {
 
 	// Scene
 	var scene engine.Scene
-	if cli.Examples {
-		scene = examples.New()
+	if cli.Examples != 0 {
+		scene = examples.New(cli.Examples)
 	} else {
 		scene = game.New()
 	}

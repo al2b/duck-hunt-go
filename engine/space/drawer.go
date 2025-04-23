@@ -3,7 +3,6 @@ package space
 import (
 	"duck-hunt-go/engine"
 	"github.com/jakecoffman/cp/v2"
-	"image"
 	"image/color"
 	"math"
 )
@@ -26,8 +25,8 @@ type Drawer struct {
 	data                                               interface{}
 }
 
-func (d Drawer) cpVectorToPoint(v cp.Vector) image.Point {
-	return image.Pt(int(v.X), int(v.Y))
+func (d Drawer) cpVectorToPoint(v cp.Vector) engine.Point {
+	return engine.Pt(int(v.X), int(v.Y))
 }
 
 func (d Drawer) cpFColorToColor(fc cp.FColor) color.Color {
@@ -36,57 +35,57 @@ func (d Drawer) cpFColorToColor(fc cp.FColor) color.Color {
 
 func (d Drawer) DrawCircle(pos cp.Vector, angle, radius float64, outline, fill cp.FColor, data interface{}) {
 	d.img.Draw(
-		engine.DrawCircle(
+		engine.Circle{
 			d.cpVectorToPoint(pos),
 			int(radius),
 			d.cpFColorToColor(outline),
-		),
-		engine.DrawSegment(
+		},
+		engine.Segment{
 			d.cpVectorToPoint(pos),
 			d.cpVectorToPoint(pos.Add(cp.ForAngle(angle).Mult(radius))),
 			d.cpFColorToColor(outline),
-		),
+		},
 	)
 }
 
 func (d Drawer) DrawSegment(a, b cp.Vector, fill cp.FColor, data interface{}) {
 	d.img.Draw(
-		engine.DrawSegment(
+		engine.Segment{
 			d.cpVectorToPoint(a),
 			d.cpVectorToPoint(b),
 			d.cpFColorToColor(fill),
-		),
+		},
 	)
 }
 
 func (d Drawer) DrawFatSegment(a, b cp.Vector, radius float64, outline, fill cp.FColor, data interface{}) {
 	d.img.Draw(
-		engine.DrawSegment(
+		engine.Segment{
 			d.cpVectorToPoint(a),
 			d.cpVectorToPoint(b),
 			d.cpFColorToColor(outline),
-		),
+		},
 	)
 }
 
 func (d Drawer) DrawPolygon(count int, verts []cp.Vector, radius float64, outline, fill cp.FColor, data interface{}) {
 	for i := 0; i < len(verts); i++ {
 		d.img.Draw(
-			engine.DrawSegment(
+			engine.Segment{
 				d.cpVectorToPoint(verts[i]),
 				d.cpVectorToPoint(verts[(i+1)%len(verts)]),
 				d.cpFColorToColor(outline),
-			),
+			},
 		)
 	}
 }
 
 func (d Drawer) DrawDot(size float64, pos cp.Vector, fill cp.FColor, data interface{}) {
 	d.img.Draw(
-		engine.DrawDot(
+		engine.Dot{
 			d.cpVectorToPoint(pos),
 			d.cpFColorToColor(fill),
-		),
+		},
 	)
 }
 

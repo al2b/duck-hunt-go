@@ -10,30 +10,48 @@ import (
 )
 
 func New(space *space.Space) *Duck {
-	m := &Duck{space: space}
-	m.animation = engine.AnimationPlayer{Animation: NewAnimation(m), Loop: true}
+	m := &Duck{
+		space: space,
+	}
+
+	m.animation = engine.AnimationPlayer{
+		Animation: NewAnimation(&m.body),
+		OnEnd:     engine.PlayerOnEndLoop,
+	}
+
+	m.ImageDrawer = engine.ImageDrawer{
+		engine.PointAdder{
+			engine.Position2DPointer{&m.body},
+			engine.Pt(-19, -19),
+		},
+		&m.animation,
+	}
+
 	return m
 }
 
 type Duck struct {
-	space *space.Space
-	space.Body
+	space     *space.Space
+	body      space.Body
 	animation engine.AnimationPlayer
+	engine.ImageDrawer
 }
 
 func (m *Duck) Init() tea.Cmd {
+	m.animation.Play()
+
 	// Init space body
-	m.Body = m.space.AddNewBody(1.0).
-		SetPosition(engine.Vec(
+	m.body = m.space.AddNewBody(1.0).
+		SetPosition(engine.Vec2D(
 			85+math.Round(rand.Float64()*85),
 			layout.Ground-120,
 		)).
-		SetVelocity(engine.Vector{}.
+		SetVelocity(engine.Vector2D{}.
 			FromAngle(235 + (rand.Float64() * 90)).
 			Scale(1),
 		)
 
-	m.Body.AddNewCircle(18).
+	m.body.AddNewCircle(18).
 		SetElasticity(1).
 		SetFriction(0)
 
@@ -43,17 +61,17 @@ func (m *Duck) Init() tea.Cmd {
 func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.MouseClickMsg:
-		// Follow mouse position
-		m.SetPosition(engine.Vec(
+		// Follow the mouse position
+		m.body.SetPosition(engine.Vec2D(
 			float64(msg.X), float64(msg.Y),
 		))
 		return engine.ConsoleLog("Go!")
 	case tea.KeyPressMsg:
 		switch key := msg.Key(); key.Code {
 		case tea.KeyRight:
-			m.SetVelocity(m.Velocity().Rotate(10))
+			m.body.SetVelocity(m.body.Velocity().Rotate(10))
 		case tea.KeyLeft:
-			m.SetVelocity(m.Velocity().Rotate(-10))
+			m.body.SetVelocity(m.body.Velocity().Rotate(-10))
 		}
 	case engine.TickMsg:
 		// Step animation
@@ -61,10 +79,4 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 	}
 
 	return nil
-}
-
-func (m *Duck) Draw(scene *engine.Image) {
-	scene.Draw(
-		engine.DrawCenteredImage(m.Position().Point(), m.animation.Image()),
-	)
 }

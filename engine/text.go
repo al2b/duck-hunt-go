@@ -8,7 +8,16 @@ import (
 	"strings"
 )
 
-var Font5x5 = Must(LoadFont(assets, "assets/font.5x5.png"))
+var (
+	Font5x5 = Must(LoadFont(assets, "assets/font.5x5.png"))
+	Font6x6 = Must(LoadFont(assets, "assets/font.6x6.png"))
+)
+
+type Text struct {
+	Content string
+	Font    FontInterface
+	Color   color.Color
+}
 
 type FontInterface interface {
 	Size() Size
@@ -79,37 +88,26 @@ func LoadFont(fS fs.ReadFileFS, path string) (*Font, error) {
 /* Drawer */
 /**********/
 
-func DrawText(point image.Point, text string, font FontInterface, color color.Color) TextDrawer {
-	return TextDrawer{
-		point: point,
-		text:  text,
-		font:  font,
-		color: color,
-	}
-}
-
 type TextDrawer struct {
-	point image.Point
-	text  string
-	font  FontInterface
-	color color.Color
+	Pointer
+	Text
 }
 
-func (drawer TextDrawer) Draw(img *Image) {
-	fontSize := drawer.font.Size()
-	for y, line := range strings.Split(drawer.text, "\n") {
+func (d TextDrawer) Draw(dst *Image) {
+	fontSize := d.Text.Font.Size()
+	for y, line := range strings.Split(d.Text.Content, "\n") {
 		for x, char := range line {
-			imgMin := img.Bounds().Min.
-				Add(drawer.point).
+			dstMin := dst.Bounds().Min.
+				Add(image.Point(d.Pointer.Point())).
 				Add(image.Pt(x*fontSize.Width, y*fontSize.Height))
-			mask := drawer.font.CharMask(int(char))
+			mask := d.Text.Font.CharMask(int(char))
 			draw.DrawMask(
-				img.NRGBA,
+				dst.NRGBA,
 				image.Rectangle{
-					Min: imgMin,
-					Max: imgMin.Add(image.Pt(fontSize.Width, fontSize.Height)),
+					Min: dstMin,
+					Max: dstMin.Add(image.Pt(fontSize.Width, fontSize.Height)),
 				},
-				&image.Uniform{C: drawer.color},
+				&image.Uniform{C: d.Text.Color},
 				image.Point{},
 				mask,
 				mask.Bounds().Min,

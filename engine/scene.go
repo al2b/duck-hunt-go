@@ -2,7 +2,7 @@ package engine
 
 type Scene interface {
 	Size(windowSize Size) Size
-	FPS() int
+	TPS() int
 	Model
 	Drawer
 }
