@@ -34,6 +34,32 @@ func (c Cinematic3D) At(at time.Duration) (Vector3D, *Image) {
 	return Vector3D{}, nil
 }
 
+/************/
+/* Sequence */
+/************/
+
+type SequenceCinematic3D []Cinematic3DInterface
+
+func (s SequenceCinematic3D) Duration() (duration time.Duration) {
+	for _, cinematic := range s {
+		duration += cinematic.Duration()
+	}
+	return
+}
+
+func (s SequenceCinematic3D) At(at time.Duration) (Vector3D, *Image) {
+	var duration time.Duration
+	for _, cinematic := range s {
+		cinematicDuration := cinematic.Duration()
+		duration += cinematicDuration
+		if duration < at {
+			continue
+		}
+		return cinematic.At(cinematicDuration - (duration - at))
+	}
+	return Vector3D{}, nil
+}
+
 /**********/
 /* Player */
 /**********/
