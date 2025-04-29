@@ -23,16 +23,16 @@ type AnimationFrame struct {
 
 type Animation []AnimationFrame
 
-func (animation Animation) Duration() (duration time.Duration) {
-	for _, frame := range animation {
+func (a Animation) Duration() (duration time.Duration) {
+	for _, frame := range a {
 		duration += frame.Duration
 	}
 	return
 }
 
-func (animation Animation) At(at time.Duration) *Image {
+func (a Animation) At(at time.Duration) *Image {
 	var duration time.Duration
-	for _, frame := range animation {
+	for _, frame := range a {
 		duration += frame.Duration
 		if duration < at {
 			continue
@@ -110,13 +110,13 @@ type RepeatAnimation struct {
 	Count     int
 }
 
-func (animation RepeatAnimation) Duration() time.Duration {
-	return animation.Animation.Duration() * time.Duration(animation.Count)
+func (a RepeatAnimation) Duration() time.Duration {
+	return a.Animation.Duration() * time.Duration(a.Count)
 }
 
-func (animation RepeatAnimation) At(at time.Duration) *Image {
-	return animation.Animation.At(
-		at % animation.Animation.Duration(),
+func (a RepeatAnimation) At(at time.Duration) *Image {
+	return a.Animation.At(
+		at % a.Animation.Duration(),
 	)
 }
 
@@ -126,16 +126,16 @@ func (animation RepeatAnimation) At(at time.Duration) *Image {
 
 type SequenceAnimation []AnimationInterface
 
-func (sequence SequenceAnimation) Duration() (duration time.Duration) {
-	for _, animation := range sequence {
+func (s SequenceAnimation) Duration() (duration time.Duration) {
+	for _, animation := range s {
 		duration += animation.Duration()
 	}
 	return
 }
 
-func (sequence SequenceAnimation) At(at time.Duration) *Image {
+func (s SequenceAnimation) At(at time.Duration) *Image {
 	var duration time.Duration
-	for _, animation := range sequence {
+	for _, animation := range s {
 		animationDuration := animation.Duration()
 		duration += animationDuration
 		if duration < at {

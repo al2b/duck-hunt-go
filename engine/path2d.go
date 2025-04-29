@@ -19,12 +19,12 @@ type StaticPath2d struct {
 	Span     time.Duration
 }
 
-func (path StaticPath2d) Duration() time.Duration {
-	return path.Span
+func (p StaticPath2d) Duration() time.Duration {
+	return p.Span
 }
 
-func (path StaticPath2d) At(_ time.Duration) Vector2D {
-	return path.Position
+func (p StaticPath2d) At(_ time.Duration) Vector2D {
+	return p.Position
 }
 
 /**********/
@@ -36,15 +36,15 @@ type LinearPath2D struct {
 	Span       time.Duration
 }
 
-func (path LinearPath2D) Duration() time.Duration {
-	return path.Span
+func (p LinearPath2D) Duration() time.Duration {
+	return p.Span
 }
 
-func (path LinearPath2D) At(at time.Duration) Vector2D {
-	product := float64(at) / float64(path.Span)
+func (p LinearPath2D) At(at time.Duration) Vector2D {
+	product := float64(at) / float64(p.Span)
 	return Vector2D{
-		X: path.Start.X + ((path.End.X - path.Start.X) * product),
-		Y: path.Start.Y + ((path.End.Y - path.Start.Y) * product),
+		X: p.Start.X + ((p.End.X - p.Start.X) * product),
+		Y: p.Start.Y + ((p.End.Y - p.Start.Y) * product),
 	}
 }
 
@@ -59,14 +59,14 @@ type StepPath2D struct {
 	Count int
 }
 
-func (path StepPath2D) Duration() time.Duration {
-	return path.Span * time.Duration(path.Count)
+func (p StepPath2D) Duration() time.Duration {
+	return p.Span * time.Duration(p.Count)
 }
 
-func (path StepPath2D) At(at time.Duration) Vector2D {
-	n := min(path.Count, int(at/path.Span))
-	return path.Start.Add(
-		path.Delta.Scale(float64(n)),
+func (p StepPath2D) At(at time.Duration) Vector2D {
+	n := min(p.Count, int(at/p.Span))
+	return p.Start.Add(
+		p.Delta.Scale(float64(n)),
 	)
 }
 
@@ -80,16 +80,16 @@ type ElasticPath2D struct {
 	Amplitude, Period float64
 }
 
-func (path ElasticPath2D) Duration() time.Duration {
-	return path.Span
+func (p ElasticPath2D) Duration() time.Duration {
+	return p.Span
 }
 
-func (path ElasticPath2D) At(at time.Duration) Vector2D {
-	product := float64(at) / float64(path.Span)
-	factor := math.Pow(2, -10*product)*math.Sin((product-path.Period/4)*(2*math.Pi)/path.Period)*path.Amplitude + 1
+func (p ElasticPath2D) At(at time.Duration) Vector2D {
+	product := float64(at) / float64(p.Span)
+	factor := math.Pow(2, -10*product)*math.Sin((product-p.Period/4)*(2*math.Pi)/p.Period)*p.Amplitude + 1
 	return Vector2D{
-		X: path.Start.X + ((path.End.X - path.Start.X) * factor),
-		Y: path.Start.Y + ((path.End.Y - path.Start.Y) * factor),
+		X: p.Start.X + ((p.End.X - p.Start.X) * factor),
+		Y: p.Start.Y + ((p.End.Y - p.Start.Y) * factor),
 	}
 }
 
@@ -99,19 +99,19 @@ func (path ElasticPath2D) At(at time.Duration) Vector2D {
 
 type ChainPath2D []Path2DInterface
 
-func (chain ChainPath2D) Duration() (duration time.Duration) {
-	for _, path := range chain {
+func (c ChainPath2D) Duration() (duration time.Duration) {
+	for _, path := range c {
 		duration += path.Duration()
 	}
 	return
 }
 
-func (chain ChainPath2D) At(at time.Duration) Vector2D {
+func (c ChainPath2D) At(at time.Duration) Vector2D {
 	var (
 		duration time.Duration
 		position Vector2D
 	)
-	for _, path := range chain {
+	for _, path := range c {
 		pathDuration := path.Duration()
 		duration += pathDuration
 		if duration < at {
