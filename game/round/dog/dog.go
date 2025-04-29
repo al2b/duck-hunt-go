@@ -31,7 +31,12 @@ type Dog struct {
 }
 
 func (m *Dog) Init() tea.Cmd {
-	m.cinematic.Cinematic = cinematicDogTrack
+	m.cinematic.Cinematic = engine.SequenceCinematic3D{
+		cinematicDogTrack,
+		cinematicDogMock,
+		cinematicDogRetrieve1,
+		cinematicDogRetrieve2,
+	}
 	m.cinematic.Play()
 
 	return nil
