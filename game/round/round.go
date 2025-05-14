@@ -78,7 +78,7 @@ func (m *Round) Update(msg tea.Msg) tea.Cmd {
 		)
 
 		// Update space
-		m.space.Step(msg.Duration)
+		m.space.Step(msg.Interval)
 
 		return cmd
 	}

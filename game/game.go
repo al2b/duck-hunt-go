@@ -2,7 +2,7 @@ package game
 
 import (
 	"duck-hunt-go/engine"
-	"duck-hunt-go/game/mouse"
+	"duck-hunt-go/game/config"
 	"duck-hunt-go/game/round"
 	"duck-hunt-go/game/state"
 	"duck-hunt-go/game/title"
@@ -11,14 +11,13 @@ import (
 
 func New() *Game {
 	return &Game{
-		mouse: mouse.New(),
 		title: title.New(),
 		round: round.New(),
 	}
 }
 
 type Game struct {
-	mouse *mouse.Mouse
+	pause bool
 	title *title.Title
 	round *round.Round
 	state state.State
@@ -26,10 +25,6 @@ type Game struct {
 
 func (g *Game) Size(_ engine.Size) engine.Size {
 	return engine.Size{256, 240}
-}
-
-func (g *Game) TPS() int {
-	return 60
 }
 
 func (g *Game) Init() (cmd tea.Cmd) {
@@ -44,7 +39,7 @@ func (g *Game) Init() (cmd tea.Cmd) {
 
 	return tea.Batch(
 		tea.SetWindowTitle("Duck Hunt"),
-		g.mouse.Init(),
+		engine.StartTicker(config.TickInterval),
 		cmd,
 	)
 }
@@ -53,6 +48,20 @@ func (g *Game) Update(msg tea.Msg) (cmd tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch msg.String() {
+		// Pause
+		case "p":
+			if !g.pause {
+				g.pause = true
+				return engine.StopTicker
+			} else {
+				g.pause = false
+				return engine.StartTicker(config.TickInterval)
+			}
+		// Next
+		case "n":
+			if g.pause {
+				return engine.StepTick(config.TickInterval)
+			}
 		// Switch state
 		case "s":
 			switch g.state {
@@ -82,7 +91,6 @@ func (g *Game) Update(msg tea.Msg) (cmd tea.Cmd) {
 	}
 
 	return tea.Batch(
-		g.mouse.Update(msg),
 		cmd,
 	)
 }
@@ -94,7 +102,4 @@ func (g *Game) Draw(dst *engine.Image) {
 	case state.Play:
 		dst.Draw(g.round)
 	}
-
-	// Mouse
-	dst.Draw(g.mouse)
 }

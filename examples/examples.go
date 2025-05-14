@@ -48,16 +48,24 @@ func (s *Examples) Size(windowSize engine.Size) engine.Size {
 		Add(engine.Size{0, 6})
 }
 
-func (s *Examples) TPS() int {
-	return s.examples[s.current].TPS()
-}
-
 func (s *Examples) Init() (cmd tea.Cmd) {
 	return s.examples[s.current].Init()
 }
 
 func (s *Examples) Update(msg tea.Msg) (cmd tea.Cmd) {
 	switch msg := msg.(type) {
+	case tea.MouseClickMsg:
+		msg.Y -= 6
+		return s.examples[s.current].Update(msg)
+	case tea.MouseReleaseMsg:
+		msg.Y -= 6
+		return s.examples[s.current].Update(msg)
+	case tea.MouseWheelMsg:
+		msg.Y -= 6
+		return s.examples[s.current].Update(msg)
+	case tea.MouseMotionMsg:
+		msg.Y -= 6
+		return s.examples[s.current].Update(msg)
 	case tea.KeyPressMsg:
 		switch key := msg.Key(); key.Code {
 		case tea.KeyRight:
@@ -78,7 +86,7 @@ func (s *Examples) Draw(dst *engine.Image) {
 			engine.Text{s.examples[s.current].String(), engine.Font6x6, engine.ColorWhite},
 		},
 	)
-	
+
 	// Scene
 	dst.SubImage(
 		engine.Pt(0, 6),

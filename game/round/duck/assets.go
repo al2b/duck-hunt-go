@@ -2,11 +2,10 @@ package duck
 
 import (
 	"duck-hunt-go/engine"
+	"duck-hunt-go/game/config"
 	"embed"
 	"time"
 )
-
-const frameDuration = time.Second / 60
 
 var (
 	//go:embed assets/*.png
@@ -22,24 +21,24 @@ var (
 
 	// Animations
 	animationHorizontalRight = engine.Animation{
-		{imageHorizontal1, 3 * frameDuration},
-		{imageHorizontal2, 3 * frameDuration},
-		{imageHorizontal3, 3 * frameDuration},
+		{imageHorizontal1, 3 * config.TickInterval},
+		{imageHorizontal2, 3 * config.TickInterval},
+		{imageHorizontal3, 3 * config.TickInterval},
 	}
 	animationHorizontalLeft = engine.Animation{
-		{imageHorizontal1.FlipHorizontal(), 3 * frameDuration},
-		{imageHorizontal2.FlipHorizontal(), 3 * frameDuration},
-		{imageHorizontal3.FlipHorizontal(), 3 * frameDuration},
+		{imageHorizontal1.FlipHorizontal(), 3 * config.TickInterval},
+		{imageHorizontal2.FlipHorizontal(), 3 * config.TickInterval},
+		{imageHorizontal3.FlipHorizontal(), 3 * config.TickInterval},
 	}
 	animationAngledRight = engine.Animation{
-		{imageAngled1, 3 * frameDuration},
-		{imageAngled2, 3 * frameDuration},
-		{imageAngled3, 3 * frameDuration},
+		{imageAngled1, 3 * config.TickInterval},
+		{imageAngled2, 3 * config.TickInterval},
+		{imageAngled3, 3 * config.TickInterval},
 	}
 	animationAngledLeft = engine.Animation{
-		{imageAngled1.FlipHorizontal(), 3 * frameDuration},
-		{imageAngled2.FlipHorizontal(), 3 * frameDuration},
-		{imageAngled3.FlipHorizontal(), 3 * frameDuration},
+		{imageAngled1.FlipHorizontal(), 3 * config.TickInterval},
+		{imageAngled2.FlipHorizontal(), 3 * config.TickInterval},
+		{imageAngled3.FlipHorizontal(), 3 * config.TickInterval},
 	}
 )
 

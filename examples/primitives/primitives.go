@@ -3,7 +3,10 @@ package primitives
 import (
 	"duck-hunt-go/engine"
 	tea "github.com/charmbracelet/bubbletea/v2"
+	"time"
 )
+
+const TickInterval = time.Second / 10
 
 func New() *Primitives {
 	return &Primitives{}
@@ -19,12 +22,10 @@ func (s *Primitives) Size(_ engine.Size) engine.Size {
 	return engine.Size{80, 50}
 }
 
-func (s *Primitives) TPS() int {
-	return 10
-}
-
 func (s *Primitives) Init() (cmd tea.Cmd) {
-	return nil
+	return tea.Batch(
+		engine.StartTicker(TickInterval),
+	)
 }
 
 func (s *Primitives) Update(_ tea.Msg) (cmd tea.Cmd) {

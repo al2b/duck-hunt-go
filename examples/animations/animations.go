@@ -4,7 +4,10 @@ import (
 	"duck-hunt-go/engine"
 	"embed"
 	tea "github.com/charmbracelet/bubbletea/v2"
+	"time"
 )
+
+const TickInterval = time.Second / 60
 
 var (
 	//go:embed assets/*.apng assets/*.png assets/*.gif
@@ -45,24 +48,22 @@ func (s *Animations) Size(_ engine.Size) engine.Size {
 	return engine.Size{70, 44}
 }
 
-func (s *Animations) TPS() int {
-	return 60
-}
-
 func (s *Animations) Init() (cmd tea.Cmd) {
 	s.animationPng.Play()
 	s.animationGif.Play()
 	s.animationKirby.Play()
 
-	return nil
+	return tea.Batch(
+		engine.StartTicker(TickInterval),
+	)
 }
 
 func (s *Animations) Update(msg tea.Msg) (cmd tea.Cmd) {
 	switch msg := msg.(type) {
 	case engine.TickMsg:
-		s.animationPng.Step(msg.Duration)
-		s.animationGif.Step(msg.Duration)
-		s.animationKirby.Step(msg.Duration)
+		s.animationPng.Step(msg.Interval)
+		s.animationGif.Step(msg.Interval)
+		s.animationKirby.Step(msg.Interval)
 	}
 
 	return nil

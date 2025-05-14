@@ -3,7 +3,10 @@ package text
 import (
 	"duck-hunt-go/engine"
 	tea "github.com/charmbracelet/bubbletea/v2"
+	"time"
 )
+
+const TickInterval = time.Second / 60
 
 func New() *Text {
 	return &Text{}
@@ -19,12 +22,10 @@ func (s *Text) Size(_ engine.Size) engine.Size {
 	return engine.Size{80, 50}
 }
 
-func (s *Text) TPS() int {
-	return 10
-}
-
 func (s *Text) Init() (cmd tea.Cmd) {
-	return nil
+	return tea.Batch(
+		engine.StartTicker(TickInterval),
+	)
 }
 
 func (s *Text) Update(_ tea.Msg) (cmd tea.Cmd) {

@@ -3,7 +3,10 @@ package subimages
 import (
 	"duck-hunt-go/engine"
 	tea "github.com/charmbracelet/bubbletea/v2"
+	"time"
 )
+
+const TickInterval = time.Second / 10
 
 func New() *Subimages {
 	return &Subimages{}
@@ -19,12 +22,10 @@ func (s *Subimages) Size(_ engine.Size) engine.Size {
 	return engine.Size{80, 50}
 }
 
-func (s *Subimages) TPS() int {
-	return 10
-}
-
 func (s *Subimages) Init() (cmd tea.Cmd) {
-	return nil
+	return tea.Batch(
+		engine.StartTicker(TickInterval),
+	)
 }
 
 func (s *Subimages) Update(_ tea.Msg) (cmd tea.Cmd) {

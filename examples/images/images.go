@@ -4,7 +4,10 @@ import (
 	"duck-hunt-go/engine"
 	"embed"
 	tea "github.com/charmbracelet/bubbletea/v2"
+	"time"
 )
+
+const TickInterval = time.Second / 10
 
 var (
 	//go:embed assets/*.png assets/*.gif
@@ -30,12 +33,10 @@ func (s *Images) Size(_ engine.Size) engine.Size {
 	return engine.Size{80, 50}
 }
 
-func (s *Images) TPS() int {
-	return 10
-}
-
 func (s *Images) Init() (cmd tea.Cmd) {
-	return nil
+	return tea.Batch(
+		engine.StartTicker(TickInterval),
+	)
 }
 
 func (s *Images) Update(_ tea.Msg) (cmd tea.Cmd) {

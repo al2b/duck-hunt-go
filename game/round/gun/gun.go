@@ -56,11 +56,12 @@ func (m *Gun) Init() tea.Cmd {
 
 func (m *Gun) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
-	case tea.MouseMotionMsg:
+	case tea.MouseMsg:
+		mouse := msg.Mouse()
 		// Path
 		m.path.Path = engine.ElasticPath2D{
 			m.path.Position(),
-			engine.Vec2D(float64(msg.X), float64(msg.Y)),
+			engine.Vec2D(float64(mouse.X), float64(mouse.Y)),
 			time.Second * 1,
 			1, 0.25,
 		}
@@ -68,7 +69,7 @@ func (m *Gun) Update(msg tea.Msg) tea.Cmd {
 		m.path.Play()
 	case engine.TickMsg:
 		// Path
-		m.path.Step(msg.Duration)
+		m.path.Step(msg.Interval)
 	}
 
 	return nil

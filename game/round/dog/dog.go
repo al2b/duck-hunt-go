@@ -45,7 +45,7 @@ func (m *Dog) Init() tea.Cmd {
 func (m *Dog) Update(msg tea.Msg) (cmd tea.Cmd) {
 	switch msg := msg.(type) {
 	case engine.TickMsg:
-		m.cinematic.Step(msg.Duration)
+		m.cinematic.Step(msg.Interval)
 	}
 
 	return nil

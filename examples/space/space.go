@@ -5,7 +5,10 @@ import (
 	"duck-hunt-go/engine/space"
 	"embed"
 	tea "github.com/charmbracelet/bubbletea/v2"
+	"time"
 )
+
+const TickInterval = time.Second / 60
 
 var (
 	//go:embed assets/*.png
@@ -35,10 +38,6 @@ func (s *Space) Size(_ engine.Size) engine.Size {
 	return engine.Size{80, 50}
 }
 
-func (s *Space) TPS() int {
-	return 60
-}
-
 func (s *Space) Init() (cmd tea.Cmd) {
 	// Space
 	s.space.Clear()
@@ -63,14 +62,16 @@ func (s *Space) Init() (cmd tea.Cmd) {
 		SetElasticity(1).
 		SetFriction(0)
 
-	return nil
+	return tea.Batch(
+		engine.StartTicker(TickInterval),
+	)
 }
 
 func (s *Space) Update(msg tea.Msg) (cmd tea.Cmd) {
 	switch msg := msg.(type) {
 	case engine.TickMsg:
 		// Update space
-		s.space.Step(msg.Duration)
+		s.space.Step(msg.Interval)
 	}
 
 	return nil

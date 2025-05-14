@@ -2,17 +2,8 @@ package engine
 
 import (
 	"context"
-	"embed"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"log/slog"
-	"slices"
-)
-
-//go:embed assets/*.png
-var assets embed.FS
-
-var (
-	pause = false
 )
 
 func New(scene Scene, options ...Option) Engine {
@@ -20,6 +11,7 @@ func New(scene Scene, options ...Option) Engine {
 		scene:          scene,
 		console:        NewConsole(),
 		consoleEnabled: false,
+		ticker:         Ticker{},
 		renderers:      NewRenderers(),
 		logHandler:     slog.DiscardHandler,
 	}
@@ -39,8 +31,8 @@ type Engine struct {
 	consoleEnabled bool
 	// Window
 	windowSize Size
-	// Messages
-	msgs []tea.Msg
+	// Ticker
+	ticker tea.Model
 	// View
 	renderers *Renderers
 	view      string
@@ -60,12 +52,19 @@ func (e Engine) Init() tea.Cmd {
 		ConsoleLog("Renderer: %s", e.renderers.Current()),
 		e.console.Init(),
 		e.scene.Init(),
-		Tick(e.scene.TPS()),
+		e.ticker.Init(),
 	)
 }
 
 func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmds []tea.Cmd
+	var (
+		cmd  tea.Cmd
+		cmds []tea.Cmd
+	)
+
+	// Ticker
+	e.ticker, cmd = e.ticker.Update(msg)
+	cmds = append(cmds, cmd)
 
 	// Renderers
 	cmds = append(cmds, e.renderers.Update(msg))
@@ -82,6 +81,7 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch key := msg.Key(); key.Code {
 		case tea.KeyF1:
 			e.consoleEnabled = !e.consoleEnabled
+			return e, nil
 		}
 		switch msg.String() {
 		// Quit
@@ -92,65 +92,49 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return e, ConsoleLog("Renderer: %s", e.renderers.Previous())
 		case "m":
 			return e, ConsoleLog("Renderer: %s", e.renderers.Next())
-		// Pause
-		case "p":
-			pause = !pause
-			return e, nil
 		}
-	case TickMsg:
-		cmds = append(cmds, Tick(e.scene.TPS()))
 	case LogMsg:
 		_ = e.logHandler.Handle(context.Background(), msg.Record)
 	}
 
-	// Pause
-	if pause {
-		return e, tea.Batch(cmds...)
-	}
-
 	switch msg := msg.(type) {
-	case tea.KeyPressMsg:
-		e.msgs = append(e.msgs, msg)
 	case tea.MouseMsg:
 		mouse := msg.Mouse()
+
 		// Mouse position
 		screenSize, screenPadding := e.screenDimensions()
 		ratio := e.renderers.Current().Ratio()
 		sceneSize := e.scene.Size(e.windowSize)
-		x := (((msg.Mouse().X * ratio.Width) - screenPadding.Width) * sceneSize.Width) / screenSize.Width
-		y := (((msg.Mouse().Y * ratio.Height) - screenPadding.Height) * sceneSize.Height) / screenSize.Height
-		if mouse.Button != tea.MouseNone {
-			e.msgs = append(e.msgs, tea.MouseClickMsg{X: x, Y: y, Button: mouse.Button})
-		} else {
-			// Remove previous mouse motion messages...
-			e.msgs = slices.DeleteFunc(e.msgs, func(msg tea.Msg) bool {
-				_, ok := msg.(tea.MouseMotionMsg)
-				return ok
-			})
-			// ...to keep only the last one
-			e.msgs = append(e.msgs, tea.MouseMotionMsg{X: x, Y: y})
-		}
-	case TickMsg:
-		msgs := append(e.msgs, msg)
-		for _, msg := range msgs {
+
+		x := (((mouse.X * ratio.Width) - screenPadding.Width) * sceneSize.Width) / screenSize.Width
+		y := (((mouse.Y * ratio.Height) - screenPadding.Height) * sceneSize.Height) / screenSize.Height
+		switch msg := msg.(type) {
+		case tea.MouseClickMsg:
+			if msg.Button == tea.MouseNone {
+				cmds = append(cmds, e.scene.Update(
+					tea.MouseMotionMsg{X: x, Y: y, Button: msg.Button, Mod: msg.Mod},
+				))
+			} else {
+				msg.X, msg.Y = x, y
+				cmds = append(cmds, e.scene.Update(msg))
+			}
+		case tea.MouseReleaseMsg:
+			msg.X, msg.Y = x, y
+			cmds = append(cmds, e.scene.Update(msg))
+		case tea.MouseWheelMsg:
+			msg.X, msg.Y = x, y
+			cmds = append(cmds, e.scene.Update(msg))
+		case tea.MouseMotionMsg:
+			msg.X, msg.Y = x, y
 			cmds = append(cmds, e.scene.Update(msg))
 		}
+	case TickMsg:
+		cmds = append(cmds, e.scene.Update(msg))
 
-		cmds = append(cmds, func() tea.Msg {
-			return ModelUpdatedMsg{}
-		})
-		e.msgs = nil
-	case ModelUpdatedMsg:
-		cmds = append(cmds, func() tea.Msg {
-			return ModelIntersectedMsg{}
-		})
-	case ModelIntersectedMsg:
 		screenSize, screenPadding := e.screenDimensions()
-
 		sceneSize := e.scene.Size(e.windowSize)
 
 		scene := NewImage(sceneSize)
-
 		e.scene.Draw(scene)
 
 		// Console
@@ -172,7 +156,7 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (e Engine) screenDimensions() (size, padding Size) {
 	sceneSize := e.scene.Size(e.windowSize)
 
-	// Fit scene in window with optional padding
+	// Fit the scene in the window with optional padding
 	if (e.windowSize.Width >= sceneSize.Width) && (e.windowSize.Height >= sceneSize.Height) {
 		size = sceneSize
 	} else {

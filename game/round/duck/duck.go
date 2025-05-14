@@ -75,7 +75,7 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 		}
 	case engine.TickMsg:
 		// Step animation
-		m.animation.Step(msg.Duration)
+		m.animation.Step(msg.Interval)
 	}
 
 	return nil

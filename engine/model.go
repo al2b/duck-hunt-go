@@ -6,11 +6,3 @@ type Model interface {
 	Init() tea.Cmd
 	Update(msg tea.Msg) tea.Cmd
 }
-
-type DrawModel interface {
-	Model
-	Drawer
-}
-
-type ModelUpdatedMsg struct{}
-type ModelIntersectedMsg struct{}

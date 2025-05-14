@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+const TickInterval = time.Second / 60
+
 var (
 	//go:embed assets/*.apng
 	assets embed.FS
@@ -43,24 +45,22 @@ func (s *Path) Size(_ engine.Size) engine.Size {
 	return engine.Size{80, 50}
 }
 
-func (s *Path) TPS() int {
-	return 60
-}
-
 func (s *Path) Init() (cmd tea.Cmd) {
 	s.animationKirbyBlow.Play()
 	s.pathLinear.Play()
 	s.pathElastic.Play()
 
-	return nil
+	return tea.Batch(
+		engine.StartTicker(TickInterval),
+	)
 }
 
 func (s *Path) Update(msg tea.Msg) (cmd tea.Cmd) {
 	switch msg := msg.(type) {
 	case engine.TickMsg:
-		s.animationKirbyBlow.Step(msg.Duration)
-		s.pathLinear.Step(msg.Duration)
-		s.pathElastic.Step(msg.Duration)
+		s.animationKirbyBlow.Step(msg.Interval)
+		s.pathLinear.Step(msg.Interval)
+		s.pathElastic.Step(msg.Interval)
 	}
 
 	return nil
