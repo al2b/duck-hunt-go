@@ -2,8 +2,13 @@ package title
 
 import (
 	"duck-hunt-go/engine"
-	"duck-hunt-go/game/font"
+	"duck-hunt-go/game/assets"
 	tea "github.com/charmbracelet/bubbletea/v2"
+	"image/color"
+)
+
+var (
+	textColor = color.RGBA{R: 0xff, G: 0xa0, B: 0x00}
 )
 
 func New() *Title {
@@ -37,20 +42,20 @@ func (m *Title) Update(msg tea.Msg) tea.Cmd {
 func (m *Title) Draw(dst *engine.Image) {
 	dst.Draw(
 		// Layout
-		engine.ImageDrawer{engine.Pt(0, 0), imageLayout},
+		engine.ImageDrawer{engine.Pt(0, 0), assets.TitleLayout},
 
 		// Menu
 		engine.TextDrawer{engine.Pt(64, 136),
-			engine.Text{"GAME A   1 DUCK", font.Font, colorText},
+			engine.Text{"GAME A   1 DUCK", assets.Font, textColor},
 		},
 		engine.TextDrawer{engine.Pt(64, 152),
-			engine.Text{"GAME B   2 DUCKS", font.Font, colorText},
+			engine.Text{"GAME B   2 DUCKS", assets.Font, textColor},
 		},
 		engine.TextDrawer{engine.Pt(64, 168),
-			engine.Text{"GAME C   CLAY SHOOTING", font.Font, colorText},
+			engine.Text{"GAME C   CLAY SHOOTING", assets.Font, textColor},
 		},
 
 		// Cursor
-		engine.ImageDrawer{engine.Pt(48, 136+(m.cursor*16)), imageCursor},
+		engine.ImageDrawer{engine.Pt(48, 136+(m.cursor*16)), assets.TitleCursor},
 	)
 }

@@ -3,6 +3,7 @@ package layout
 import (
 	"duck-hunt-go/engine"
 	"duck-hunt-go/engine/space"
+	"duck-hunt-go/game/assets"
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
 
@@ -13,7 +14,7 @@ func NewShrub(space *space.Space) *Shrub {
 
 	m.ImageDrawer = engine.ImageDrawer{
 		engine.Position2DPointer{&m.position},
-		imageShrub,
+		assets.LayoutShrub,
 	}
 
 	return m

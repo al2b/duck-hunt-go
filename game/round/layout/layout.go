@@ -3,6 +3,7 @@ package layout
 import (
 	"duck-hunt-go/engine"
 	"duck-hunt-go/engine/space"
+	"duck-hunt-go/game/assets"
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
 
@@ -14,7 +15,7 @@ func New(space *space.Space) *Layout {
 		OrderedDrawer: engine.OrderedDrawer{
 			engine.ImageDrawer{
 				engine.Pt(0, 0),
-				imageLayout,
+				assets.Layout,
 			},
 			engine.Order(0),
 		},

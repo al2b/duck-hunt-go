@@ -3,7 +3,7 @@ package round
 import (
 	"duck-hunt-go/engine"
 	"duck-hunt-go/engine/space"
-	"duck-hunt-go/game/font"
+	"duck-hunt-go/game/assets"
 	"duck-hunt-go/game/round/dog"
 	"duck-hunt-go/game/round/duck"
 	"duck-hunt-go/game/round/gun"
@@ -113,16 +113,16 @@ func (m *Round) Draw(dst *engine.Image) {
 
 			// Texts
 			engine.TextDrawer{engine.Pt(24, 192),
-				engine.Text{fmt.Sprintf("R=%d", state.Round), font.Font, color.RGBA{R: 131, G: 211, B: 19, A: 255}},
+				engine.Text{fmt.Sprintf("R=%d", state.Round), assets.Font, color.RGBA{R: 131, G: 211, B: 19, A: 255}},
 			},
 			engine.TextDrawer{engine.Pt(64, 208),
-				engine.Text{"HIT", font.Font, color.RGBA{R: 131, G: 211, B: 19, A: 255}},
+				engine.Text{"HIT", assets.Font, color.RGBA{R: 131, G: 211, B: 19, A: 255}},
 			},
 			engine.TextDrawer{engine.Pt(192, 208),
-				engine.Text{fmt.Sprintf("%06d", state.Score), font.Font, engine.ColorWhite},
+				engine.Text{fmt.Sprintf("%06d", state.Score), assets.Font, engine.ColorWhite},
 			},
 			engine.TextDrawer{engine.Pt(200, 216),
-				engine.Text{"SCORE", font.Font, engine.ColorWhite},
+				engine.Text{"SCORE", assets.Font, engine.ColorWhite},
 			},
 
 			// Gun

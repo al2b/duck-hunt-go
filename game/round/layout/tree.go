@@ -3,6 +3,7 @@ package layout
 import (
 	"duck-hunt-go/engine"
 	"duck-hunt-go/engine/space"
+	"duck-hunt-go/game/assets"
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
 
@@ -13,7 +14,7 @@ func NewTree(space *space.Space) *Tree {
 
 	m.ImageDrawer = engine.ImageDrawer{
 		engine.Position2DPointer{&m.position},
-		imageTree,
+		assets.LayoutTree,
 	}
 
 	return m

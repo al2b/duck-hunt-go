@@ -3,6 +3,7 @@ package gun
 import (
 	"duck-hunt-go/engine"
 	"duck-hunt-go/engine/space"
+	"duck-hunt-go/game/assets"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"time"
 )
@@ -20,7 +21,7 @@ func New(space *space.Space) *Gun {
 			engine.Position2DPointer{&m.path},
 			engine.Pt(-18, -18),
 		},
-		imageGun,
+		assets.Gun,
 	}
 
 	return m
