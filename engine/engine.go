@@ -99,15 +99,21 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.MouseMsg:
-		mouse := msg.Mouse()
+		// Cannot determine the mouse position if the window size is zero
+		if e.windowSize.IsZero() {
+			break
+		}
+
+		sceneSize := e.scene.Size(e.windowSize)
+		screenSize, screenPadding := e.screenDimensions(e.windowSize, sceneSize)
 
 		// Mouse position
-		screenSize, screenPadding := e.screenDimensions()
+		mouse := msg.Mouse()
 		ratio := e.renderers.Current().Ratio()
-		sceneSize := e.scene.Size(e.windowSize)
 
 		x := (((mouse.X * ratio.Width) - screenPadding.Width) * sceneSize.Width) / screenSize.Width
 		y := (((mouse.Y * ratio.Height) - screenPadding.Height) * sceneSize.Height) / screenSize.Height
+
 		switch msg := msg.(type) {
 		case tea.MouseClickMsg:
 			if msg.Button == tea.MouseNone {
@@ -131,8 +137,13 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case TickMsg:
 		cmds = append(cmds, e.scene.Update(msg))
 
-		screenSize, screenPadding := e.screenDimensions()
+		// Cannot draw the scene if the window size is zero
+		if e.windowSize.IsZero() {
+			break
+		}
+
 		sceneSize := e.scene.Size(e.windowSize)
+		screenSize, screenPadding := e.screenDimensions(e.windowSize, sceneSize)
 
 		scene := NewImage(sceneSize)
 		e.scene.Draw(scene)
@@ -153,15 +164,13 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return e, tea.Batch(cmds...)
 }
 
-func (e Engine) screenDimensions() (size, padding Size) {
-	sceneSize := e.scene.Size(e.windowSize)
-
+func (e Engine) screenDimensions(windowSize, sceneSize Size) (size, padding Size) {
 	// Fit the scene in the window with optional padding
-	if (e.windowSize.Width >= sceneSize.Width) && (e.windowSize.Height >= sceneSize.Height) {
+	if (windowSize.Width >= sceneSize.Width) && (windowSize.Height >= sceneSize.Height) {
 		size = sceneSize
 	} else {
-		ratioWidth := float64(e.windowSize.Width) / float64(sceneSize.Width)
-		ratioHeight := float64(e.windowSize.Height) / float64(sceneSize.Height)
+		ratioWidth := float64(windowSize.Width) / float64(sceneSize.Width)
+		ratioHeight := float64(windowSize.Height) / float64(sceneSize.Height)
 
 		ratio := ratioWidth
 		if ratioHeight < ratioWidth {
@@ -172,8 +181,8 @@ func (e Engine) screenDimensions() (size, padding Size) {
 		size.Height = int(float64(sceneSize.Height) * ratio)
 	}
 
-	padding.Width = (e.windowSize.Width - size.Width) / 2
-	padding.Height = (e.windowSize.Height - size.Height) / 2
+	padding.Width = (windowSize.Width - size.Width) / 2
+	padding.Height = (windowSize.Height - size.Height) / 2
 
 	return
 }

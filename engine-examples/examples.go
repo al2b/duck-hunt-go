@@ -2,14 +2,14 @@ package examples
 
 import (
 	"duck-hunt-go/engine"
-	"duck-hunt-go/examples/animations"
-	"duck-hunt-go/examples/images"
-	"duck-hunt-go/examples/mouse"
-	"duck-hunt-go/examples/path"
-	"duck-hunt-go/examples/primitives"
-	"duck-hunt-go/examples/space"
-	"duck-hunt-go/examples/subimages"
-	"duck-hunt-go/examples/text"
+	"duck-hunt-go/engine-examples/animations"
+	"duck-hunt-go/engine-examples/cp"
+	"duck-hunt-go/engine-examples/images"
+	"duck-hunt-go/engine-examples/mouse"
+	"duck-hunt-go/engine-examples/path"
+	"duck-hunt-go/engine-examples/primitives"
+	"duck-hunt-go/engine-examples/subimages"
+	"duck-hunt-go/engine-examples/text"
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
@@ -28,7 +28,7 @@ func New(start int) *Examples {
 		mouse.New(),
 		text.New(),
 		path.New(),
-		space.New(),
+		cp.New(),
 	}
 
 	return &Examples{

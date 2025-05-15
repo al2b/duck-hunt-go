@@ -3,48 +3,36 @@ package game
 import (
 	"duck-hunt-go/engine"
 	"duck-hunt-go/game/config"
-	"duck-hunt-go/game/round"
-	"duck-hunt-go/game/state"
-	"duck-hunt-go/game/title"
+	"duck-hunt-go/game/menu"
+	"duck-hunt-go/game/stage"
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
 
 func New() *Game {
-	return &Game{
-		title: title.New(),
-		round: round.New(),
-	}
+	return &Game{}
 }
 
 type Game struct {
 	pause bool
-	title *title.Title
-	round *round.Round
-	state state.State
+	model engine.DrawModel
 }
 
 func (g *Game) Size(_ engine.Size) engine.Size {
 	return engine.Size{256, 240}
 }
 
-func (g *Game) Init() (cmd tea.Cmd) {
-	g.state = state.Play
-
-	switch g.state {
-	case state.Title:
-		cmd = g.title.Init()
-	case state.Play:
-		cmd = g.round.Init()
-	}
+func (g *Game) Init() tea.Cmd {
+	// Set the initial model
+	g.model = stage.New()
 
 	return tea.Batch(
 		tea.SetWindowTitle("Duck Hunt"),
 		engine.StartTicker(config.TickInterval),
-		cmd,
+		g.model.Init(),
 	)
 }
 
-func (g *Game) Update(msg tea.Msg) (cmd tea.Cmd) {
+func (g *Game) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch msg.String() {
@@ -57,49 +45,37 @@ func (g *Game) Update(msg tea.Msg) (cmd tea.Cmd) {
 				g.pause = false
 				return engine.StartTicker(config.TickInterval)
 			}
-		// Next
+		// Next tick
 		case "n":
 			if g.pause {
 				return engine.StepTick(config.TickInterval)
 			}
-		// Switch state
+		// Switch the current model
 		case "s":
-			switch g.state {
-			case state.Title:
-				g.state = state.Play
-				return g.round.Init()
-			case state.Play:
-				g.state = state.Title
-				return g.title.Init()
+			switch g.model.(type) {
+			case *menu.Menu:
+				g.model = stage.New()
+			case *stage.Stage:
+				g.model = menu.New()
 			}
-		// Init current state
+			return g.model.Init()
+		// Re-init the current model
 		case "i":
-			switch g.state {
-			case state.Title:
-				return g.title.Init()
-			case state.Play:
-				return g.round.Init()
+			switch g.model.(type) {
+			case *menu.Menu:
+				g.model = menu.New()
+			case *stage.Stage:
+				g.model = stage.New()
 			}
+			return g.model.Init()
 		}
 	}
 
-	switch g.state {
-	case state.Title:
-		cmd = g.title.Update(msg)
-	case state.Play:
-		cmd = g.round.Update(msg)
-	}
-
-	return tea.Batch(
-		cmd,
-	)
+	// Update the current model
+	return g.model.Update(msg)
 }
 
 func (g *Game) Draw(dst *engine.Image) {
-	switch g.state {
-	case state.Title:
-		dst.Draw(g.title)
-	case state.Play:
-		dst.Draw(g.round)
-	}
+	// Draw the current model
+	dst.Draw(g.model)
 }

@@ -1,26 +1,29 @@
-package round
+package stage
 
 import (
 	"duck-hunt-go/engine"
-	"duck-hunt-go/engine/space"
+	enginecp "duck-hunt-go/engine-cp"
 	"duck-hunt-go/game/assets"
-	"duck-hunt-go/game/round/dog"
-	"duck-hunt-go/game/round/duck"
-	"duck-hunt-go/game/round/gun"
-	"duck-hunt-go/game/round/layout"
-	"duck-hunt-go/game/state"
+	"duck-hunt-go/game/config"
+	"duck-hunt-go/game/stage/dog"
+	"duck-hunt-go/game/stage/duck"
+	"duck-hunt-go/game/stage/gun"
+	"duck-hunt-go/game/stage/layout"
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea/v2"
+	"github.com/jakecoffman/cp/v2"
 	"image/color"
 )
 
-func New() *Round {
-	m := &Round{
-		debug: false,
-		space: space.NewSpace().
-			SetGravity(engine.Vec2D(0, 9.8)),
-	}
+func New() *Stage {
+	// Model
+	m := &Stage{}
 
+	// Space
+	m.space = cp.NewSpace()
+	m.space.SetGravity(cp.Vector{0, 9.8})
+
+	// Models
 	m.layout = layout.New(m.space)
 	m.layoutTree = layout.NewTree(m.space)
 	m.layoutShrub = layout.NewShrub(m.space)
@@ -31,9 +34,9 @@ func New() *Round {
 	return m
 }
 
-type Round struct {
+type Stage struct {
 	debug       bool
-	space       *space.Space
+	space       *cp.Space
 	layout      *layout.Layout
 	layoutTree  *layout.Tree
 	layoutShrub *layout.Shrub
@@ -42,12 +45,8 @@ type Round struct {
 	gun         *gun.Gun
 }
 
-func (m *Round) Init() tea.Cmd {
-	// Init space
-	m.space.Clear()
-
+func (m *Stage) Init() tea.Cmd {
 	return tea.Batch(
-		m.space.Init(),
 		m.layout.Init(),
 		m.layoutTree.Init(),
 		m.layoutShrub.Init(),
@@ -57,7 +56,7 @@ func (m *Round) Init() tea.Cmd {
 	)
 }
 
-func (m *Round) Update(msg tea.Msg) tea.Cmd {
+func (m *Stage) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch msg.String() {
@@ -68,7 +67,6 @@ func (m *Round) Update(msg tea.Msg) tea.Cmd {
 		}
 	case engine.TickMsg:
 		cmd := tea.Batch(
-			m.space.Update(msg),
 			m.layout.Update(msg),
 			m.layoutTree.Update(msg),
 			m.layoutShrub.Update(msg),
@@ -77,14 +75,13 @@ func (m *Round) Update(msg tea.Msg) tea.Cmd {
 			m.gun.Update(msg),
 		)
 
-		// Update space
-		m.space.Step(msg.Interval)
+		// Step space
+		m.space.Step(msg.Interval.Seconds())
 
 		return cmd
 	}
 
 	return tea.Batch(
-		m.space.Update(msg),
 		m.layout.Update(msg),
 		m.layoutTree.Update(msg),
 		m.layoutShrub.Update(msg),
@@ -94,43 +91,33 @@ func (m *Round) Update(msg tea.Msg) tea.Cmd {
 	)
 }
 
-func (m *Round) Draw(dst *engine.Image) {
+func (m *Stage) Draw(dst *engine.Image) {
 	dst.
-		// Sky
 		Fill(color.NRGBA{R: 63, G: 191, B: 255, A: 255}).
 		Draw(
 			m.layoutTree,
 			m.layoutShrub,
 			m.duck,
-
-			// Ordered drawers
 			engine.OrderDrawers{
-				// Layout
 				m.layout,
-				// Dog
 				m.dog,
 			},
-
-			// Texts
 			engine.TextDrawer{engine.Pt(24, 192),
-				engine.Text{fmt.Sprintf("R=%d", state.Round), assets.Font, color.RGBA{R: 131, G: 211, B: 19, A: 255}},
+				engine.Text{fmt.Sprintf("R=%d", config.Round), assets.Font, color.RGBA{R: 131, G: 211, B: 19, A: 255}},
 			},
 			engine.TextDrawer{engine.Pt(64, 208),
 				engine.Text{"HIT", assets.Font, color.RGBA{R: 131, G: 211, B: 19, A: 255}},
 			},
 			engine.TextDrawer{engine.Pt(192, 208),
-				engine.Text{fmt.Sprintf("%06d", state.Score), assets.Font, engine.ColorWhite},
+				engine.Text{fmt.Sprintf("%06d", config.Score), assets.Font, engine.ColorWhite},
 			},
 			engine.TextDrawer{engine.Pt(200, 216),
 				engine.Text{"SCORE", assets.Font, engine.ColorWhite},
 			},
-
-			// Gun
 			m.gun,
 		)
 
-	// Debug
 	if m.debug {
-		dst.Draw(m.space)
+		dst.Draw(enginecp.SpaceDrawer{m.space})
 	}
 }

@@ -1,4 +1,4 @@
-package title
+package menu
 
 import (
 	"duck-hunt-go/engine"
@@ -11,21 +11,21 @@ var (
 	textColor = color.RGBA{R: 0xff, G: 0xa0, B: 0x00}
 )
 
-func New() *Title {
-	return &Title{}
+func New() *Menu {
+	return &Menu{}
 }
 
-type Title struct {
+type Menu struct {
 	cursor int
 }
 
-func (m *Title) Init() tea.Cmd {
+func (m *Menu) Init() tea.Cmd {
 	m.cursor = 0
 
 	return nil
 }
 
-func (m *Title) Update(msg tea.Msg) tea.Cmd {
+func (m *Menu) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch key := msg.Key(); key.Code {
@@ -39,12 +39,12 @@ func (m *Title) Update(msg tea.Msg) tea.Cmd {
 	return nil
 }
 
-func (m *Title) Draw(dst *engine.Image) {
+func (m *Menu) Draw(dst *engine.Image) {
 	dst.Draw(
 		// Layout
-		engine.ImageDrawer{engine.Pt(0, 0), assets.TitleLayout},
+		engine.ImageDrawer{engine.Pt(0, 0), assets.MenuLayout},
 
-		// Menu
+		// Choices
 		engine.TextDrawer{engine.Pt(64, 136),
 			engine.Text{"GAME A   1 DUCK", assets.Font, textColor},
 		},
@@ -56,6 +56,6 @@ func (m *Title) Draw(dst *engine.Image) {
 		},
 
 		// Cursor
-		engine.ImageDrawer{engine.Pt(48, 136+(m.cursor*16)), assets.TitleCursor},
+		engine.ImageDrawer{engine.Pt(48, 136+(m.cursor*16)), assets.MenuCursor},
 	)
 }

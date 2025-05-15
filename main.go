@@ -2,7 +2,7 @@ package main
 
 import (
 	"duck-hunt-go/engine"
-	"duck-hunt-go/examples"
+	engineexamples "duck-hunt-go/engine-examples"
 	"duck-hunt-go/game"
 	"github.com/alecthomas/kong"
 	tea "github.com/charmbracelet/bubbletea/v2"
@@ -32,7 +32,7 @@ func main() {
 	// Scene
 	var scene engine.Scene
 	if cli.Examples != 0 {
-		scene = examples.New(cli.Examples)
+		scene = engineexamples.New(cli.Examples)
 	} else {
 		scene = game.New()
 	}

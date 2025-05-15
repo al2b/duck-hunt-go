@@ -6,12 +6,14 @@ import (
 )
 
 func New() *Dog {
+	// Model
 	m := &Dog{
 		cinematic: engine.Cinematic3DPlayer{
 			OnEnd: engine.PlayerOnEndLoop,
 		},
 	}
 
+	// Drawer
 	m.OrderedDrawer = engine.OrderedDrawer{
 		engine.ImageDrawer{
 			engine.Position2DPointer{
@@ -32,10 +34,10 @@ type Dog struct {
 
 func (m *Dog) Init() tea.Cmd {
 	m.cinematic.Cinematic = engine.SequenceCinematic3D{
-		cinematicDogTrack,
-		cinematicDogMock,
-		cinematicDogRetrieve1,
-		cinematicDogRetrieve2,
+		cinematicTrack,
+		cinematicMock,
+		cinematicRetrieve1,
+		cinematicRetrieve2,
 	}
 	m.cinematic.Play()
 

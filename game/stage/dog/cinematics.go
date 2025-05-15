@@ -7,8 +7,7 @@ import (
 )
 
 var (
-	// Cinematics
-	cinematicDogTrack = engine.Cinematic3D{
+	cinematicTrack = engine.Cinematic3D{
 		{engine.Vec3D(2, 141, -10), assets.DogTrack1, 7 * config.TickInterval},
 		{engine.Vec3D(4, 141, -10), assets.DogTrack2, 7 * config.TickInterval},
 		{engine.Vec3D(6, 141, -10), assets.DogTrack3, 7 * config.TickInterval},
@@ -123,7 +122,7 @@ var (
 		{engine.Vec3D(126, 129, 10), assets.DogJump2, 1 * config.TickInterval},
 		{engine.Vec3D(126, 134, 10), assets.DogJump2, 1 * config.TickInterval},
 	}
-	cinematicDogMock = engine.Cinematic3D{
+	cinematicMock = engine.Cinematic3D{
 		{engine.Vec3D(114, 154, 10), assets.DogMock1, 1 * config.TickInterval},
 		{engine.Vec3D(114, 153, 10), assets.DogMock1, 1 * config.TickInterval},
 		{engine.Vec3D(114, 153, 10), assets.DogMock2, 1 * config.TickInterval},
@@ -203,7 +202,7 @@ var (
 		{engine.Vec3D(114, 151, 10), assets.DogMock1, 1 * config.TickInterval},
 		{engine.Vec3D(114, 153, 10), assets.DogMock1, 1 * config.TickInterval},
 	}
-	cinematicDogRetrieve1 = engine.Cinematic3D{
+	cinematicRetrieve1 = engine.Cinematic3D{
 		{engine.Vec3D(92, 155, 10), assets.DogRetrieve1, 1 * config.TickInterval},
 		{engine.Vec3D(92, 153, 10), assets.DogRetrieve1, 1 * config.TickInterval},
 		{engine.Vec3D(92, 151, 10), assets.DogRetrieve1, 1 * config.TickInterval},
@@ -244,7 +243,7 @@ var (
 		{engine.Vec3D(92, 153, 10), assets.DogRetrieve1, 1 * config.TickInterval},
 		{engine.Vec3D(92, 155, 10), assets.DogRetrieve1, 1 * config.TickInterval},
 	}
-	cinematicDogRetrieve2 = engine.Cinematic3D{
+	cinematicRetrieve2 = engine.Cinematic3D{
 		{engine.Vec3D(92, 155, 10), assets.DogRetrieve2, 1 * config.TickInterval},
 		{engine.Vec3D(92, 153, 10), assets.DogRetrieve2, 1 * config.TickInterval},
 		{engine.Vec3D(92, 151, 10), assets.DogRetrieve2, 1 * config.TickInterval},

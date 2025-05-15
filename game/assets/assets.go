@@ -12,9 +12,9 @@ var (
 	// Font
 	Font = engine.Must(engine.LoadFont(assets, "files/font.png"))
 
-	// Title
-	TitleLayout = engine.Must(engine.LoadImage(assets, "files/title.layout.png"))
-	TitleCursor = engine.Must(engine.LoadImage(assets, "files/title.cursor.png"))
+	// Menu
+	MenuLayout = engine.Must(engine.LoadImage(assets, "files/menu.layout.png"))
+	MenuCursor = engine.Must(engine.LoadImage(assets, "files/menu.cursor.png"))
 
 	// Layout
 	Layout      = engine.Must(engine.LoadImage(assets, "files/layout.png"))

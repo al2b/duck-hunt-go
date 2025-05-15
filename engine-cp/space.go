@@ -1,4 +1,4 @@
-package space
+package cp
 
 import (
 	"duck-hunt-go/engine"
@@ -7,8 +7,16 @@ import (
 	"math"
 )
 
-func NewDrawer(img *engine.Image) Drawer {
-	return Drawer{
+type SpaceDrawer struct {
+	Space *cp.Space
+}
+
+func (s SpaceDrawer) Draw(dst *engine.Image) {
+	cp.DrawSpace(s.Space, newSpaceDrawer(dst))
+}
+
+func newSpaceDrawer(img *engine.Image) spaceDrawer {
+	return spaceDrawer{
 		img:                 img,
 		flags:               cp.DRAW_SHAPES | cp.DRAW_CONSTRAINTS | cp.DRAW_COLLISION_POINTS,
 		outlineColor:        cp.FColor{R: 0, G: 1, B: 0, A: 1},
@@ -18,22 +26,22 @@ func NewDrawer(img *engine.Image) Drawer {
 	}
 }
 
-type Drawer struct {
+type spaceDrawer struct {
 	img                                                *engine.Image
 	flags                                              uint
 	outlineColor, constraintColor, collisionPointColor cp.FColor
 	data                                               interface{}
 }
 
-func (d Drawer) cpVectorToPoint(v cp.Vector) engine.Point {
+func (d spaceDrawer) cpVectorToPoint(v cp.Vector) engine.Point {
 	return engine.Pt(int(v.X), int(v.Y))
 }
 
-func (d Drawer) cpFColorToColor(fc cp.FColor) color.Color {
+func (d spaceDrawer) cpFColorToColor(fc cp.FColor) color.Color {
 	return color.RGBA{R: uint8(fc.R * 255), G: uint8(fc.G * 255), B: uint8(fc.B * 255), A: uint8(fc.A * 255)}
 }
 
-func (d Drawer) DrawCircle(pos cp.Vector, angle, radius float64, outline, fill cp.FColor, data interface{}) {
+func (d spaceDrawer) DrawCircle(pos cp.Vector, angle, radius float64, outline, fill cp.FColor, data interface{}) {
 	d.img.Draw(
 		engine.Circle{
 			d.cpVectorToPoint(pos),
@@ -48,7 +56,7 @@ func (d Drawer) DrawCircle(pos cp.Vector, angle, radius float64, outline, fill c
 	)
 }
 
-func (d Drawer) DrawSegment(a, b cp.Vector, fill cp.FColor, data interface{}) {
+func (d spaceDrawer) DrawSegment(a, b cp.Vector, fill cp.FColor, data interface{}) {
 	d.img.Draw(
 		engine.Segment{
 			d.cpVectorToPoint(a),
@@ -58,7 +66,7 @@ func (d Drawer) DrawSegment(a, b cp.Vector, fill cp.FColor, data interface{}) {
 	)
 }
 
-func (d Drawer) DrawFatSegment(a, b cp.Vector, radius float64, outline, fill cp.FColor, data interface{}) {
+func (d spaceDrawer) DrawFatSegment(a, b cp.Vector, radius float64, outline, fill cp.FColor, data interface{}) {
 	d.img.Draw(
 		engine.Segment{
 			d.cpVectorToPoint(a),
@@ -68,7 +76,7 @@ func (d Drawer) DrawFatSegment(a, b cp.Vector, radius float64, outline, fill cp.
 	)
 }
 
-func (d Drawer) DrawPolygon(count int, verts []cp.Vector, radius float64, outline, fill cp.FColor, data interface{}) {
+func (d spaceDrawer) DrawPolygon(count int, verts []cp.Vector, radius float64, outline, fill cp.FColor, data interface{}) {
 	for i := 0; i < len(verts); i++ {
 		d.img.Draw(
 			engine.Segment{
@@ -80,7 +88,7 @@ func (d Drawer) DrawPolygon(count int, verts []cp.Vector, radius float64, outlin
 	}
 }
 
-func (d Drawer) DrawDot(size float64, pos cp.Vector, fill cp.FColor, data interface{}) {
+func (d spaceDrawer) DrawDot(size float64, pos cp.Vector, fill cp.FColor, data interface{}) {
 	d.img.Draw(
 		engine.Dot{
 			d.cpVectorToPoint(pos),
@@ -89,15 +97,15 @@ func (d Drawer) DrawDot(size float64, pos cp.Vector, fill cp.FColor, data interf
 	)
 }
 
-func (d Drawer) Flags() uint {
+func (d spaceDrawer) Flags() uint {
 	return d.flags
 }
 
-func (d Drawer) OutlineColor() cp.FColor {
+func (d spaceDrawer) OutlineColor() cp.FColor {
 	return d.outlineColor
 }
 
-func (d Drawer) ShapeColor(shape *cp.Shape, data interface{}) cp.FColor {
+func (d spaceDrawer) ShapeColor(shape *cp.Shape, data interface{}) cp.FColor {
 	if shape.Sensor() {
 		return cp.FColor{R: 1, G: 1, B: 1, A: .1}
 	}
@@ -148,14 +156,14 @@ func (d Drawer) ShapeColor(shape *cp.Shape, data interface{}) cp.FColor {
 	}
 }
 
-func (d Drawer) ConstraintColor() cp.FColor {
+func (d spaceDrawer) ConstraintColor() cp.FColor {
 	return d.constraintColor
 }
 
-func (d Drawer) CollisionPointColor() cp.FColor {
+func (d spaceDrawer) CollisionPointColor() cp.FColor {
 	return d.collisionPointColor
 }
 
-func (d Drawer) Data() interface{} {
+func (d spaceDrawer) Data() interface{} {
 	return d.data
 }

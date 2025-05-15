@@ -2,20 +2,43 @@ package gun
 
 import (
 	"duck-hunt-go/engine"
-	"duck-hunt-go/engine/space"
+	enginecp "duck-hunt-go/engine-cp"
 	"duck-hunt-go/game/assets"
 	tea "github.com/charmbracelet/bubbletea/v2"
+	"github.com/jakecoffman/cp/v2"
 	"time"
 )
 
-func New(space *space.Space) *Gun {
+func New(space *cp.Space) *Gun {
+	// Model
 	m := &Gun{
-		space: space,
 		path: engine.Path2DPlayer{
 			OnEnd: engine.PlayerOnEndPause,
 		},
 	}
 
+	// Space body
+	body := space.AddBody(cp.NewKinematicBody())
+	body.SetPositionUpdateFunc(enginecp.BodyPositioner2DFunc(&m.path))
+
+	bodyShapeVertices := []cp.Vector{
+		{-5.5, -18.5},
+		{4.5, -18.5},
+		{17.5, -5.5},
+		{17.5, 4.5},
+		{4.5, 17.5},
+		{-5.5, 17.5},
+		{-18.5, 4.5},
+		{-18.5, -5.5},
+	}
+
+	bodyShape := space.AddShape(
+		cp.NewPolyShapeRaw(body, len(bodyShapeVertices), bodyShapeVertices, 0),
+	)
+	bodyShape.SetElasticity(1)
+	bodyShape.SetFriction(0)
+
+	// Drawer
 	m.ImageDrawer = engine.ImageDrawer{
 		engine.PointAdder{
 			engine.Position2DPointer{&m.path},
@@ -28,29 +51,13 @@ func New(space *space.Space) *Gun {
 }
 
 type Gun struct {
-	space *space.Space
-	path  engine.Path2DPlayer
+	path engine.Path2DPlayer
 	engine.ImageDrawer
 }
 
 func (m *Gun) Init() tea.Cmd {
 	// Path
 	m.path.Path = engine.StaticPath2d{Position: engine.Vec2D(0, 0)}
-
-	// Init space body
-	m.space.AddNewPositionableBody(&m.path).
-		AddNewPolygon(engine.Vectors2D{
-			{-5.5, -18.5},
-			{4.5, -18.5},
-			{17.5, -5.5},
-			{17.5, 4.5},
-			{4.5, 17.5},
-			{-5.5, 17.5},
-			{-18.5, 4.5},
-			{-18.5, -5.5},
-		}, 0).
-		SetElasticity(1).
-		SetFriction(0)
 
 	return nil
 }
@@ -69,7 +76,7 @@ func (m *Gun) Update(msg tea.Msg) tea.Cmd {
 		m.path.Rewind()
 		m.path.Play()
 	case engine.TickMsg:
-		// Path
+		// Step path
 		m.path.Step(msg.Interval)
 	}
 
