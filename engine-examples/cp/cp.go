@@ -41,7 +41,7 @@ func (s *Cp) Init() (cmd tea.Cmd) {
 	s.space = cp.NewSpace()
 	s.space.SetGravity(cp.Vector{0, 9.8})
 
-	// Walls
+	// Space walls
 	walls := []cp.Vector{
 		{0, 0}, {79, 0},
 		{79, 0}, {79, 49},
@@ -54,7 +54,7 @@ func (s *Cp) Init() (cmd tea.Cmd) {
 		shape.SetFriction(0)
 	}
 
-	// Body
+	// Space body
 	bodyMass := 1.0
 	bodyShapeRadius := 10.0
 	s.body = s.space.AddBody(cp.NewBody(bodyMass, cp.MomentForCircle(bodyMass, 0, bodyShapeRadius, cp.Vector{})))
@@ -72,7 +72,7 @@ func (s *Cp) Init() (cmd tea.Cmd) {
 func (s *Cp) Update(msg tea.Msg) (cmd tea.Cmd) {
 	switch msg := msg.(type) {
 	case engine.TickMsg:
-		// Update space
+		// Step space
 		s.space.Step(msg.Interval.Seconds())
 	}
 
