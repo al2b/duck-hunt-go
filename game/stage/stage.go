@@ -28,7 +28,7 @@ func New() *Stage {
 	m.layoutTree = layout.NewTree(m.space)
 	m.layoutShrub = layout.NewShrub(m.space)
 	m.dog = dog.New()
-	m.duck = duck.New(m.space)
+	m.ducks = duck.NewDucks(m.space, 3)
 	m.gun = gun.New(m.space)
 
 	return m
@@ -41,20 +41,20 @@ type Stage struct {
 	layoutTree  *layout.Tree
 	layoutShrub *layout.Shrub
 	dog         *dog.Dog
-	duck        *duck.Duck
+	ducks       duck.Ducks
 	gun         *gun.Gun
 }
 
 func (m *Stage) Init() tea.Cmd {
 	// Ammos
 	config.Ammos = 3
-	
+
 	return tea.Batch(
 		m.layout.Init(),
 		m.layoutTree.Init(),
 		m.layoutShrub.Init(),
 		m.dog.Init(),
-		m.duck.Init(),
+		m.ducks.Init(),
 		m.gun.Init(),
 	)
 }
@@ -68,7 +68,7 @@ func (m *Stage) Update(msg tea.Msg) tea.Cmd {
 			m.layoutTree.Update(msg),
 			m.layoutShrub.Update(msg),
 			m.dog.Update(msg),
-			m.duck.Update(msg),
+			m.ducks.Update(msg),
 			m.gun.Update(msg),
 		)
 		// Step space
@@ -90,7 +90,7 @@ func (m *Stage) Update(msg tea.Msg) tea.Cmd {
 		m.layoutTree.Update(msg),
 		m.layoutShrub.Update(msg),
 		m.dog.Update(msg),
-		m.duck.Update(msg),
+		m.ducks.Update(msg),
 		m.gun.Update(msg),
 	)
 }
@@ -101,7 +101,7 @@ func (m *Stage) Draw(dst *engine.Image) {
 		Draw(
 			m.layoutTree,
 			m.layoutShrub,
-			m.duck,
+			m.ducks,
 			engine.OrderDrawers{
 				m.layout,
 				m.dog,
