@@ -2,7 +2,6 @@ package gun
 
 import (
 	"duck-hunt-go/engine"
-	enginecp "duck-hunt-go/engine-cp"
 	"duck-hunt-go/game/assets"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/jakecoffman/cp/v2"
@@ -16,27 +15,6 @@ func New(space *cp.Space) *Gun {
 			OnEnd: engine.PlayerOnEndPause,
 		},
 	}
-
-	// Space body
-	body := space.AddBody(cp.NewKinematicBody())
-	body.SetPositionUpdateFunc(enginecp.BodyPositioner2DFunc(&m.path))
-
-	bodyShapeVertices := []cp.Vector{
-		{-5.5, -18.5},
-		{4.5, -18.5},
-		{17.5, -5.5},
-		{17.5, 4.5},
-		{4.5, 17.5},
-		{-5.5, 17.5},
-		{-18.5, 4.5},
-		{-18.5, -5.5},
-	}
-
-	bodyShape := space.AddShape(
-		cp.NewPolyShapeRaw(body, len(bodyShapeVertices), bodyShapeVertices, 0),
-	)
-	bodyShape.SetElasticity(1)
-	bodyShape.SetFriction(0)
 
 	// Drawer
 	m.ImageDrawer = engine.ImageDrawer{
@@ -64,9 +42,12 @@ func (m *Gun) Init() tea.Cmd {
 
 func (m *Gun) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
+	case engine.TickMsg:
+		// Step path
+		m.path.Step(msg.Interval)
 	case tea.MouseMsg:
 		mouse := msg.Mouse()
-		// Path
+		// Update path
 		m.path.Path = engine.ElasticPath2D{
 			m.path.Position(),
 			engine.Vec2D(float64(mouse.X), float64(mouse.Y)),
@@ -75,9 +56,13 @@ func (m *Gun) Update(msg tea.Msg) tea.Cmd {
 		}
 		m.path.Rewind()
 		m.path.Play()
-	case engine.TickMsg:
-		// Step path
-		m.path.Step(msg.Interval)
+		switch msg := msg.(type) {
+		case tea.MouseClickMsg:
+			switch msg.Button {
+			case tea.MouseLeft:
+				return func() tea.Msg { return ShotMsg(m.path.Position()) }
+			}
+		}
 	}
 
 	return nil

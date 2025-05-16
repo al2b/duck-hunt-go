@@ -9,5 +9,5 @@ const Ground = 183
 var (
 	Round = 1
 	Score = 1337
-	Ammos = 3
+	Ammos = 0
 )

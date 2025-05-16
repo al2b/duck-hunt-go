@@ -64,12 +64,6 @@ func (m *Duck) Init() tea.Cmd {
 
 func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
-	case tea.MouseClickMsg:
-		// Follow the mouse position
-		m.body.SetPosition(cp.Vector{
-			float64(msg.X), float64(msg.Y),
-		})
-		return engine.ConsoleLog("Go!")
 	case tea.KeyPressMsg:
 		switch key := msg.Key(); key.Code {
 		case tea.KeyRight:

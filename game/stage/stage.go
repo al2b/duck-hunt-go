@@ -46,6 +46,9 @@ type Stage struct {
 }
 
 func (m *Stage) Init() tea.Cmd {
+	// Ammos
+	config.Ammos = 3
+	
 	return tea.Batch(
 		m.layout.Init(),
 		m.layoutTree.Init(),
@@ -58,14 +61,8 @@ func (m *Stage) Init() tea.Cmd {
 
 func (m *Stage) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
-	case tea.KeyPressMsg:
-		switch msg.String() {
-		// Debug
-		case "d":
-			m.debug = !m.debug
-			return engine.ConsoleLog("Debug: %t", m.debug)
-		}
 	case engine.TickMsg:
+		// Update models
 		cmd := tea.Batch(
 			m.layout.Update(msg),
 			m.layoutTree.Update(msg),
@@ -74,11 +71,18 @@ func (m *Stage) Update(msg tea.Msg) tea.Cmd {
 			m.duck.Update(msg),
 			m.gun.Update(msg),
 		)
-
 		// Step space
 		m.space.Step(msg.Interval.Seconds())
-
 		return cmd
+	case tea.KeyPressMsg:
+		switch msg.String() {
+		// Debug
+		case "d":
+			m.debug = !m.debug
+			return engine.ConsoleLog("Debug: %t", m.debug)
+		}
+	case gun.ShotMsg:
+		config.Ammos = max(config.Ammos-1, 0)
 	}
 
 	return tea.Batch(
