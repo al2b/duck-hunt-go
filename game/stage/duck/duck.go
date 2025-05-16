@@ -56,7 +56,8 @@ func (m *Duck) Init() tea.Cmd {
 	})
 	m.body.SetVelocityVector(cp.
 		ForAngle(engine.Radians(235 + (rand.Float64() * 90))).
-		Mult(1),
+		Normalize().
+		Mult(100),
 	)
 
 	return nil

@@ -21,7 +21,6 @@ func New() *Stage {
 
 	// Space
 	m.space = cp.NewSpace()
-	m.space.SetGravity(cp.Vector{0, 9.8})
 
 	// Models
 	m.layout = layout.New(m.space)
