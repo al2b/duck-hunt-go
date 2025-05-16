@@ -114,9 +114,20 @@ func (m *Stage) Draw(dst *engine.Image) {
 			engine.TextDrawer{engine.Pt(200, 216),
 				engine.Text{"SCORE", assets.Font, engine.ColorWhite},
 			},
-			m.gun,
 		)
 
+	// Ammos
+	for i := 0; i < config.Ammos; i++ {
+		dst.Draw(engine.ImageDrawer{
+			engine.Pt(26+(i*8), 208),
+			assets.LayoutAmmo,
+		})
+	}
+
+	// Gun
+	dst.Draw(m.gun)
+
+	// Debug
 	if m.debug {
 		dst.Draw(enginecp.SpaceDrawer{m.space})
 	}
