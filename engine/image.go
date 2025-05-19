@@ -193,6 +193,10 @@ type ImageDrawer struct {
 }
 
 func (d ImageDrawer) Draw(dst *Image) {
+	if d.Imager == nil {
+		return
+	}
+
 	src := d.Imager.Image()
 	if src == nil {
 		return

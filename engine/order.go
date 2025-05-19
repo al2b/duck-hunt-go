@@ -37,9 +37,15 @@ type OrderedDrawer struct {
 }
 
 func (pd OrderedDrawer) Draw(img *Image) {
+	if pd.Drawer == nil {
+		return
+	}
 	pd.Drawer.Draw(img)
 }
 
 func (pd OrderedDrawer) Order() Order {
+	if pd.Orderer == nil {
+		return Order(0)
+	}
 	return pd.Orderer.Order()
 }

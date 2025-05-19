@@ -11,3 +11,8 @@ var (
 	Score = 1337
 	Ammos = 0
 )
+
+const (
+	ShapeCategoryLayout = 1 << 0 // 0001
+	ShapeCategoryDuck   = 1 << 1 // 0010
+)

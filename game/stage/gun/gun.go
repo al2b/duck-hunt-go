@@ -4,28 +4,11 @@ import (
 	"duck-hunt-go/engine"
 	"duck-hunt-go/game/assets"
 	tea "github.com/charmbracelet/bubbletea/v2"
-	"github.com/jakecoffman/cp/v2"
 	"time"
 )
 
-func New(space *cp.Space) *Gun {
-	// Model
-	m := &Gun{
-		path: engine.Path2DPlayer{
-			OnEnd: engine.PlayerOnEndPause,
-		},
-	}
-
-	// Drawer
-	m.ImageDrawer = engine.ImageDrawer{
-		engine.PointAdder{
-			engine.Position2DPointer{&m.path},
-			engine.Pt(-18, -18),
-		},
-		assets.Gun,
-	}
-
-	return m
+func New() *Gun {
+	return &Gun{}
 }
 
 type Gun struct {
@@ -36,6 +19,14 @@ type Gun struct {
 func (m *Gun) Init() tea.Cmd {
 	// Path
 	m.path.Path = engine.StaticPath2d{Position: engine.Vec2D(0, 0)}
+	m.path.OnEnd = engine.PlayerOnEndPause
+
+	// Drawer
+	m.ImageDrawer.Pointer = engine.PointAdder{
+		engine.Position2DPointer{&m.path},
+		engine.Pt(-18, -18),
+	}
+	m.ImageDrawer.Imager = assets.Gun
 
 	return nil
 }

@@ -6,25 +6,7 @@ import (
 )
 
 func New() *Dog {
-	// Model
-	m := &Dog{
-		cinematic: engine.Cinematic3DPlayer{
-			OnEnd: engine.PlayerOnEndLoop,
-		},
-	}
-
-	// Drawer
-	m.OrderedDrawer = engine.OrderedDrawer{
-		engine.ImageDrawer{
-			engine.Position2DPointer{
-				engine.Position3DProjector{&m.cinematic, engine.OrthographicProjector{}},
-			},
-			&m.cinematic,
-		},
-		engine.Position3DOrderer{&m.cinematic},
-	}
-
-	return m
+	return &Dog{}
 }
 
 type Dog struct {
@@ -33,13 +15,24 @@ type Dog struct {
 }
 
 func (m *Dog) Init() tea.Cmd {
+	// Cinematic
 	m.cinematic.Cinematic = engine.SequenceCinematic3D{
 		cinematicTrack,
 		cinematicMock,
 		cinematicRetrieve1,
 		cinematicRetrieve2,
 	}
+	m.cinematic.OnEnd = engine.PlayerOnEndLoop
 	m.cinematic.Play()
+
+	// Drawer
+	m.OrderedDrawer.Drawer = engine.ImageDrawer{
+		engine.Position2DPointer{
+			engine.Position3DProjector{&m.cinematic, engine.OrthographicProjector{}},
+		},
+		&m.cinematic,
+	}
+	m.OrderedDrawer.Orderer = engine.Position3DOrderer{&m.cinematic}
 
 	return nil
 }
@@ -47,6 +40,7 @@ func (m *Dog) Init() tea.Cmd {
 func (m *Dog) Update(msg tea.Msg) (cmd tea.Cmd) {
 	switch msg := msg.(type) {
 	case engine.TickMsg:
+		// Cinematic
 		m.cinematic.Step(msg.Interval)
 	}
 

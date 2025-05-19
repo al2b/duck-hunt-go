@@ -28,7 +28,7 @@ func New() *Stage {
 	m.layoutShrub = layout.NewShrub(m.space)
 	m.dog = dog.New()
 	m.ducks = duck.NewDucks(m.space, 3)
-	m.gun = gun.New(m.space)
+	m.gun = gun.New()
 
 	return m
 }
@@ -82,6 +82,19 @@ func (m *Stage) Update(msg tea.Msg) tea.Cmd {
 		}
 	case gun.ShotMsg:
 		config.Ammos = max(config.Ammos-1, 0)
+		nearest := m.space.PointQueryNearest(
+			cp.Vector{msg.X, msg.Y},
+			10,
+			cp.NewShapeFilter(cp.NO_GROUP, cp.ALL_CATEGORIES, config.ShapeCategoryDuck),
+		)
+		if nearest.Shape != nil {
+			return m.ducks.Update(
+				duck.DiscriminatedShotMsg{
+					ShotMsg:       duck.ShotMsg(msg),
+					Discriminator: nearest.Shape.Body().UserData,
+				},
+			)
+		}
 	}
 
 	return tea.Batch(

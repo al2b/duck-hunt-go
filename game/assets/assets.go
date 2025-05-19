@@ -26,12 +26,19 @@ var (
 	Gun = engine.Must(engine.LoadImage(assets, "files/gun.png"))
 
 	// Duck
-	DuckHorizontal1 = engine.Must(engine.LoadImage(assets, "files/duck.horizontal.1.png"))
-	DuckHorizontal2 = engine.Must(engine.LoadImage(assets, "files/duck.horizontal.2.png"))
-	DuckHorizontal3 = engine.Must(engine.LoadImage(assets, "files/duck.horizontal.3.png"))
-	DuckAngled1     = engine.Must(engine.LoadImage(assets, "files/duck.angled.1.png"))
-	DuckAngled2     = engine.Must(engine.LoadImage(assets, "files/duck.angled.2.png"))
-	DuckAngled3     = engine.Must(engine.LoadImage(assets, "files/duck.angled.3.png"))
+	DuckFlyHorizontalRight1 = engine.Must(engine.LoadImage(assets, "files/duck.fly.horizontal.1.png"))
+	DuckFlyHorizontalRight2 = engine.Must(engine.LoadImage(assets, "files/duck.fly.horizontal.2.png"))
+	DuckFlyHorizontalRight3 = engine.Must(engine.LoadImage(assets, "files/duck.fly.horizontal.3.png"))
+	DuckFlyHorizontalLeft1  = DuckFlyHorizontalRight1.FlipHorizontal()
+	DuckFlyHorizontalLeft2  = DuckFlyHorizontalRight2.FlipHorizontal()
+	DuckFlyHorizontalLeft3  = DuckFlyHorizontalRight3.FlipHorizontal()
+	DuckFlyAngledRight1     = engine.Must(engine.LoadImage(assets, "files/duck.fly.angled.1.png"))
+	DuckFlyAngledRight2     = engine.Must(engine.LoadImage(assets, "files/duck.fly.angled.2.png"))
+	DuckFlyAngledRight3     = engine.Must(engine.LoadImage(assets, "files/duck.fly.angled.3.png"))
+	DuckFlyAngledLeft1      = DuckFlyAngledRight1.FlipHorizontal()
+	DuckFlyAngledLeft2      = DuckFlyAngledRight2.FlipHorizontal()
+	DuckFlyAngledLeft3      = DuckFlyAngledRight3.FlipHorizontal()
+	DuckShot                = engine.Must(engine.LoadImage(assets, "files/duck.shot.png"))
 
 	// Dog
 	DogTrack1    = engine.Must(engine.LoadImage(assets, "files/dog.track.1.png"))

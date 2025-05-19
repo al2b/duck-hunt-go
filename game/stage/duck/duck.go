@@ -10,46 +10,46 @@ import (
 	"math/rand/v2"
 )
 
-func New(space *cp.Space) *Duck {
+func New(space *cp.Space, discriminator any) *Duck {
 	// Model
-	m := &Duck{}
-
-	// Space body
-	bodyMass := 1.0
-	bodyShapeRadius := 18.0
-	m.body = space.AddBody(cp.NewBody(bodyMass, cp.MomentForCircle(bodyMass, 0, bodyShapeRadius, cp.Vector{})))
-	bodyShape := space.AddShape(cp.NewCircle(m.body, bodyShapeRadius, cp.Vector{}))
-	bodyShape.SetElasticity(1)
-	bodyShape.SetFriction(0)
-
-	// Animation
-	m.animation = engine.AnimationPlayer{
-		Animation: NewAnimation(enginecp.VelocityVelociter{m.body}),
-		OnEnd:     engine.PlayerOnEndLoop,
+	m := &Duck{
+		space: space,
 	}
 
-	// Drawer
-	m.ImageDrawer = engine.ImageDrawer{
-		engine.PointAdder{
-			enginecp.PositionPointer{m.body},
-			engine.Pt(-19, -19),
-		},
-		&m.animation,
+	// Space
+	{
+		mass := 1.0
+		radius := 18.0
+
+		m.body = m.space.AddBody(cp.NewBody(mass, cp.MomentForCircle(mass, 0, radius, cp.Vector{})))
+		m.body.UserData = discriminator
+
+		shape := m.space.AddShape(cp.NewCircle(m.body, radius, cp.Vector{}))
+		shape.SetFilter(cp.NewShapeFilter(cp.NO_GROUP, config.ShapeCategoryDuck, config.ShapeCategoryLayout|config.ShapeCategoryDuck))
+		shape.SetElasticity(1)
+		shape.SetFriction(0)
+
+		m.space.Deactivate(m.body)
 	}
 
 	return m
 }
 
 type Duck struct {
-	body      *cp.Body
-	animation engine.AnimationPlayer
+	state         state
+	space         *cp.Space
+	body          *cp.Body
+	animationFly  engine.AnimationPlayer
+	cinematicFall engine.Cinematic2DPlayer
 	engine.ImageDrawer
 }
 
 func (m *Duck) Init() tea.Cmd {
-	m.animation.Play()
+	// State
+	m.state = stateFly
 
-	// Init space body
+	// Space
+	m.space.Activate(m.body)
 	m.body.SetPosition(cp.Vector{
 		85 + math.Round(rand.Float64()*85),
 		config.Ground - 120,
@@ -60,22 +60,67 @@ func (m *Duck) Init() tea.Cmd {
 		Mult(100),
 	)
 
+	// Animation
+	m.animationFly.Animation = animationFly{enginecp.VelocityVelociter{m.body}}
+	m.animationFly.OnEnd = engine.PlayerOnEndLoop
+	m.animationFly.Play()
+
+	// Drawer
+	m.ImageDrawer.Pointer = engine.PointAdder{
+		enginecp.PositionPointer{m.body},
+		engine.Pt(-19, -19),
+	}
+	m.ImageDrawer.Imager = &m.animationFly
+
 	return nil
 }
 
 func (m *Duck) Update(msg tea.Msg) tea.Cmd {
-	switch msg := msg.(type) {
-	case tea.KeyPressMsg:
-		switch key := msg.Key(); key.Code {
-		case tea.KeyRight:
-			m.body.SetVelocityVector(m.body.Velocity().Rotate(cp.ForAngle(engine.Radians(10))))
-		case tea.KeyLeft:
-			m.body.SetVelocityVector(m.body.Velocity().Rotate(cp.ForAngle(engine.Radians(-10))))
+	switch m.state {
+
+	// Fly
+	case stateFly:
+		switch msg := msg.(type) {
+		case engine.TickMsg:
+			// Animation
+			m.animationFly.Step(msg.Interval)
+		case ShotMsg:
+			// State
+			m.state = stateFall
+
+			// Space
+			m.space.Deactivate(m.body)
+
+			// Cinematic
+			m.cinematicFall.Cinematic = cinematicFall(engine.Vector2D(msg))
+			m.cinematicFall.OnEnd = engine.PlayerOnEndLoop
+			m.cinematicFall.Play()
+
+			// Drawer
+			m.ImageDrawer.Pointer = engine.PointAdder{
+				engine.Position2DPointer{&m.cinematicFall},
+				engine.Pt(-19, -19),
+			}
+			m.ImageDrawer.Imager = &m.cinematicFall
 		}
-	case engine.TickMsg:
-		// Step animation
-		m.animation.Step(msg.Interval)
+
+	// Fall
+	case stateFall:
+		switch msg := msg.(type) {
+		case engine.TickMsg:
+			// Cinematic
+			m.cinematicFall.Step(msg.Interval)
+		}
+
 	}
 
 	return nil
 }
+
+type state int
+
+const (
+	stateIdle state = iota
+	stateFly
+	stateFall
+)
