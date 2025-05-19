@@ -90,7 +90,6 @@ func (m *Stage) Update(msg tea.Msg) tea.Cmd {
 		if nearest.Shape != nil {
 			return m.ducks.Update(
 				duck.DiscriminatedShotMsg{
-					ShotMsg:       duck.ShotMsg(msg),
 					Discriminator: nearest.Shape.Body().UserData,
 				},
 			)

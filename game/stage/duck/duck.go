@@ -92,7 +92,8 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 			m.space.Deactivate(m.body)
 
 			// Cinematic
-			m.cinematicFall.Cinematic = cinematicFall(engine.Vector2D(msg))
+			position := m.body.Position()
+			m.cinematicFall.Cinematic = cinematicFall(engine.Vec2D(position.X, position.Y))
 			m.cinematicFall.OnEnd = engine.PlayerOnEndLoop
 			m.cinematicFall.Play()
 

@@ -1,8 +1,6 @@
 package duck
 
-import "duck-hunt-go/engine"
-
-type ShotMsg engine.Vector2D
+type ShotMsg struct{}
 
 type DiscriminatedShotMsg struct {
 	ShotMsg
