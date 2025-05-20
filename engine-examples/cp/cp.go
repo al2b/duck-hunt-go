@@ -56,13 +56,13 @@ func (s *Cp) Init() (cmd tea.Cmd) {
 
 	// Space body
 	bodyMass := 1.0
-	bodyShapeRadius := 10.0
-	s.body = s.space.AddBody(cp.NewBody(bodyMass, cp.MomentForCircle(bodyMass, 0, bodyShapeRadius, cp.Vector{})))
+	shapeRadius := 10.0
+	s.body = s.space.AddBody(cp.NewBody(bodyMass, cp.MomentForCircle(bodyMass, 0, shapeRadius, cp.Vector{})))
 	s.body.SetPosition(cp.Vector{10, 10})
 	s.body.SetVelocityVector(cp.Vector{30, 100})
-	bodyShape := s.space.AddShape(cp.NewCircle(s.body, bodyShapeRadius, cp.Vector{}))
-	bodyShape.SetElasticity(1)
-	bodyShape.SetFriction(0)
+	shape := s.space.AddShape(cp.NewCircle(s.body, shapeRadius, cp.Vector{}))
+	shape.SetElasticity(1)
+	shape.SetFriction(0)
 
 	return tea.Batch(
 		engine.StartTicker(TickInterval),
