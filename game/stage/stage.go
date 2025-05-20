@@ -34,7 +34,6 @@ func New() *Stage {
 }
 
 type Stage struct {
-	debug       bool
 	space       *cp.Space
 	layout      *layout.Layout
 	layoutTree  *layout.Tree
@@ -77,8 +76,8 @@ func (m *Stage) Update(msg tea.Msg) tea.Cmd {
 		switch msg.String() {
 		// Debug
 		case "d":
-			m.debug = !m.debug
-			return engine.ConsoleLog("Debug: %t", m.debug)
+			config.Debug = !config.Debug
+			return engine.ConsoleLog("Debug: %t", config.Debug)
 		}
 	case gun.ShotMsg:
 		config.Ammos = max(config.Ammos-1, 0)
@@ -143,7 +142,7 @@ func (m *Stage) Draw(dst *engine.Image) {
 	dst.Draw(m.gun)
 
 	// Debug
-	if m.debug {
+	if config.Debug {
 		dst.Draw(enginecp.SpaceDrawer{m.space})
 	}
 }
