@@ -38,7 +38,8 @@ var (
 	DuckFlyAngledLeft1      = DuckFlyAngledRight1.FlipHorizontal()
 	DuckFlyAngledLeft2      = DuckFlyAngledRight2.FlipHorizontal()
 	DuckFlyAngledLeft3      = DuckFlyAngledRight3.FlipHorizontal()
-	DuckShot                = engine.Must(engine.LoadImage(assets, "files/duck.shot.png"))
+	DuckShotRight           = engine.Must(engine.LoadImage(assets, "files/duck.shot.png"))
+	DuckShotLeft            = DuckShotRight.FlipHorizontal()
 
 	// Dog
 	DogTrack1    = engine.Must(engine.LoadImage(assets, "files/dog.track.1.png"))
