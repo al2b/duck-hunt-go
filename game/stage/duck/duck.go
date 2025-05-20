@@ -11,33 +11,16 @@ import (
 )
 
 func New(space *cp.Space, discriminator any) *Duck {
-	// Model
-	m := &Duck{
-		space: space,
+	return &Duck{
+		space:         space,
+		discriminator: discriminator,
 	}
-
-	// Space
-	{
-		mass := 1.0
-		radius := 18.0
-
-		m.body = m.space.AddBody(cp.NewBody(mass, cp.MomentForCircle(mass, 0, radius, cp.Vector{})))
-		m.body.UserData = discriminator
-
-		shape := m.space.AddShape(cp.NewCircle(m.body, radius, cp.Vector{}))
-		shape.SetFilter(cp.NewShapeFilter(cp.NO_GROUP, config.ShapeCategoryDuck, config.ShapeCategoryLayout|config.ShapeCategoryDuck))
-		shape.SetElasticity(1)
-		shape.SetFriction(0)
-
-		m.space.Deactivate(m.body)
-	}
-
-	return m
 }
 
 type Duck struct {
 	state         state
 	space         *cp.Space
+	discriminator any
 	body          *cp.Body
 	animationFly  engine.AnimationPlayer
 	cinematicFall engine.Cinematic2DPlayer
@@ -49,7 +32,11 @@ func (m *Duck) Init() tea.Cmd {
 	m.state = stateFly
 
 	// Space
-	m.space.Activate(m.body)
+	bodyMass := 1.0
+	shapeRadius := 18.0
+
+	m.body = m.space.AddBody(cp.NewBody(bodyMass, cp.MomentForCircle(bodyMass, 0, shapeRadius, cp.Vector{})))
+	m.body.UserData = m.discriminator
 	m.body.SetPosition(cp.Vector{
 		85 + math.Round(rand.Float64()*85),
 		config.Ground - 120,
@@ -59,6 +46,11 @@ func (m *Duck) Init() tea.Cmd {
 		Normalize().
 		Mult(100),
 	)
+
+	shape := m.space.AddShape(cp.NewCircle(m.body, shapeRadius, cp.Vector{}))
+	shape.SetFilter(cp.NewShapeFilter(cp.NO_GROUP, config.ShapeCategoryDuck, config.ShapeCategoryLayout|config.ShapeCategoryDuck))
+	shape.SetElasticity(1)
+	shape.SetFriction(0)
 
 	// Animation
 	m.animationFly.Animation = animationFly{enginecp.VelocityVelociter{m.body}}
@@ -89,7 +81,10 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 			m.state = stateFall
 
 			// Space
-			m.space.Deactivate(m.body)
+			m.body.EachShape(func(shape *cp.Shape) {
+				m.space.RemoveShape(shape)
+			})
+			m.space.RemoveBody(m.body)
 
 			// Cinematic
 			position := m.body.Position()

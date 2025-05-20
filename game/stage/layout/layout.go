@@ -9,33 +9,31 @@ import (
 )
 
 func New(space *cp.Space) *Layout {
-	// Model
-	m := &Layout{}
-
-	// Space
-	{
-		borders := []cp.Vector{
-			{0, 0}, {255, 0},
-			{255, 0}, {255, config.Ground},
-			{255, config.Ground}, {0, config.Ground},
-			{0, config.Ground}, {0, 0},
-		}
-
-		for i := 0; i < len(borders)-1; i += 2 {
-			shape := space.AddShape(cp.NewSegment(space.StaticBody, borders[i], borders[i+1], 0))
-			shape.SetElasticity(1)
-			shape.SetFriction(0)
-		}
+	return &Layout{
+		space: space,
 	}
-
-	return m
 }
 
 type Layout struct {
+	space *cp.Space
 	engine.OrderedDrawer
 }
 
 func (m *Layout) Init() tea.Cmd {
+	// Space
+	borders := []cp.Vector{
+		{0, 0}, {255, 0},
+		{255, 0}, {255, config.Ground},
+		{255, config.Ground}, {0, config.Ground},
+		{0, config.Ground}, {0, 0},
+	}
+
+	for i := 0; i < len(borders)-1; i += 2 {
+		shape := m.space.AddShape(cp.NewSegment(m.space.StaticBody, borders[i], borders[i+1], 0))
+		shape.SetElasticity(1)
+		shape.SetFriction(0)
+	}
+
 	// Drawer
 	m.OrderedDrawer.Drawer = engine.ImageDrawer{
 		engine.Pt(0, 0),
