@@ -22,7 +22,7 @@ func Radians(degrees float64) float64 {
 	return degrees * (math.Pi / 180)
 }
 
-func Abs[T int](x T) T {
+func Abs[T ~int | ~float64](x T) T {
 	if x < 0 {
 		return -x
 	}
