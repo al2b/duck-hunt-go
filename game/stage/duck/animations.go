@@ -36,18 +36,15 @@ type animationFly struct {
 }
 
 func (animation animationFly) animation() engine.AnimationInterface {
-	angle := animation.Velociter.Velocity().Angle()
-	switch true {
-	case 30 <= angle && angle < 90:
+	directioner := engine.VerticalSextantDirectioner{animation.Velociter}
+
+	switch directioner.Direction() {
+	case engine.DirectionTopRight, engine.DirectionBottomRight:
 		return animationFlyAngledRight
-	case 90 <= angle && angle < 150:
+	case engine.DirectionTopLeft, engine.DirectionBottomLeft:
 		return animationFlyAngledLeft
-	case 150 <= angle && angle < 210:
+	case engine.DirectionLeft:
 		return animationFlyHorizontalLeft
-	case 210 <= angle && angle < 270:
-		return animationFlyAngledLeft
-	case 270 <= angle && angle < 330:
-		return animationFlyAngledRight
 	default:
 		return animationFlyHorizontalRight
 	}
