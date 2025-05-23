@@ -22,8 +22,8 @@ type Duck struct {
 	space         *cp.Space
 	discriminator any
 	body          *cp.Body
-	animationFly  engine.AnimationPlayer
-	cinematicFall engine.Cinematic2DPlayer
+	animation     engine.AnimationPlayer
+	cinematic     engine.Cinematic2DPlayer
 	engine.ImageDrawer
 }
 
@@ -53,16 +53,16 @@ func (m *Duck) Init() tea.Cmd {
 	shape.SetFriction(0)
 
 	// Animation
-	m.animationFly.Animation = animationFly{enginecp.VelocityVelociter{m.body}}
-	m.animationFly.OnEnd = engine.PlayerOnEndLoop
-	m.animationFly.Play()
+	m.animation.Animation = animationFly{enginecp.VelocityVelociter{m.body}}
+	m.animation.OnEnd = engine.PlayerOnEndLoop
+	m.animation.Play()
 
 	// Drawer
 	m.ImageDrawer.Pointer = engine.PointAdder{
 		enginecp.PositionPointer{m.body},
 		engine.Pt(-19, -19),
 	}
-	m.ImageDrawer.Imager = &m.animationFly
+	m.ImageDrawer.Imager = &m.animation
 
 	return nil
 }
@@ -75,10 +75,10 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 		switch msg := msg.(type) {
 		case engine.TickMsg:
 			// Animation
-			m.animationFly.Step(msg.Interval)
+			m.animation.Step(msg.Interval)
 		case ShotMsg:
 			// State
-			m.state = stateFall
+			m.state = stateShot
 
 			// Space
 			m.body.EachShape(func(shape *cp.Shape) {
@@ -89,19 +89,45 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 			// Cinematic
 			position := m.body.Position()
 			velocity := m.body.Velocity()
-			m.cinematicFall.Cinematic = cinematicFall(
+			m.cinematic.Cinematic = newCinematicShot(
 				engine.Vec2D(position.X, position.Y),
 				engine.Vec2D(velocity.X, velocity.Y),
 			)
-			m.cinematicFall.OnEnd = engine.PlayerOnEndLoop
-			m.cinematicFall.Play()
+			m.cinematic.OnEnd = engine.PlayerOnEndStopRewind
+			m.cinematic.Play()
 
 			// Drawer
 			m.ImageDrawer.Pointer = engine.PointAdder{
-				engine.Position2DPointer{&m.cinematicFall},
+				engine.Position2DPointer{&m.cinematic},
 				engine.Pt(-19, -19),
 			}
-			m.ImageDrawer.Imager = &m.cinematicFall
+			m.ImageDrawer.Imager = &m.cinematic
+		}
+
+	// Shot
+	case stateShot:
+		switch msg := msg.(type) {
+		case engine.TickMsg:
+			// Cinematic
+			m.cinematic.Step(msg.Interval)
+
+			if m.cinematic.Stopped() {
+				return m.Update(FallMsg{})
+			}
+		case FallMsg:
+			// State
+			m.state = stateFall
+
+			// Cinematic
+			position := m.body.Position()
+			velocity := m.body.Velocity()
+			m.cinematic.Cinematic = newCinematicFall(
+				engine.Vec2D(position.X, position.Y),
+				config.Ground,
+				engine.Vec2D(velocity.X, velocity.Y),
+			)
+			m.cinematic.OnEnd = engine.PlayerOnEndStopRewind
+			m.cinematic.Play()
 		}
 
 	// Fall
@@ -109,18 +135,17 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 		switch msg := msg.(type) {
 		case engine.TickMsg:
 			// Cinematic
-			m.cinematicFall.Step(msg.Interval)
+			m.cinematic.Step(msg.Interval)
+
+			if m.cinematic.Stopped() {
+				return m.Update(DownMsg{})
+			}
+		case DownMsg:
+			// State
+			m.state = stateDown
 		}
 
 	}
 
 	return nil
 }
-
-type state int
-
-const (
-	stateIdle state = iota
-	stateFly
-	stateFall
-)
