@@ -10,7 +10,6 @@ var Debug bool
 
 var (
 	Score = 1337
-	Ammos = 0
 )
 
 const (

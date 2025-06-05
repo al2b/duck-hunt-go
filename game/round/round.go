@@ -49,6 +49,7 @@ func New(mode state.Mode, round int) *Round {
 
 type Round struct {
 	round       int
+	ammos       int
 	space       *cp.Space
 	layout      *layout.Layout
 	layoutTree  *layout.Tree
@@ -60,7 +61,7 @@ type Round struct {
 
 func (m *Round) Init() tea.Cmd {
 	// Ammos
-	config.Ammos = 3
+	m.ammos = 3
 
 	return tea.Batch(
 		m.layout.Init(),
@@ -95,7 +96,7 @@ func (m *Round) Update(msg tea.Msg) tea.Cmd {
 			return engine.ConsoleLog("Debug: %t", config.Debug)
 		}
 	case gun.ShotMsg:
-		config.Ammos = max(config.Ammos-1, 0)
+		m.ammos = max(m.ammos-1, 0)
 		nearest := m.space.PointQueryNearest(
 			cp.Vector{msg.X, msg.Y},
 			10,
@@ -146,7 +147,7 @@ func (m *Round) Draw(dst *engine.Image) {
 		)
 
 	// Ammos
-	for i := 0; i < config.Ammos; i++ {
+	for i := 0; i < m.ammos; i++ {
 		dst.Draw(engine.ImageDrawer{
 			engine.Pt(26+(i*8), 208),
 			assets.LayoutAmmo,
