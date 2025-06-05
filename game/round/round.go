@@ -1,14 +1,14 @@
-package stage
+package round
 
 import (
 	"duck-hunt-go/engine"
 	enginecp "duck-hunt-go/engine-cp"
 	"duck-hunt-go/game/assets"
 	"duck-hunt-go/game/config"
-	"duck-hunt-go/game/stage/dog"
-	"duck-hunt-go/game/stage/duck"
-	"duck-hunt-go/game/stage/gun"
-	"duck-hunt-go/game/stage/layout"
+	"duck-hunt-go/game/round/dog"
+	"duck-hunt-go/game/round/duck"
+	"duck-hunt-go/game/round/gun"
+	"duck-hunt-go/game/round/layout"
 	"duck-hunt-go/game/state"
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea/v2"
@@ -16,9 +16,9 @@ import (
 	"image/color"
 )
 
-func New(mode state.Mode) *Stage {
+func New(mode state.Mode) *Round {
 	// Model
-	m := &Stage{}
+	m := &Round{}
 
 	// Space
 	m.space = cp.NewSpace()
@@ -45,7 +45,7 @@ func New(mode state.Mode) *Stage {
 	return m
 }
 
-type Stage struct {
+type Round struct {
 	space       *cp.Space
 	layout      *layout.Layout
 	layoutTree  *layout.Tree
@@ -55,7 +55,7 @@ type Stage struct {
 	gun         *gun.Gun
 }
 
-func (m *Stage) Init() tea.Cmd {
+func (m *Round) Init() tea.Cmd {
 	// Ammos
 	config.Ammos = 3
 
@@ -69,7 +69,7 @@ func (m *Stage) Init() tea.Cmd {
 	)
 }
 
-func (m *Stage) Update(msg tea.Msg) tea.Cmd {
+func (m *Round) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case engine.TickMsg:
 		// Update models
@@ -117,7 +117,7 @@ func (m *Stage) Update(msg tea.Msg) tea.Cmd {
 	)
 }
 
-func (m *Stage) Draw(dst *engine.Image) {
+func (m *Round) Draw(dst *engine.Image) {
 	dst.
 		Fill(color.NRGBA{R: 63, G: 191, B: 255, A: 255}).
 		Draw(

@@ -4,7 +4,7 @@ import (
 	"duck-hunt-go/engine"
 	"duck-hunt-go/game/config"
 	"duck-hunt-go/game/menu"
-	"duck-hunt-go/game/stage"
+	"duck-hunt-go/game/round"
 	"duck-hunt-go/game/state"
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
@@ -59,8 +59,8 @@ func (g *Game) Update(msg tea.Msg) tea.Cmd {
 		case "s":
 			switch g.model.(type) {
 			case *menu.Menu:
-				g.model = stage.New(g.mode)
-			case *stage.Stage:
+				g.model = round.New(g.mode)
+			case *round.Round:
 				g.model = menu.New()
 			}
 			return g.model.Init()
@@ -69,14 +69,14 @@ func (g *Game) Update(msg tea.Msg) tea.Cmd {
 			switch g.model.(type) {
 			case *menu.Menu:
 				g.model = menu.New()
-			case *stage.Stage:
-				g.model = stage.New(g.mode)
+			case *round.Round:
+				g.model = round.New(g.mode)
 			}
 			return g.model.Init()
 		}
 	case state.SetModeMsg:
 		g.mode = state.Mode(msg)
-		g.model = stage.New(g.mode)
+		g.model = round.New(g.mode)
 		return g.model.Init()
 	}
 
