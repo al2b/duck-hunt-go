@@ -9,7 +9,6 @@ const Ground = 183
 var Debug bool
 
 var (
-	Round = 1
 	Score = 1337
 	Ammos = 0
 )

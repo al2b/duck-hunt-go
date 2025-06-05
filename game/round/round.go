@@ -16,9 +16,11 @@ import (
 	"image/color"
 )
 
-func New(mode state.Mode) *Round {
+func New(mode state.Mode, round int) *Round {
 	// Model
-	m := &Round{}
+	m := &Round{
+		round: round,
+	}
 
 	// Space
 	m.space = cp.NewSpace()
@@ -46,6 +48,7 @@ func New(mode state.Mode) *Round {
 }
 
 type Round struct {
+	round       int
 	space       *cp.Space
 	layout      *layout.Layout
 	layoutTree  *layout.Tree
@@ -129,7 +132,7 @@ func (m *Round) Draw(dst *engine.Image) {
 				m.dog,
 			},
 			engine.TextDrawer{engine.Pt(24, 192),
-				engine.Text{fmt.Sprintf("R=%d", config.Round), assets.Font, color.RGBA{R: 131, G: 211, B: 19, A: 255}},
+				engine.Text{fmt.Sprintf("R=%d", m.round), assets.Font, color.RGBA{R: 131, G: 211, B: 19, A: 255}},
 			},
 			engine.TextDrawer{engine.Pt(64, 208),
 				engine.Text{"HIT", assets.Font, color.RGBA{R: 131, G: 211, B: 19, A: 255}},

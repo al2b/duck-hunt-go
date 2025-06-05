@@ -17,6 +17,7 @@ type Game struct {
 	pause bool
 	model engine.DrawModel
 	mode  state.Mode
+	round int
 }
 
 func (g *Game) Size(_ engine.Size) engine.Size {
@@ -59,7 +60,7 @@ func (g *Game) Update(msg tea.Msg) tea.Cmd {
 		case "s":
 			switch g.model.(type) {
 			case *menu.Menu:
-				g.model = round.New(g.mode)
+				g.model = round.New(g.mode, g.round)
 			case *round.Round:
 				g.model = menu.New()
 			}
@@ -70,13 +71,14 @@ func (g *Game) Update(msg tea.Msg) tea.Cmd {
 			case *menu.Menu:
 				g.model = menu.New()
 			case *round.Round:
-				g.model = round.New(g.mode)
+				g.model = round.New(g.mode, g.round)
 			}
 			return g.model.Init()
 		}
 	case state.SetModeMsg:
 		g.mode = state.Mode(msg)
-		g.model = round.New(g.mode)
+		g.round = 0
+		g.model = round.New(g.mode, g.round)
 		return g.model.Init()
 	}
 
