@@ -8,7 +8,6 @@ import (
 	"duck-hunt-go/game/round/dog"
 	"duck-hunt-go/game/round/duck"
 	"duck-hunt-go/game/round/gun"
-	"duck-hunt-go/game/round/layout"
 	"duck-hunt-go/game/state"
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea/v2"
@@ -26,9 +25,9 @@ func New(mode state.Mode, round int) *Round {
 	m.space = cp.NewSpace()
 
 	// Layout
-	m.layout = layout.New(m.space)
-	m.layoutTree = layout.NewTree(m.space)
-	m.layoutShrub = layout.NewShrub(m.space)
+	m.layout = NewLayout(m.space)
+	m.layoutTree = NewLayoutTree(m.space)
+	m.layoutBush = NewLayoutBush(m.space)
 
 	// Dog
 	m.dog = dog.New()
@@ -48,15 +47,15 @@ func New(mode state.Mode, round int) *Round {
 }
 
 type Round struct {
-	round       int
-	ammos       int
-	space       *cp.Space
-	layout      *layout.Layout
-	layoutTree  *layout.Tree
-	layoutShrub *layout.Shrub
-	dog         *dog.Dog
-	ducks       duck.Ducks
-	gun         *gun.Gun
+	round      int
+	ammos      int
+	space      *cp.Space
+	layout     *Layout
+	layoutTree *LayoutTree
+	layoutBush *LayoutBush
+	dog        *dog.Dog
+	ducks      duck.Ducks
+	gun        *gun.Gun
 }
 
 func (m *Round) Init() tea.Cmd {
@@ -66,7 +65,7 @@ func (m *Round) Init() tea.Cmd {
 	return tea.Batch(
 		m.layout.Init(),
 		m.layoutTree.Init(),
-		m.layoutShrub.Init(),
+		m.layoutBush.Init(),
 		m.dog.Init(),
 		m.ducks.Init(),
 		m.gun.Init(),
@@ -80,7 +79,7 @@ func (m *Round) Update(msg tea.Msg) tea.Cmd {
 		cmd := tea.Batch(
 			m.layout.Update(msg),
 			m.layoutTree.Update(msg),
-			m.layoutShrub.Update(msg),
+			m.layoutBush.Update(msg),
 			m.dog.Update(msg),
 			m.ducks.Update(msg),
 			m.gun.Update(msg),
@@ -114,7 +113,7 @@ func (m *Round) Update(msg tea.Msg) tea.Cmd {
 	return tea.Batch(
 		m.layout.Update(msg),
 		m.layoutTree.Update(msg),
-		m.layoutShrub.Update(msg),
+		m.layoutBush.Update(msg),
 		m.dog.Update(msg),
 		m.ducks.Update(msg),
 		m.gun.Update(msg),
@@ -126,7 +125,7 @@ func (m *Round) Draw(dst *engine.Image) {
 		Fill(color.NRGBA{R: 63, G: 191, B: 255, A: 255}).
 		Draw(
 			m.layoutTree,
-			m.layoutShrub,
+			m.layoutBush,
 			m.ducks,
 			engine.OrderDrawers{
 				m.layout,

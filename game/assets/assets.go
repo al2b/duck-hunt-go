@@ -17,10 +17,10 @@ var (
 	MenuCursor = engine.Must(engine.LoadImage(assets, "files/menu.cursor.png"))
 
 	// Layout
-	Layout      = engine.Must(engine.LoadImage(assets, "files/layout.png"))
-	LayoutShrub = engine.Must(engine.LoadImage(assets, "files/layout.shrub.png"))
-	LayoutTree  = engine.Must(engine.LoadImage(assets, "files/layout.tree.png"))
-	LayoutAmmo  = engine.Must(engine.LoadImage(assets, "files/layout.ammo.png"))
+	Layout     = engine.Must(engine.LoadImage(assets, "files/layout.png"))
+	LayoutBush = engine.Must(engine.LoadImage(assets, "files/layout.bush.png"))
+	LayoutTree = engine.Must(engine.LoadImage(assets, "files/layout.tree.png"))
+	LayoutAmmo = engine.Must(engine.LoadImage(assets, "files/layout.ammo.png"))
 
 	// Gun
 	Gun = engine.Must(engine.LoadImage(assets, "files/gun.png"))
