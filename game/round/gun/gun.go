@@ -24,7 +24,7 @@ func (m *Gun) Init() tea.Cmd {
 	// Drawer
 	m.ImageDrawer.Pointer = engine.PointAdder{
 		engine.Position2DPointer{&m.path},
-		engine.Pt(-18, -18),
+		engine.Pt(-6, -6),
 	}
 	m.ImageDrawer.Imager = assets.Gun
 

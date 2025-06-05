@@ -98,7 +98,7 @@ func (m *Round) Update(msg tea.Msg) tea.Cmd {
 		m.ammos = max(m.ammos-1, 0)
 		nearest := m.space.PointQueryNearest(
 			cp.Vector{msg.X, msg.Y},
-			10,
+			6,
 			cp.NewShapeFilter(cp.NO_GROUP, cp.ALL_CATEGORIES, config.ShapeCategoryDuck),
 		)
 		if nearest.Shape != nil {
