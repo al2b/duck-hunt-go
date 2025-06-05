@@ -5,6 +5,7 @@ import (
 	"duck-hunt-go/game/config"
 	"duck-hunt-go/game/menu"
 	"duck-hunt-go/game/stage"
+	"duck-hunt-go/game/state"
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
 
@@ -15,6 +16,7 @@ func New() *Game {
 type Game struct {
 	pause bool
 	model engine.DrawModel
+	mode  state.Mode
 }
 
 func (g *Game) Size(_ engine.Size) engine.Size {
@@ -22,8 +24,8 @@ func (g *Game) Size(_ engine.Size) engine.Size {
 }
 
 func (g *Game) Init() tea.Cmd {
-	// Set the initial model
-	g.model = stage.New()
+	// Init the menu model
+	g.model = menu.New()
 
 	return tea.Batch(
 		tea.SetWindowTitle("Duck Hunt"),
@@ -36,6 +38,9 @@ func (g *Game) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch msg.String() {
+		// Quit
+		case "ctrl+c", "esc":
+			return tea.Quit
 		// Pause
 		case "p":
 			if !g.pause {
@@ -54,7 +59,7 @@ func (g *Game) Update(msg tea.Msg) tea.Cmd {
 		case "s":
 			switch g.model.(type) {
 			case *menu.Menu:
-				g.model = stage.New()
+				g.model = stage.New(g.mode)
 			case *stage.Stage:
 				g.model = menu.New()
 			}
@@ -65,10 +70,14 @@ func (g *Game) Update(msg tea.Msg) tea.Cmd {
 			case *menu.Menu:
 				g.model = menu.New()
 			case *stage.Stage:
-				g.model = stage.New()
+				g.model = stage.New(g.mode)
 			}
 			return g.model.Init()
 		}
+	case state.SetModeMsg:
+		g.mode = state.Mode(msg)
+		g.model = stage.New(g.mode)
+		return g.model.Init()
 	}
 
 	// Update the current model

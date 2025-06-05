@@ -3,6 +3,7 @@ package menu
 import (
 	"duck-hunt-go/engine"
 	"duck-hunt-go/game/assets"
+	"duck-hunt-go/game/state"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"image/color"
 )
@@ -30,9 +31,16 @@ func (m *Menu) Update(msg tea.Msg) tea.Cmd {
 	case tea.KeyPressMsg:
 		switch key := msg.Key(); key.Code {
 		case tea.KeyUp:
-			m.cursor = (m.cursor - 1 + 3) % 3
+			m.cursor = (m.cursor - 1 + 2) % 2
 		case tea.KeyDown:
-			m.cursor = (m.cursor + 1) % 3
+			m.cursor = (m.cursor + 1) % 2
+		case tea.KeyEnter:
+			switch m.cursor {
+			case 0:
+				return state.SetMode(state.Mode1Duck)
+			case 1:
+				return state.SetMode(state.Mode2Ducks)
+			}
 		}
 	}
 
@@ -50,9 +58,6 @@ func (m *Menu) Draw(dst *engine.Image) {
 		},
 		engine.TextDrawer{engine.Pt(64, 152),
 			engine.Text{"GAME B   2 DUCKS", assets.Font, textColor},
-		},
-		engine.TextDrawer{engine.Pt(64, 168),
-			engine.Text{"GAME C   CLAY SHOOTING", assets.Font, textColor},
 		},
 
 		// Cursor

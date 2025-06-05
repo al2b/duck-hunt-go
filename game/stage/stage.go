@@ -9,25 +9,37 @@ import (
 	"duck-hunt-go/game/stage/duck"
 	"duck-hunt-go/game/stage/gun"
 	"duck-hunt-go/game/stage/layout"
+	"duck-hunt-go/game/state"
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/jakecoffman/cp/v2"
 	"image/color"
 )
 
-func New() *Stage {
+func New(mode state.Mode) *Stage {
 	// Model
 	m := &Stage{}
 
 	// Space
 	m.space = cp.NewSpace()
 
-	// Models
+	// Layout
 	m.layout = layout.New(m.space)
 	m.layoutTree = layout.NewTree(m.space)
 	m.layoutShrub = layout.NewShrub(m.space)
+
+	// Dog
 	m.dog = dog.New()
-	m.ducks = duck.NewDucks(m.space, 3)
+
+	// Duck(s)
+	switch mode {
+	case state.Mode1Duck:
+		m.ducks = duck.NewDucks(m.space, 1)
+	case state.Mode2Ducks:
+		m.ducks = duck.NewDucks(m.space, 2)
+	}
+
+	// Gun
 	m.gun = gun.New()
 
 	return m

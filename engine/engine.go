@@ -84,9 +84,6 @@ func (e Engine) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return e, nil
 		}
 		switch msg.String() {
-		// Quit
-		case "enter", "q", "ctrl+c", "esc":
-			return e, tea.Quit
 		// Mode
 		case "l":
 			return e, ConsoleLog("Renderer: %s", e.renderers.Previous())
