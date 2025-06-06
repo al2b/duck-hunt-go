@@ -113,7 +113,8 @@ func (s *Mouse) Draw(dst *engine.Image) {
 		engine.ImageDrawer{s.point, imageMouseOut},
 		engine.ImageDrawer{s.point, imageMouseIn},
 		engine.TextDrawer{s.point.Add(engine.Pt(0, 17)),
-			engine.Text{fmt.Sprintf("%d,%d", s.point.X, s.point.Y), engine.Font5x5, engine.ColorWhite},
+			engine.Text{fmt.Sprintf("%d,%d", s.point.X, s.point.Y), engine.Font5x5},
+			engine.ColorWhite,
 		},
 	)
 }

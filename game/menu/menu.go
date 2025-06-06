@@ -54,10 +54,12 @@ func (m *Menu) Draw(dst *engine.Image) {
 
 		// Choices
 		engine.TextDrawer{engine.Pt(64, 136),
-			engine.Text{"GAME A   1 DUCK", assets.Font, textColor},
+			engine.Text{"GAME A   1 DUCK", assets.Font},
+			textColor,
 		},
 		engine.TextDrawer{engine.Pt(64, 152),
-			engine.Text{"GAME B   2 DUCKS", assets.Font, textColor},
+			engine.Text{"GAME B   2 DUCKS", assets.Font},
+			textColor,
 		},
 
 		// Cursor

@@ -83,7 +83,8 @@ func (s *Examples) Draw(dst *engine.Image) {
 	// Title
 	dst.Draw(
 		engine.TextDrawer{engine.Pt(0, 0),
-			engine.Text{s.examples[s.current].String(), engine.Font6x6, engine.ColorWhite},
+			engine.Text{s.examples[s.current].String(), engine.Font6x6},
+			engine.ColorWhite,
 		},
 	)
 

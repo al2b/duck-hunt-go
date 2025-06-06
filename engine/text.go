@@ -16,7 +16,6 @@ var (
 type Text struct {
 	Content string
 	Font    FontInterface
-	Color   color.Color
 }
 
 type FontInterface interface {
@@ -91,6 +90,7 @@ func LoadFont(fS fs.ReadFileFS, path string) (*Font, error) {
 type TextDrawer struct {
 	Pointer
 	Text
+	Color color.Color
 }
 
 func (d TextDrawer) Draw(dst *Image) {
@@ -107,7 +107,7 @@ func (d TextDrawer) Draw(dst *Image) {
 					Min: dstMin,
 					Max: dstMin.Add(image.Pt(fontSize.Width, fontSize.Height)),
 				},
-				&image.Uniform{C: d.Text.Color},
+				&image.Uniform{C: d.Color},
 				image.Point{},
 				mask,
 				mask.Bounds().Min,
