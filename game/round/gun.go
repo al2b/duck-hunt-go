@@ -1,4 +1,4 @@
-package gun
+package round
 
 import (
 	"duck-hunt-go/engine"
@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func New() *Gun {
+func NewGun() *Gun {
 	return &Gun{}
 }
 
@@ -51,10 +51,26 @@ func (m *Gun) Update(msg tea.Msg) tea.Cmd {
 		case tea.MouseClickMsg:
 			switch msg.Button {
 			case tea.MouseLeft:
-				return func() tea.Msg { return ShotMsg(m.path.Position()) }
+				return GunShot(m.path.Position())
 			}
 		}
 	}
 
 	return nil
+}
+
+/************/
+/* Messages */
+/************/
+
+func GunShot(position engine.Vector2D) tea.Cmd {
+	return func() tea.Msg {
+		return GunShotMsg(position)
+	}
+}
+
+type GunShotMsg engine.Vector2D
+
+func (msg GunShotMsg) Position() engine.Vector2D {
+	return engine.Vector2D(msg)
 }

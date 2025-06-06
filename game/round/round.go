@@ -6,7 +6,6 @@ import (
 	"duck-hunt-go/game/assets"
 	"duck-hunt-go/game/config"
 	"duck-hunt-go/game/round/duck"
-	"duck-hunt-go/game/round/gun"
 	"duck-hunt-go/game/state"
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea/v2"
@@ -40,7 +39,7 @@ func New(mode state.Mode, round int) *Round {
 	}
 
 	// Gun
-	m.gun = gun.New()
+	m.gun = NewGun()
 
 	return m
 }
@@ -54,7 +53,7 @@ type Round struct {
 	layoutBush *LayoutBush
 	dog        *Dog
 	ducks      duck.Ducks
-	gun        *gun.Gun
+	gun        *Gun
 }
 
 func (m *Round) Init() tea.Cmd {
@@ -93,10 +92,11 @@ func (m *Round) Update(msg tea.Msg) tea.Cmd {
 			config.Debug = !config.Debug
 			return engine.ConsoleLog("Debug: %t", config.Debug)
 		}
-	case gun.ShotMsg:
+	case GunShotMsg:
 		m.ammos = max(m.ammos-1, 0)
+		position := msg.Position()
 		nearest := m.space.PointQueryNearest(
-			cp.Vector{msg.X, msg.Y},
+			cp.Vector{position.X, position.Y},
 			6,
 			cp.NewShapeFilter(cp.NO_GROUP, cp.ALL_CATEGORIES, config.ShapeCategoryDuck),
 		)
