@@ -76,7 +76,7 @@ func (g *Game) Update(msg tea.Msg) tea.Cmd {
 			return g.model.Init()
 		}
 	case state.SetModeMsg:
-		g.mode = state.Mode(msg)
+		g.mode = msg.Mode()
 		g.round = 0
 		g.model = round.New(g.mode, g.round)
 		return g.model.Init()
