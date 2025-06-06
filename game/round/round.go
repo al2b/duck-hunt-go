@@ -139,7 +139,7 @@ func (m *Round) Draw(dst *engine.Image) {
 				color.RGBA{R: 131, G: 211, B: 19, A: 255},
 			},
 			engine.TextDrawer{engine.Pt(192, 208),
-				engine.Text{fmt.Sprintf("%06d", config.Score), assets.Font},
+				engine.Text{fmt.Sprintf("%06d", state.Score), assets.Font},
 				engine.ColorWhite,
 			},
 			engine.TextDrawer{engine.Pt(200, 216),
