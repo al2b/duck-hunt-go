@@ -8,20 +8,22 @@ import (
 	"image/color"
 )
 
-var (
-	textColor = color.RGBA{R: 0xff, G: 0xa0, B: 0x00}
-)
-
 func New() *Menu {
-	return &Menu{}
+	return &Menu{
+		choices: []choice{
+			{engine.Text{"GAME A   1 DUCK", assets.Font}, state.Mode1Duck},
+			{engine.Text{"GAME B   2 DUCKS", assets.Font}, state.Mode2Ducks},
+		},
+	}
 }
 
 type Menu struct {
-	cursor int
+	choices []choice
+	choice  int
 }
 
 func (m *Menu) Init() tea.Cmd {
-	m.cursor = 0
+	m.choice = 0
 
 	return nil
 }
@@ -31,16 +33,11 @@ func (m *Menu) Update(msg tea.Msg) tea.Cmd {
 	case tea.KeyPressMsg:
 		switch key := msg.Key(); key.Code {
 		case tea.KeyUp:
-			m.cursor = (m.cursor - 1 + 2) % 2
+			m.choice = (m.choice - 1 + len(m.choices)) % len(m.choices)
 		case tea.KeyDown:
-			m.cursor = (m.cursor + 1) % 2
+			m.choice = (m.choice + 1) % len(m.choices)
 		case tea.KeyEnter:
-			switch m.cursor {
-			case 0:
-				return state.SetMode(state.Mode1Duck)
-			case 1:
-				return state.SetMode(state.Mode2Ducks)
-			}
+			return state.SetMode(m.choices[m.choice].Mode)
 		}
 	}
 
@@ -48,21 +45,30 @@ func (m *Menu) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (m *Menu) Draw(dst *engine.Image) {
+	// Layout
 	dst.Draw(
-		// Layout
 		engine.ImageDrawer{engine.Pt(0, 0), assets.MenuLayout},
-
-		// Choices
-		engine.TextDrawer{engine.Pt(64, 136),
-			engine.Text{"GAME A   1 DUCK", assets.Font},
-			textColor,
-		},
-		engine.TextDrawer{engine.Pt(64, 152),
-			engine.Text{"GAME B   2 DUCKS", assets.Font},
-			textColor,
-		},
-
-		// Cursor
-		engine.ImageDrawer{engine.Pt(48, 136+(m.cursor*16)), assets.MenuCursor},
 	)
+
+	choiceHeight := assets.Font.Size().Height * 2
+
+	// Choices
+	for i, choice := range m.choices {
+		dst.Draw(
+			engine.TextDrawer{engine.Pt(64, 136+(i*choiceHeight)),
+				choice.Text,
+				color.RGBA{R: 0xff, G: 0xa0, B: 0x00},
+			},
+		)
+	}
+
+	// Cursor
+	dst.Draw(
+		engine.ImageDrawer{engine.Pt(48, 136+(m.choice*choiceHeight)), assets.MenuCursor},
+	)
+}
+
+type choice struct {
+	Text engine.Text
+	Mode state.Mode
 }
