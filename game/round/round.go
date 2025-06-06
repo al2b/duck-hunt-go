@@ -5,7 +5,6 @@ import (
 	enginecp "duck-hunt-go/engine-cp"
 	"duck-hunt-go/game/assets"
 	"duck-hunt-go/game/config"
-	"duck-hunt-go/game/round/dog"
 	"duck-hunt-go/game/round/duck"
 	"duck-hunt-go/game/round/gun"
 	"duck-hunt-go/game/state"
@@ -30,7 +29,7 @@ func New(mode state.Mode, round int) *Round {
 	m.layoutBush = NewLayoutBush(m.space)
 
 	// Dog
-	m.dog = dog.New()
+	m.dog = NewDog()
 
 	// Duck(s)
 	switch mode {
@@ -53,7 +52,7 @@ type Round struct {
 	layout     *Layout
 	layoutTree *LayoutTree
 	layoutBush *LayoutBush
-	dog        *dog.Dog
+	dog        *Dog
 	ducks      duck.Ducks
 	gun        *gun.Gun
 }
