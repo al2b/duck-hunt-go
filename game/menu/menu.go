@@ -4,6 +4,7 @@ import (
 	"duck-hunt-go/engine"
 	"duck-hunt-go/game/assets"
 	"duck-hunt-go/game/state"
+	"fmt"
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"image/color"
 )
@@ -11,8 +12,14 @@ import (
 func New() *Menu {
 	return &Menu{
 		choices: []choice{
-			{engine.Text{"GAME A   1 DUCK", assets.Font}, state.Mode1Duck},
-			{engine.Text{"GAME B   2 DUCKS", assets.Font}, state.Mode2Ducks},
+			{engine.Pt(64, 136),
+				engine.Text{"GAME A   1 DUCK", assets.Font, color.RGBA{R: 255, G: 160, B: 0, A: 255}}.Image(),
+				state.Mode1Duck,
+			},
+			{engine.Pt(64, 152),
+				engine.Text{"GAME B   2 DUCKS", assets.Font, color.RGBA{R: 255, G: 160, B: 0, A: 255}}.Image(),
+				state.Mode2Ducks,
+			},
 		},
 	}
 }
@@ -39,36 +46,60 @@ func (m *Menu) Update(msg tea.Msg) tea.Cmd {
 		case tea.KeyEnter:
 			return state.SetMode(m.choices[m.choice].Mode)
 		}
+	case tea.MouseMsg:
+		mouse := msg.Mouse()
+		for i, choice := range m.choices {
+			choiceBounds := choice.Image.Bounds()
+			choiceMax := choice.Point.Add(
+				engine.Pt(choiceBounds.Dx(), choiceBounds.Dy()),
+			)
+			if choice.Point.X <= mouse.X && mouse.X <= choiceMax.X && choice.Point.Y <= mouse.Y && mouse.Y <= choiceMax.Y {
+				m.choice = i
+				switch msg := msg.(type) {
+				case tea.MouseClickMsg:
+					switch msg.Button {
+					case tea.MouseLeft:
+						return state.SetMode(m.choices[m.choice].Mode)
+					}
+				}
+			}
+		}
 	}
 
 	return nil
 }
 
 func (m *Menu) Draw(dst *engine.Image) {
-	// Layout
 	dst.Draw(
+		// Layout
 		engine.ImageDrawer{engine.Pt(0, 0), assets.MenuLayout},
+		// Top Score
+		engine.ImageDrawer{engine.Pt(56, 192), engine.Text{
+			fmt.Sprintf("TOP SCORE = %d", state.TopScore),
+			assets.Font, color.RGBA{R: 112, G: 240, B: 64, A: 255},
+		}},
+		// Footer
+		engine.ImageDrawer{engine.Pt(40, 208), engine.Text{
+			"©1984 NINTENDO CO;LTD.",
+			assets.Font, engine.ColorWhite,
+		}},
 	)
 
-	choiceHeight := assets.Font.Size().Height * 2
-
 	// Choices
-	for i, choice := range m.choices {
+	for _, choice := range m.choices {
 		dst.Draw(
-			engine.TextDrawer{engine.Pt(64, 136+(i*choiceHeight)),
-				choice.Text,
-				color.RGBA{R: 0xff, G: 0xa0, B: 0x00},
-			},
+			engine.ImageDrawer{choice.Point, choice.Image},
 		)
 	}
 
 	// Cursor
 	dst.Draw(
-		engine.ImageDrawer{engine.Pt(48, 136+(m.choice*choiceHeight)), assets.MenuCursor},
+		engine.ImageDrawer{engine.Pt(m.choices[m.choice].Point.X-16, m.choices[m.choice].Point.Y), assets.MenuCursor},
 	)
 }
 
 type choice struct {
-	Text engine.Text
-	Mode state.Mode
+	Point engine.Point
+	Image *engine.Image
+	Mode  state.Mode
 }

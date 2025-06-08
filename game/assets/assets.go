@@ -3,14 +3,18 @@ package assets
 import (
 	"duck-hunt-go/engine"
 	"embed"
+	"golang.org/x/text/encoding/charmap"
 )
 
 var (
 	//go:embed files/*.png
 	assets embed.FS
 
-	// Font
-	Font = engine.Must(engine.LoadFont(assets, "files/font.png"))
+	// Fonts
+	Font = engine.Must(engine.BitmapFontLoader{
+		assets, "files/font.png",
+		engine.SquareBitmapFontMaskMapper{}, charmap.CodePage850,
+	}.Load())
 
 	// Menu
 	MenuLayout = engine.Must(engine.LoadImage(assets, "files/menu.layout.png"))

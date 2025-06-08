@@ -1,6 +1,8 @@
 package engine
 
 import (
+	"fmt"
+	"golang.org/x/text/encoding/charmap"
 	"image"
 	"image/color"
 	"image/draw"
@@ -9,49 +11,134 @@ import (
 )
 
 var (
-	Font5x5 = Must(LoadFont(assets, "assets/font.5x5.png"))
-	Font6x6 = Must(LoadFont(assets, "assets/font.6x6.png"))
+	Font5x5 = Must(BitmapFontLoader{
+		assets, "assets/font.5x5.png",
+		SquareBitmapFontMaskMapper{}, charmap.CodePage437,
+	}.Load())
+	Font6x6 = Must(BitmapFontLoader{
+		assets, "assets/font.6x6.png",
+		SquareBitmapFontMaskMapper{}, charmap.CodePage437,
+	}.Load())
 )
+
+type Font interface {
+	Render(r rune, c color.Color) *Image
+}
 
 type Text struct {
 	Content string
-	Font    FontInterface
+	Font    Font
+	Color   color.Color
 }
 
-type FontInterface interface {
-	Size() Size
-	CharMask(int) *image.Alpha
+func (text Text) Image() *Image {
+	var lines []textLine
+	textWidth, textHeight := 0, 0
+
+	for _, lineString := range strings.Split(text.Content, "\n") {
+		var line textLine
+		lineWidth := 0
+		for _, charRune := range []rune(lineString) {
+			char := text.Font.Render(charRune, text.Color)
+			lineWidth += char.Bounds().Dx()
+			line.height = max(line.height, char.Bounds().Dy())
+			line.chars = append(line.chars, char)
+		}
+		lines = append(lines, line)
+		textWidth = max(textWidth, lineWidth)
+		textHeight += line.height
+	}
+
+	img := NewImage(Size{textWidth, textHeight})
+
+	point := image.Point{}
+	for _, line := range lines {
+		point.X = 0
+		for _, char := range line.chars {
+			charBounds := char.Bounds()
+			draw.Draw(
+				img.NRGBA,
+				image.Rectangle{
+					Min: point,
+					Max: point.Add(charBounds.Size()),
+				},
+				char,
+				image.Point{},
+				draw.Over,
+			)
+			point.X += charBounds.Dx()
+		}
+		point.Y += line.height
+	}
+
+	return img
 }
 
-type Font struct {
-	size Size
-	mask *image.Alpha
+type textLine struct {
+	chars  []*Image
+	height int
 }
 
-func (font Font) Size() Size {
-	return font.size
+/**********/
+/* Bitmap */
+/**********/
+
+type BitmapFont struct {
+	Mask       *image.Alpha
+	MaskMapper BitmapFontMaskMapper
+	Charmap    *charmap.Charmap
 }
 
-func (font Font) CharMask(char int) *image.Alpha {
-	imgMin := image.Pt((char%16)*font.size.Width, (char/16)*font.size.Height)
-	return font.mask.SubImage(image.Rectangle{
-		Min: imgMin,
-		Max: imgMin.Add(image.Pt(font.size.Width, font.size.Height)),
+func (font BitmapFont) Render(r rune, c color.Color) *Image {
+	char, _ := font.Charmap.EncodeRune(r)
+	mask := font.MaskMapper.Map(font.Mask, char)
+	maskBounds := mask.Bounds()
+
+	imgSize := maskBounds.Size()
+	img := NewImage(Size{Width: imgSize.X, Height: imgSize.Y})
+
+	draw.DrawMask(
+		img.NRGBA,
+		img.Bounds(),
+		&image.Uniform{C: c}, image.Point{},
+		mask, maskBounds.Min,
+		draw.Over,
+	)
+
+	return img
+}
+
+type BitmapFontMaskMapper interface {
+	Map(mask *image.Alpha, char byte) *image.Alpha
+}
+
+type SquareBitmapFontMaskMapper struct{}
+
+func (mapper SquareBitmapFontMaskMapper) Map(mask *image.Alpha, char byte) *image.Alpha {
+	size := mask.Bounds().Size()
+	width, height := size.X/16, size.Y/16
+	point := image.Pt(int(char%16)*width, int(char/16)*height)
+	return mask.SubImage(image.Rectangle{
+		Min: point,
+		Max: point.Add(image.Pt(width, height)),
 	}).(*image.Alpha)
 }
 
-/********/
-/* Load */
-/********/
+type BitmapFontLoader struct {
+	FS      fs.ReadFileFS
+	Path    string
+	Mapper  BitmapFontMaskMapper
+	Charmap *charmap.Charmap
+}
 
-func LoadFont(fS fs.ReadFileFS, path string) (*Font, error) {
+func (loader BitmapFontLoader) Load() (*BitmapFont, error) {
 	var (
 		file fs.File
 		img  image.Image
 		err  error
 	)
 
-	if file, err = fS.Open(path); err != nil {
+	if file, err = loader.FS.Open(loader.Path); err != nil {
 		return nil, err
 	}
 	defer file.Close()
@@ -60,59 +147,21 @@ func LoadFont(fS fs.ReadFileFS, path string) (*Font, error) {
 		return nil, err
 	}
 
-	var mask *image.Alpha
+	font := &BitmapFont{
+		MaskMapper: loader.Mapper,
+		Charmap:    loader.Charmap,
+	}
+
 	switch img := img.(type) {
 	case *image.Gray:
-		mask = &image.Alpha{
+		font.Mask = &image.Alpha{
 			Pix:    img.Pix,
 			Stride: img.Stride,
 			Rect:   img.Rect,
 		}
 	default:
-		panic("Unsupported font image type")
+		return nil, fmt.Errorf("unsupported bitmap font image type")
 	}
 
-	size := img.Bounds().Size()
-
-	return &Font{
-		size: Size{
-			size.X / 16,
-			size.Y / 16,
-		},
-		mask: mask,
-	}, nil
-}
-
-/**********/
-/* Drawer */
-/**********/
-
-type TextDrawer struct {
-	Pointer
-	Text
-	Color color.Color
-}
-
-func (d TextDrawer) Draw(dst *Image) {
-	fontSize := d.Text.Font.Size()
-	for y, line := range strings.Split(d.Text.Content, "\n") {
-		for x, char := range line {
-			dstMin := dst.Bounds().Min.
-				Add(image.Point(d.Pointer.Point())).
-				Add(image.Pt(x*fontSize.Width, y*fontSize.Height))
-			mask := d.Text.Font.CharMask(int(char))
-			draw.DrawMask(
-				dst.NRGBA,
-				image.Rectangle{
-					Min: dstMin,
-					Max: dstMin.Add(image.Pt(fontSize.Width, fontSize.Height)),
-				},
-				&image.Uniform{C: d.Color},
-				image.Point{},
-				mask,
-				mask.Bounds().Min,
-				draw.Over,
-			)
-		}
-	}
+	return font, nil
 }

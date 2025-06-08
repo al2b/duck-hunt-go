@@ -67,6 +67,11 @@ func (s *Examples) Update(msg tea.Msg) (cmd tea.Cmd) {
 		msg.Y -= 6
 		return s.examples[s.current].Update(msg)
 	case tea.KeyPressMsg:
+		switch msg.String() {
+		// Quit
+		case "ctrl+c", "esc":
+			return tea.Quit
+		}
 		switch key := msg.Key(); key.Code {
 		case tea.KeyRight:
 			s.current = (s.current + 1) % len(s.examples)
@@ -82,10 +87,10 @@ func (s *Examples) Update(msg tea.Msg) (cmd tea.Cmd) {
 func (s *Examples) Draw(dst *engine.Image) {
 	// Title
 	dst.Draw(
-		engine.TextDrawer{engine.Pt(0, 0),
-			engine.Text{s.examples[s.current].String(), engine.Font6x6},
-			engine.ColorWhite,
-		},
+		engine.ImageDrawer{engine.Pt(0, 0), engine.Text{
+			s.examples[s.current].String(),
+			engine.Font6x6, engine.ColorWhite,
+		}},
 	)
 
 	// Scene

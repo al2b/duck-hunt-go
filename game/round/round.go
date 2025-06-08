@@ -130,22 +130,22 @@ func (m *Round) Draw(dst *engine.Image) {
 				m.layout,
 				m.dog,
 			},
-			engine.TextDrawer{engine.Pt(24, 192),
-				engine.Text{fmt.Sprintf("R=%d", m.round), assets.Font},
-				color.RGBA{R: 131, G: 211, B: 19, A: 255},
-			},
-			engine.TextDrawer{engine.Pt(64, 208),
-				engine.Text{"HIT", assets.Font},
-				color.RGBA{R: 131, G: 211, B: 19, A: 255},
-			},
-			engine.TextDrawer{engine.Pt(192, 208),
-				engine.Text{fmt.Sprintf("%06d", state.Score), assets.Font},
-				engine.ColorWhite,
-			},
-			engine.TextDrawer{engine.Pt(200, 216),
-				engine.Text{"SCORE", assets.Font},
-				engine.ColorWhite,
-			},
+			engine.ImageDrawer{engine.Pt(24, 192), engine.Text{
+				fmt.Sprintf("R=%d", m.round),
+				assets.Font, color.RGBA{R: 131, G: 211, B: 19, A: 255},
+			}},
+			engine.ImageDrawer{engine.Pt(64, 208), engine.Text{
+				"HIT",
+				assets.Font, color.RGBA{R: 131, G: 211, B: 19, A: 255},
+			}},
+			engine.ImageDrawer{engine.Pt(192, 208), engine.Text{
+				fmt.Sprintf("%06d", state.Score),
+				assets.Font, engine.ColorWhite,
+			}},
+			engine.ImageDrawer{engine.Pt(200, 216), engine.Text{
+				"SCORE",
+				assets.Font, engine.ColorWhite,
+			}},
 		)
 
 	// Ammos
