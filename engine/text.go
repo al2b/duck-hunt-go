@@ -13,11 +13,11 @@ import (
 var (
 	Font5x5 = Must(BitmapFontLoader{
 		assets, "assets/font.5x5.png",
-		SquareBitmapFontMaskMapper{}, charmap.CodePage437,
+		SquareBitmapFontMapper{}, charmap.CodePage437,
 	}.Load())
 	Font6x6 = Must(BitmapFontLoader{
 		assets, "assets/font.6x6.png",
-		SquareBitmapFontMaskMapper{}, charmap.CodePage437,
+		SquareBitmapFontMapper{}, charmap.CodePage437,
 	}.Load())
 )
 
@@ -84,14 +84,14 @@ type textLine struct {
 /**********/
 
 type BitmapFont struct {
-	Mask       *image.Alpha
-	MaskMapper BitmapFontMaskMapper
-	Charmap    *charmap.Charmap
+	Map     *image.Alpha
+	Mapper  BitmapFontMapper
+	Charmap *charmap.Charmap
 }
 
 func (font BitmapFont) Render(r rune, c color.Color) *Image {
 	char, _ := font.Charmap.EncodeRune(r)
-	mask := font.MaskMapper.Map(font.Mask, char)
+	mask := font.Mapper.Mask(font.Map, char)
 	maskBounds := mask.Bounds()
 
 	imgSize := maskBounds.Size()
@@ -108,26 +108,25 @@ func (font BitmapFont) Render(r rune, c color.Color) *Image {
 	return img
 }
 
-type BitmapFontMaskMapper interface {
-	Map(mask *image.Alpha, char byte) *image.Alpha
+type BitmapFontMapper interface {
+	Mask(src *image.Alpha, char byte) *image.Alpha
 }
 
-type SquareBitmapFontMaskMapper struct{}
+type SquareBitmapFontMapper struct{}
 
-func (mapper SquareBitmapFontMaskMapper) Map(mask *image.Alpha, char byte) *image.Alpha {
-	size := mask.Bounds().Size()
-	width, height := size.X/16, size.Y/16
-	point := image.Pt(int(char%16)*width, int(char/16)*height)
-	return mask.SubImage(image.Rectangle{
+func (mapper SquareBitmapFontMapper) Mask(src *image.Alpha, char byte) *image.Alpha {
+	size := src.Bounds().Size().Div(16)
+	point := image.Pt(int(char%16)*size.X, int(char/16)*size.Y)
+	return src.SubImage(image.Rectangle{
 		Min: point,
-		Max: point.Add(image.Pt(width, height)),
+		Max: point.Add(image.Pt(size.X, size.Y)),
 	}).(*image.Alpha)
 }
 
 type BitmapFontLoader struct {
 	FS      fs.ReadFileFS
 	Path    string
-	Mapper  BitmapFontMaskMapper
+	Mapper  BitmapFontMapper
 	Charmap *charmap.Charmap
 }
 
@@ -148,13 +147,13 @@ func (loader BitmapFontLoader) Load() (*BitmapFont, error) {
 	}
 
 	font := &BitmapFont{
-		MaskMapper: loader.Mapper,
-		Charmap:    loader.Charmap,
+		Mapper:  loader.Mapper,
+		Charmap: loader.Charmap,
 	}
 
 	switch img := img.(type) {
 	case *image.Gray:
-		font.Mask = &image.Alpha{
+		font.Map = &image.Alpha{
 			Pix:    img.Pix,
 			Stride: img.Stride,
 			Rect:   img.Rect,
