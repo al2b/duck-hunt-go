@@ -29,3 +29,11 @@ func (s Size) Sub(size Size) Size {
 		s.Height - size.Height,
 	}
 }
+
+func (s Size) Size() Size {
+	return s
+}
+
+type Sizer interface {
+	Size() Size
+}
