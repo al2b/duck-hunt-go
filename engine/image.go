@@ -221,3 +221,27 @@ func (d ImageDrawer) Draw(dst *Image) {
 		draw.Over,
 	)
 }
+
+/**********/
+/* Slicer */
+/**********/
+
+type ImageSlicer struct {
+	Imager
+	Pointer
+	Sizer
+}
+
+func (slicer ImageSlicer) Image() *Image {
+	img := slicer.Imager.Image()
+	point := slicer.Pointer.Point()
+	size := slicer.Sizer.Size()
+
+	imgMin := img.Bounds().Min.Add(image.Pt(point.X, point.Y))
+	return &Image{
+		NRGBA: img.NRGBA.SubImage(image.Rect(
+			imgMin.X, imgMin.Y,
+			imgMin.X+size.Width, imgMin.Y+size.Height,
+		)).(*image.NRGBA),
+	}
+}
