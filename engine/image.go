@@ -87,48 +87,6 @@ func (img *Image) Crop(rectangle image.Rectangle) *Image {
 	return dst
 }
 
-func (img *Image) FlipHorizontal() *Image {
-	dst := &image.NRGBA{
-		Pix:    make([]uint8, len(img.NRGBA.Pix)),
-		Stride: img.NRGBA.Stride,
-		Rect:   img.NRGBA.Bounds(),
-	}
-
-	size := img.Bounds().Size()
-	for y := 0; y < size.Y; y++ {
-		for x := 0; x < size.X; x++ {
-			srcIdx := y*img.Stride + (size.X-x-1)*4
-			dstIdx := y*img.Stride + x*4
-			copy(dst.Pix[dstIdx:dstIdx+4], img.Pix[srcIdx:srcIdx+4])
-		}
-	}
-
-	return &Image{
-		NRGBA: dst,
-	}
-}
-
-func (img *Image) FlipVertical() *Image {
-	dst := &image.NRGBA{
-		Pix:    make([]uint8, len(img.NRGBA.Pix)),
-		Stride: img.NRGBA.Stride,
-		Rect:   img.NRGBA.Bounds(),
-	}
-
-	size := img.Bounds().Size()
-	for y := 0; y < size.Y; y++ {
-		srcY := size.Y - y - 1
-		copy(
-			dst.Pix[y*img.Stride:(y+1)*img.Stride],
-			img.Pix[srcY*img.Stride:(srcY+1)*img.Stride],
-		)
-	}
-
-	return &Image{
-		NRGBA: dst,
-	}
-}
-
 func (img *Image) Fill(c color.Color) *Image {
 	rgba := color.NRGBAModel.Convert(c).(color.NRGBA)
 	pixel := [4]byte{rgba.R, rgba.G, rgba.B, rgba.A}
@@ -243,5 +201,66 @@ func (slicer ImageSlicer) Image() *Image {
 			imgMin.X, imgMin.Y,
 			imgMin.X+size.Width, imgMin.Y+size.Height,
 		)).(*image.NRGBA),
+	}
+}
+
+/***********/
+/* Flippers */
+/***********/
+
+type ImageHorizontalFlipper struct {
+	Imager
+}
+
+func (flipper ImageHorizontalFlipper) Image() *Image {
+	img := flipper.Imager.Image()
+
+	dst := &image.NRGBA{
+		Pix:    make([]uint8, len(img.NRGBA.Pix)),
+		Stride: img.NRGBA.Stride,
+		Rect:   img.NRGBA.Bounds(),
+	}
+
+	size := img.Bounds().Size()
+	for y := 0; y < size.Y; y++ {
+		for x := 0; x < size.X; x++ {
+			srcIdx := y*img.Stride + (size.X-x-1)*4
+			dstIdx := y*img.Stride + x*4
+			copy(
+				dst.Pix[dstIdx:dstIdx+4],
+				img.Pix[srcIdx:srcIdx+4],
+			)
+		}
+	}
+
+	return &Image{
+		NRGBA: dst,
+	}
+}
+
+type ImageVerticalFlipper struct {
+	Imager
+}
+
+func (flipper ImageVerticalFlipper) Image() *Image {
+	img := flipper.Imager.Image()
+
+	dst := &image.NRGBA{
+		Pix:    make([]uint8, len(img.NRGBA.Pix)),
+		Stride: img.NRGBA.Stride,
+		Rect:   img.NRGBA.Bounds(),
+	}
+
+	size := img.Bounds().Size()
+	for y := 0; y < size.Y; y++ {
+		srcY := size.Y - y - 1
+		copy(
+			dst.Pix[y*img.Stride:(y+1)*img.Stride],
+			img.Pix[srcY*img.Stride:(srcY+1)*img.Stride],
+		)
+	}
+
+	return &Image{
+		NRGBA: dst,
 	}
 }
