@@ -35,21 +35,21 @@ func (s *Subimages) Update(_ tea.Msg) (cmd tea.Cmd) {
 func (s *Subimages) Draw(dst *engine.Image) {
 	dst.
 		Draw(
-			engine.Rectangle{engine.Pt(0, 0), engine.Size{80, 50}, engine.ColorRed},
+			engine.Rectangle{engine.Point{0, 0}, engine.Size{80, 50}, engine.ColorRed},
 		).
 		SubImage(
-			engine.Pt(7, 3),
+			engine.Point{7, 3},
 			engine.Size{50, 40},
 		).
 		Draw(
-			engine.Rectangle{engine.Pt(0, 0), engine.Size{50, 40}, engine.ColorGreen},
+			engine.Rectangle{engine.Point{0, 0}, engine.Size{50, 40}, engine.ColorGreen},
 		).
 		SubImage(
-			engine.Pt(3, 7),
+			engine.Point{3, 7},
 			engine.Size{30, 30},
 		).
 		Draw(
-			engine.Rectangle{engine.Pt(0, 0), engine.Size{30, 30}, engine.ColorBlue},
-			engine.Circle{engine.Pt(15, 15), 10, engine.ColorWhite},
+			engine.Rectangle{engine.Point{0, 0}, engine.Size{30, 30}, engine.ColorBlue},
+			engine.Circle{engine.Point{15, 15}, 10, engine.ColorWhite},
 		)
 }

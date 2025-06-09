@@ -195,7 +195,7 @@ func (slicer ImageSlicer) Image() *Image {
 	point := slicer.Pointer.Point()
 	size := slicer.Sizer.Size()
 
-	imgMin := img.Bounds().Min.Add(image.Pt(point.X, point.Y))
+	imgMin := img.Bounds().Min.Add(image.Point{point.X, point.Y})
 	return &Image{
 		NRGBA: img.NRGBA.SubImage(image.Rect(
 			imgMin.X, imgMin.Y,

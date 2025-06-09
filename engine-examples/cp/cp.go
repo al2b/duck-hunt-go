@@ -84,7 +84,7 @@ func (s *Cp) Draw(dst *engine.Image) {
 		engine.ImageDrawer{
 			engine.PointAdder{
 				enginecp.PositionPointer{s.body},
-				engine.Pt(-9, -9),
+				engine.Point{-9, -9},
 			},
 			imageKirby,
 		},

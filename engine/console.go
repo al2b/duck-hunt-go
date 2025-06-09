@@ -55,7 +55,7 @@ func (c *Console) Draw(dst *Image) {
 	}
 
 	dst.Draw(
-		ImageDrawer{Pt(0, 0), Text{
+		ImageDrawer{Point{0, 0}, Text{
 			text.String(),
 			Font5x5, ColorWhite,
 		}},

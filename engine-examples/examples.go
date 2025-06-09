@@ -87,7 +87,7 @@ func (s *Examples) Update(msg tea.Msg) (cmd tea.Cmd) {
 func (s *Examples) Draw(dst *engine.Image) {
 	// Title
 	dst.Draw(
-		engine.ImageDrawer{engine.Pt(0, 0), engine.Text{
+		engine.ImageDrawer{engine.Point{0, 0}, engine.Text{
 			s.examples[s.current].String(),
 			engine.Font6x6, engine.ColorWhite,
 		}},
@@ -95,7 +95,7 @@ func (s *Examples) Draw(dst *engine.Image) {
 
 	// Scene
 	dst.SubImage(
-		engine.Pt(0, 6),
+		engine.Point{0, 6},
 		dst.Size().Sub(engine.Size{0, 6}),
 	).Draw(
 		s.examples[s.current],

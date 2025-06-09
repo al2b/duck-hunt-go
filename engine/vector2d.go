@@ -98,9 +98,4 @@ func (vec Vector2D) Velocity() Vector2D {
 	return vec
 }
 
-// Vec2D is shorthand for [Vector2D]{x, y}.
-func Vec2D(x, y float64) Vector2D {
-	return Vector2D{X: x, Y: y}
-}
-
 type Vectors2D []Vector2D

@@ -20,10 +20,6 @@ type Pointer interface {
 	Point() Point
 }
 
-func Pt(x, y int) Point {
-	return Point{X: x, Y: y}
-}
-
 type PointAdder []Pointer
 
 func (a PointAdder) Point() (point Point) {

@@ -43,10 +43,10 @@ func (c cinematicFall) Duration() time.Duration {
 func (c cinematicFall) At(duration time.Duration) (engine.Vector2D, *engine.Image) {
 	ticks := duration / config.TickInterval
 
-	position := engine.Vec2D(
-		c.position.X+float64(ticks%2),
-		c.position.Y+float64(2*ticks),
-	)
+	position := engine.Vector2D{
+		c.position.X + float64(ticks%2),
+		c.position.Y + float64(2*ticks),
+	}
 
 	if (c.direction != engine.DirectionRight) != ((ticks % 10) < 5) {
 		return position, assets.DuckFallRight

@@ -66,10 +66,10 @@ type Rectangle struct {
 
 func (rectangle Rectangle) Draw(dst *Image) {
 	dst.Draw(
-		Segment{rectangle.Point, rectangle.Point.Add(Pt(rectangle.Size.Width-1, 0)), rectangle.Color},
-		Segment{rectangle.Point.Add(Pt(rectangle.Size.Width-1, 0)), rectangle.Point.Add(Pt(rectangle.Size.Width-1, rectangle.Size.Height-1)), rectangle.Color},
-		Segment{rectangle.Point.Add(Pt(rectangle.Size.Width-1, rectangle.Size.Height-1)), rectangle.Point.Add(Pt(0, rectangle.Size.Height-1)), rectangle.Color},
-		Segment{rectangle.Point.Add(Pt(0, rectangle.Size.Height-1)), rectangle.Point, rectangle.Color},
+		Segment{rectangle.Point, rectangle.Point.Add(Point{rectangle.Size.Width - 1, 0}), rectangle.Color},
+		Segment{rectangle.Point.Add(Point{rectangle.Size.Width - 1, 0}), rectangle.Point.Add(Point{rectangle.Size.Width - 1, rectangle.Size.Height - 1}), rectangle.Color},
+		Segment{rectangle.Point.Add(Point{rectangle.Size.Width - 1, rectangle.Size.Height - 1}), rectangle.Point.Add(Point{0, rectangle.Size.Height - 1}), rectangle.Color},
+		Segment{rectangle.Point.Add(Point{0, rectangle.Size.Height - 1}), rectangle.Point, rectangle.Color},
 	)
 }
 
@@ -88,14 +88,14 @@ func (circle Circle) Draw(dst *Image) {
 	d := 1 - circle.Radius
 
 	for x >= y {
-		dst.Set(circle.Point.Add(Pt(x, y)), circle.Color)
-		dst.Set(circle.Point.Add(Pt(-x, y)), circle.Color)
-		dst.Set(circle.Point.Add(Pt(x, -y)), circle.Color)
-		dst.Set(circle.Point.Add(Pt(-x, -y)), circle.Color)
-		dst.Set(circle.Point.Add(Pt(y, x)), circle.Color)
-		dst.Set(circle.Point.Add(Pt(-y, x)), circle.Color)
-		dst.Set(circle.Point.Add(Pt(y, -x)), circle.Color)
-		dst.Set(circle.Point.Add(Pt(-y, -x)), circle.Color)
+		dst.Set(circle.Point.Add(Point{x, y}), circle.Color)
+		dst.Set(circle.Point.Add(Point{-x, y}), circle.Color)
+		dst.Set(circle.Point.Add(Point{x, -y}), circle.Color)
+		dst.Set(circle.Point.Add(Point{-x, -y}), circle.Color)
+		dst.Set(circle.Point.Add(Point{y, x}), circle.Color)
+		dst.Set(circle.Point.Add(Point{-y, x}), circle.Color)
+		dst.Set(circle.Point.Add(Point{y, -x}), circle.Color)
+		dst.Set(circle.Point.Add(Point{-y, -x}), circle.Color)
 		y++
 		if d < 0 {
 			d += 2*y + 1

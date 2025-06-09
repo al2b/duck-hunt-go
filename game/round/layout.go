@@ -41,7 +41,7 @@ func (m *Layout) Init() tea.Cmd {
 
 	// Drawer
 	m.OrderedDrawer.Drawer = engine.ImageDrawer{
-		engine.Pt(0, 0),
+		engine.Point{0, 0},
 		assets.Layout,
 	}
 	m.OrderedDrawer.Orderer = engine.Order(0)

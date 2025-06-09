@@ -35,13 +35,13 @@ func (s *Text) Update(_ tea.Msg) (cmd tea.Cmd) {
 func (s *Text) Draw(dst *engine.Image) {
 	dst.Draw(
 		// 5x5
-		engine.ImageDrawer{engine.Pt(0, 0), engine.Text{
+		engine.ImageDrawer{engine.Point{0, 0}, engine.Text{
 			"The quick brown\nfox jumps over\nthe lazy dog.",
 			engine.Font5x5, engine.ColorRed,
 		}},
 
 		// 6x6
-		engine.ImageDrawer{engine.Pt(0, 16), engine.Text{
+		engine.ImageDrawer{engine.Point{0, 16}, engine.Text{
 			"The quick\nbrown fox\njumps over\nthe lazy dog.",
 			engine.Font6x6, engine.ColorGreen,
 		}},

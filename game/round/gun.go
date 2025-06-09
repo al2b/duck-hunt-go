@@ -18,13 +18,13 @@ type Gun struct {
 
 func (m *Gun) Init() tea.Cmd {
 	// Path
-	m.path.Path = engine.StaticPath2d{Position: engine.Vec2D(0, 0)}
+	m.path.Path = engine.StaticPath2d{Position: engine.Vector2D{0, 0}}
 	m.path.OnEnd = engine.PlayerOnEndPause
 
 	// Drawer
 	m.ImageDrawer.Pointer = engine.PointAdder{
 		engine.Position2DPointer{&m.path},
-		engine.Pt(-6, -6),
+		engine.Point{-6, -6},
 	}
 	m.ImageDrawer.Imager = assets.GunNormal
 
@@ -41,7 +41,7 @@ func (m *Gun) Update(msg tea.Msg) tea.Cmd {
 		// Update path
 		m.path.Path = engine.ElasticPath2D{
 			m.path.Position(),
-			engine.Vec2D(float64(mouse.X), float64(mouse.Y)),
+			engine.Vector2D{float64(mouse.X), float64(mouse.Y)},
 			time.Second * 1,
 			1, 0.25,
 		}

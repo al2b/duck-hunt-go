@@ -21,11 +21,11 @@ func New() *Path {
 	return &Path{
 		animationKirbyBlow: engine.AnimationPlayer{Animation: animationKirbyBlow, OnEnd: engine.PlayerOnEndLoop},
 		pathLinear: engine.Path2DPlayer{
-			Path:  engine.LinearPath2D{engine.Vec2D(0, 0), engine.Vec2D(59, 27), time.Second * 3},
+			Path:  engine.LinearPath2D{engine.Vector2D{0, 0}, engine.Vector2D{59, 27}, time.Second * 3},
 			OnEnd: engine.PlayerOnEndPause,
 		},
 		pathElastic: engine.Path2DPlayer{
-			Path:  engine.ElasticPath2D{engine.Vec2D(60, 0), engine.Vec2D(0, 28), time.Second * 3, 1, 0.25},
+			Path:  engine.ElasticPath2D{engine.Vector2D{60, 0}, engine.Vector2D{0, 28}, time.Second * 3, 1, 0.25},
 			OnEnd: engine.PlayerOnEndLoop,
 		},
 	}

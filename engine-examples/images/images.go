@@ -45,28 +45,28 @@ func (s *Images) Update(_ tea.Msg) (cmd tea.Cmd) {
 
 func (s *Images) Draw(dst *engine.Image) {
 	dst.Draw(
-		engine.ImageDrawer{engine.Pt(0, 0), imagePng},
-		engine.ImageDrawer{engine.Pt(20, 0), imageGif},
+		engine.ImageDrawer{engine.Point{0, 0}, imagePng},
+		engine.ImageDrawer{engine.Point{20, 0}, imageGif},
 
-		engine.ImageDrawer{engine.Pt(2, 20), imageStar},
-		engine.Dot{engine.Pt(2, 20), engine.ColorRed},
-
-		engine.ImageDrawer{
-			engine.PointAdder{
-				engine.Pt(38, 31),
-				engine.Pt(-11, -11),
-			},
-			imageStar,
-		},
-		engine.Dot{engine.Pt(38, 31), engine.ColorRed},
+		engine.ImageDrawer{engine.Point{2, 20}, imageStar},
+		engine.Dot{engine.Point{2, 20}, engine.ColorRed},
 
 		engine.ImageDrawer{
 			engine.PointAdder{
-				engine.Pt(68, 38),
-				engine.Pt(-16, -18),
+				engine.Point{38, 31},
+				engine.Point{-11, -11},
 			},
 			imageStar,
 		},
-		engine.Dot{engine.Pt(68, 38), engine.ColorRed},
+		engine.Dot{engine.Point{38, 31}, engine.ColorRed},
+
+		engine.ImageDrawer{
+			engine.PointAdder{
+				engine.Point{68, 38},
+				engine.Point{-16, -18},
+			},
+			imageStar,
+		},
+		engine.Dot{engine.Point{68, 38}, engine.ColorRed},
 	)
 }

@@ -105,10 +105,10 @@ type SquareBitmapFontMapper struct{}
 
 func (mapper SquareBitmapFontMapper) Mask(src *image.Alpha, char byte) *image.Alpha {
 	size := src.Bounds().Size().Div(16)
-	point := image.Pt(int(char%16)*size.X, int(char/16)*size.Y)
+	point := image.Point{int(char%16) * size.X, int(char/16) * size.Y}
 	return src.SubImage(image.Rectangle{
 		Min: point,
-		Max: point.Add(image.Pt(size.X, size.Y)),
+		Max: point.Add(image.Point{size.X, size.Y}),
 	}).(*image.Alpha)
 }
 

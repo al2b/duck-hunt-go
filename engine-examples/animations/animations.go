@@ -71,8 +71,8 @@ func (s *Animations) Update(msg tea.Msg) (cmd tea.Cmd) {
 
 func (s *Animations) Draw(dst *engine.Image) {
 	dst.Draw(
-		engine.ImageDrawer{engine.Pt(0, 0), s.animationPng.Image()},
-		engine.ImageDrawer{engine.Pt(35, 0), s.animationGif.Image()},
-		engine.ImageDrawer{engine.Pt(0, 25), s.animationKirby.Image()},
+		engine.ImageDrawer{engine.Point{0, 0}, s.animationPng.Image()},
+		engine.ImageDrawer{engine.Point{35, 0}, s.animationGif.Image()},
+		engine.ImageDrawer{engine.Point{0, 25}, s.animationKirby.Image()},
 	)
 }

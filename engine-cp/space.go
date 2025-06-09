@@ -34,7 +34,7 @@ type spaceDrawer struct {
 }
 
 func (d spaceDrawer) cpVectorToPoint(v cp.Vector) engine.Point {
-	return engine.Pt(int(v.X), int(v.Y))
+	return engine.Point{int(v.X), int(v.Y)}
 }
 
 func (d spaceDrawer) cpFColorToColor(fc cp.FColor) color.Color {

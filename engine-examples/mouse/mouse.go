@@ -48,7 +48,7 @@ func (s *Mouse) Size(_ engine.Size) engine.Size {
 }
 
 func (s *Mouse) Init() (cmd tea.Cmd) {
-	s.point = engine.Pt(0, 0)
+	s.point = engine.Point{0, 0}
 
 	return tea.Batch(
 		engine.StartTicker(TickInterval),
@@ -59,7 +59,7 @@ func (s *Mouse) Update(msg tea.Msg) (cmd tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.MouseMsg:
 		mouse := msg.Mouse()
-		s.point = engine.Pt(mouse.X, mouse.Y)
+		s.point = engine.Point{mouse.X, mouse.Y}
 		switch msg := msg.(type) {
 		case tea.MouseClickMsg:
 			switch msg.Button {
@@ -113,7 +113,7 @@ func (s *Mouse) Draw(dst *engine.Image) {
 	dst.Draw(
 		engine.ImageDrawer{s.point, imageMouseOut},
 		engine.ImageDrawer{s.point, imageMouseIn},
-		engine.ImageDrawer{s.point.Add(engine.Pt(0, 17)), engine.Text{
+		engine.ImageDrawer{s.point.Add(engine.Point{0, 17}), engine.Text{
 			fmt.Sprintf("%d,%d", s.point.X, s.point.Y),
 			engine.Font5x5, engine.ColorWhite,
 		}},

@@ -60,7 +60,7 @@ func (m *Duck) Init() tea.Cmd {
 	// Drawer
 	m.ImageDrawer.Pointer = engine.PointAdder{
 		enginecp.PositionPointer{m.body},
-		engine.Pt(-19, -19),
+		engine.Point{-19, -19},
 	}
 	m.ImageDrawer.Imager = &m.animation
 
@@ -90,8 +90,8 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 			position := m.body.Position()
 			velocity := m.body.Velocity()
 			m.cinematic.Cinematic = newCinematicShot(
-				engine.Vec2D(position.X, position.Y),
-				engine.Vec2D(velocity.X, velocity.Y),
+				engine.Vector2D{position.X, position.Y},
+				engine.Vector2D{velocity.X, velocity.Y},
 			)
 			m.cinematic.OnEnd = engine.PlayerOnEndStopRewind
 			m.cinematic.Play()
@@ -99,7 +99,7 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 			// Drawer
 			m.ImageDrawer.Pointer = engine.PointAdder{
 				engine.Position2DPointer{&m.cinematic},
-				engine.Pt(-19, -19),
+				engine.Point{-19, -19},
 			}
 			m.ImageDrawer.Imager = &m.cinematic
 		}
@@ -122,9 +122,9 @@ func (m *Duck) Update(msg tea.Msg) tea.Cmd {
 			position := m.body.Position()
 			velocity := m.body.Velocity()
 			m.cinematic.Cinematic = newCinematicFall(
-				engine.Vec2D(position.X, position.Y),
+				engine.Vector2D{position.X, position.Y},
 				config.Ground,
-				engine.Vec2D(velocity.X, velocity.Y),
+				engine.Vector2D{velocity.X, velocity.Y},
 			)
 			m.cinematic.OnEnd = engine.PlayerOnEndStopRewind
 			m.cinematic.Play()

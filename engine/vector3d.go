@@ -9,8 +9,3 @@ type Vector3D struct {
 func (vec Vector3D) Position() Vector3D {
 	return vec
 }
-
-// Vec3D is shorthand for [Vector3D]{x, y, z}.
-func Vec3D(x, y, z float64) Vector3D {
-	return Vector3D{X: x, Y: y, Z: z}
-}
