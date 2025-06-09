@@ -42,20 +42,25 @@ func (a Animation) At(at time.Duration) *Image {
 	return nil
 }
 
-/********/
-/* Load */
-/********/
+/**********/
+/* Loader */
+/**********/
 
-func LoadAnimation(fS fs.ReadFileFS, path string) (animation Animation, err error) {
+type AnimationLoader struct {
+	FS   fs.ReadFileFS
+	Path string
+}
+
+func (loader AnimationLoader) Load() (animation Animation, err error) {
 	var (
 		file fs.File
 	)
 
-	if file, err = fS.Open(path); err != nil {
+	if file, err = loader.FS.Open(loader.Path); err != nil {
 		return nil, err
 	}
 
-	switch filepath.Ext(path) {
+	switch filepath.Ext(loader.Path) {
 	case ".png", ".apng":
 		var src apng.APNG
 		if src, err = apng.DecodeAll(file); err != nil {

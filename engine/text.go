@@ -10,17 +10,6 @@ import (
 	"strings"
 )
 
-var (
-	Font5x5 = Must(BitmapFontLoader{
-		assets, "assets/font.5x5.png",
-		SquareBitmapFontMapper{}, charmap.CodePage437,
-	}.Load())
-	Font6x6 = Must(BitmapFontLoader{
-		assets, "assets/font.6x6.png",
-		SquareBitmapFontMapper{}, charmap.CodePage437,
-	}.Load())
-)
-
 type Font interface {
 	Render(r rune, c color.Color) *Image
 }

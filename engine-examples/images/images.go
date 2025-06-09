@@ -14,9 +14,9 @@ var (
 	assets embed.FS
 
 	// Images
-	imagePng  = engine.Must(engine.LoadImage(assets, "assets/kirby.png"))
-	imageGif  = engine.Must(engine.LoadImage(assets, "assets/kirby.gif"))
-	imageStar = engine.Must(engine.LoadImage(assets, "assets/star.png"))
+	imagePng  = engine.MustLoad(engine.ImageLoader{assets, "assets/kirby.png"})
+	imageGif  = engine.MustLoad(engine.ImageLoader{assets, "assets/kirby.gif"})
+	imageStar = engine.MustLoad(engine.ImageLoader{assets, "assets/star.png"})
 )
 
 func New() *Images {

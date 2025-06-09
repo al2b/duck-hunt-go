@@ -15,14 +15,14 @@ var (
 	assets embed.FS
 
 	// Images
-	imageMouseOutWhite = engine.Must(engine.LoadImage(assets, "assets/mouse.out.white.png"))
-	imageMouseOutRed   = engine.Must(engine.LoadImage(assets, "assets/mouse.out.red.png"))
-	imageMouseOutGreen = engine.Must(engine.LoadImage(assets, "assets/mouse.out.green.png"))
-	imageMouseOutBlue  = engine.Must(engine.LoadImage(assets, "assets/mouse.out.blue.png"))
-	imageMouseInWhite  = engine.Must(engine.LoadImage(assets, "assets/mouse.in.white.png"))
-	imageMouseInRed    = engine.Must(engine.LoadImage(assets, "assets/mouse.in.red.png"))
-	imageMouseInGreen  = engine.Must(engine.LoadImage(assets, "assets/mouse.in.green.png"))
-	imageMouseInBlue   = engine.Must(engine.LoadImage(assets, "assets/mouse.in.blue.png"))
+	imageMouseOutWhite = engine.MustLoad(engine.ImageLoader{assets, "assets/mouse.out.white.png"})
+	imageMouseOutRed   = engine.MustLoad(engine.ImageLoader{assets, "assets/mouse.out.red.png"})
+	imageMouseOutGreen = engine.MustLoad(engine.ImageLoader{assets, "assets/mouse.out.green.png"})
+	imageMouseOutBlue  = engine.MustLoad(engine.ImageLoader{assets, "assets/mouse.out.blue.png"})
+	imageMouseInWhite  = engine.MustLoad(engine.ImageLoader{assets, "assets/mouse.in.white.png"})
+	imageMouseInRed    = engine.MustLoad(engine.ImageLoader{assets, "assets/mouse.in.red.png"})
+	imageMouseInGreen  = engine.MustLoad(engine.ImageLoader{assets, "assets/mouse.in.green.png"})
+	imageMouseInBlue   = engine.MustLoad(engine.ImageLoader{assets, "assets/mouse.in.blue.png"})
 )
 
 func New() *Mouse {

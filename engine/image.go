@@ -140,18 +140,23 @@ func (img *Image) Fill(c color.Color) *Image {
 	return img
 }
 
-/********/
-/* Load */
-/********/
+/**********/
+/* Loader */
+/**********/
 
-func LoadImage(fS fs.ReadFileFS, path string) (*Image, error) {
+type ImageLoader struct {
+	FS   fs.ReadFileFS
+	Path string
+}
+
+func (loader ImageLoader) Load() (*Image, error) {
 	var (
 		file fs.File
 		img  image.Image
 		err  error
 	)
 
-	if file, err = fS.Open(path); err != nil {
+	if file, err = loader.FS.Open(loader.Path); err != nil {
 		return nil, err
 	}
 	defer file.Close()

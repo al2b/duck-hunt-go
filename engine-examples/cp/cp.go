@@ -16,7 +16,7 @@ var (
 	assets embed.FS
 
 	// Images
-	imageKirby = engine.Must(engine.LoadImage(assets, "assets/kirby.png"))
+	imageKirby = engine.MustLoad(engine.ImageLoader{assets, "assets/kirby.png"})
 )
 
 func New() *Cp {

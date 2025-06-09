@@ -14,7 +14,7 @@ var (
 	assets embed.FS
 
 	// Animations
-	animationKirbyBlow = engine.Must(engine.LoadAnimation(assets, "assets/kirby.blow.apng"))
+	animationKirbyBlow = engine.MustLoad(engine.AnimationLoader{assets, "assets/kirby.blow.apng"})
 )
 
 func New() *Path {

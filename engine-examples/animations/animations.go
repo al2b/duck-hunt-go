@@ -14,11 +14,11 @@ var (
 	assets embed.FS
 
 	// Animations
-	animationPng       = engine.Must(engine.LoadAnimation(assets, "assets/parrot.png"))
-	animationGif       = engine.Must(engine.LoadAnimation(assets, "assets/parrot.gif"))
-	animationKirbyWalk = engine.Must(engine.LoadAnimation(assets, "assets/kirby.walk.apng"))
-	animationKirbyRun  = engine.Must(engine.LoadAnimation(assets, "assets/kirby.run.apng"))
-	animationKirbyLand = engine.Must(engine.LoadAnimation(assets, "assets/kirby.land.apng"))
+	animationPng       = engine.MustLoad(engine.AnimationLoader{assets, "assets/parrot.png"})
+	animationGif       = engine.MustLoad(engine.AnimationLoader{assets, "assets/parrot.gif"})
+	animationKirbyWalk = engine.MustLoad(engine.AnimationLoader{assets, "assets/kirby.walk.apng"})
+	animationKirbyRun  = engine.MustLoad(engine.AnimationLoader{assets, "assets/kirby.run.apng"})
+	animationKirbyLand = engine.MustLoad(engine.AnimationLoader{assets, "assets/kirby.land.apng"})
 	animationKirby     = engine.SequenceAnimation{
 		animationKirbyWalk, animationKirbyWalk,
 		animationKirbyRun, animationKirbyRun, animationKirbyRun,
