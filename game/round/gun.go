@@ -26,7 +26,7 @@ func (m *Gun) Init() tea.Cmd {
 		engine.Position2DPointer{&m.path},
 		engine.Pt(-6, -6),
 	}
-	m.ImageDrawer.Imager = assets.Gun
+	m.ImageDrawer.Imager = assets.GunNormal
 
 	return nil
 }

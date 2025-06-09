@@ -15,14 +15,15 @@ var (
 	assets embed.FS
 
 	// Images
-	imageMouseOutWhite = engine.MustLoad(engine.ImageLoader{assets, "assets/mouse.out.white.png"})
-	imageMouseOutRed   = engine.MustLoad(engine.ImageLoader{assets, "assets/mouse.out.red.png"})
-	imageMouseOutGreen = engine.MustLoad(engine.ImageLoader{assets, "assets/mouse.out.green.png"})
-	imageMouseOutBlue  = engine.MustLoad(engine.ImageLoader{assets, "assets/mouse.out.blue.png"})
-	imageMouseInWhite  = engine.MustLoad(engine.ImageLoader{assets, "assets/mouse.in.white.png"})
-	imageMouseInRed    = engine.MustLoad(engine.ImageLoader{assets, "assets/mouse.in.red.png"})
-	imageMouseInGreen  = engine.MustLoad(engine.ImageLoader{assets, "assets/mouse.in.green.png"})
-	imageMouseInBlue   = engine.MustLoad(engine.ImageLoader{assets, "assets/mouse.in.blue.png"})
+	imageMouse         = engine.MustLoad(engine.ImageLoader{assets, "assets/mouse.png"})
+	imageMouseOutWhite = engine.ImageSlicer{imageMouse, engine.Point{0, 0}, engine.Size{11, 16}}.Image()
+	imageMouseOutRed   = engine.ImageSlicer{imageMouse, engine.Point{0, 16}, engine.Size{11, 16}}.Image()
+	imageMouseOutGreen = engine.ImageSlicer{imageMouse, engine.Point{0, 32}, engine.Size{11, 16}}.Image()
+	imageMouseOutBlue  = engine.ImageSlicer{imageMouse, engine.Point{0, 48}, engine.Size{11, 16}}.Image()
+	imageMouseInWhite  = engine.ImageSlicer{imageMouse, engine.Point{0, 64}, engine.Size{11, 16}}.Image()
+	imageMouseInRed    = engine.ImageSlicer{imageMouse, engine.Point{0, 80}, engine.Size{11, 16}}.Image()
+	imageMouseInGreen  = engine.ImageSlicer{imageMouse, engine.Point{0, 96}, engine.Size{11, 16}}.Image()
+	imageMouseInBlue   = engine.ImageSlicer{imageMouse, engine.Point{0, 112}, engine.Size{11, 16}}.Image()
 )
 
 func New() *Mouse {
